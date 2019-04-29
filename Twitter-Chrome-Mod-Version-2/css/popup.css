@@ -1,0 +1,15 @@
+/* Title   #eb3b5a */
+/* Body    #fc5c65 */
+
+body {
+  margin: 20px;
+  white-space: nowrap;
+}
+
+h3 {
+  color: #FC427B;
+}
+
+.panel-heading {
+  background-color: #FC427B;
+}

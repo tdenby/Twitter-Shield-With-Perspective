@@ -1,0 +1,57 @@
+<!--
+ This page is shown when the extension button is clicked, because the
+ "browser_action" field in manifest.json contains the "default_popup" key with
+ value "popup.html".
+ -->
+<html>
+  <head>
+    <title>Tweety Holmes</title>
+    <!--
+      - JavaScript and HTML must be in separate files: see our Content Security
+      - Policy documentation[1] for details and explanation.
+      -
+      - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
+    -->
+    <!-- <script src="popup.js"></script> -->
+    <link rel="stylesheet" href="css/popup.css">
+    <!-- Latest compiled and minified CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+
+  </head>
+
+  <body>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Twitter Profile Identifier</h3>
+      </div>
+        <div class="panel-body">Improve our Code! <a href="https://github.com/jberman5/Twitter-Chrome-Mod" target="_blank">Github</a>
+      </div>
+    </div>
+
+    <div>
+      <form onsubmit="setThreshold()">
+        Threshold <input type="number" name ="threshold" value ="0" id="thresholdId"/>
+        <input type="submit" value="Submit" id ="submitId">
+      </form>
+    </div>
+  </body>
+
+      <script type="text/javascript" src="js/popup.js"></script>
+
+<!--   <script>
+
+    function setThreshold(){
+      console.log("On submit")
+      console.log(document.getElementById("thresholdId").value);
+      localStorage.setItem('threshold', document.getElementById("thresholdId").value);
+    }
+  </script> -->
+</html>

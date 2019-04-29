@@ -1,0 +1,113 @@
+/* Profile Module */
+/*#bio-box {
+  background-color: #ffffff;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 15px;
+}
+
+#bio-box-img {
+  width: 30px;
+  display: inline;
+  vertical-align: text-top;
+  float: right;
+}
+
+#bio-box-text {
+  padding-top: 10px;
+  font-family: arial, Helvetica, sans-serif;
+  font-size: 15px;
+}
+
+.list-group {
+  padding-top: 10px;
+}
+
+#bio-box-highlight {
+  font-family: arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-size: 30px;
+  line-height: 1.5;
+  color: #FC427B;
+}
+
+u {
+  padding-bottom: 1px;
+  text-decoration: none;
+  border-bottom: 2px solid #FC427B;
+}
+
+#badge-word {
+  background-color: rgb(252, 66, 123, .5);
+}
+
+#warning {
+  color:#FC427B;
+  font-weight: bold;
+}
+*/
+
+.flagged-tweets .custom-active{
+  color: black;
+}
+
+/*Loading symbol*/
+
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: pink;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 6px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 6px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 26px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 45px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(19px, 0);
+  }
+}
+
+
+
