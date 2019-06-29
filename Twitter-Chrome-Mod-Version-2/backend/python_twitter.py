@@ -8,12 +8,12 @@ from flask_cors import CORS, cross_origin
 from langdetect import detect
 from googleapiclient import discovery
 from flask import Response
-
 import tweepy
+from googleapiclient import discovery
 
 app = Flask(__name__)
 CORS(app, support_credentials=True)
-# logging.getLogger('flask_cors').level = logging.DEBUG
+
 
 app.config["DEBUG"] = True
 BUCKET_NAME = 'pretrained-models'
@@ -36,40 +36,13 @@ api = tweepy.API(auth)
 #                   )
 
 
-from googleapiclient import discovery
-
 API_KEY='AIzaSyDlpWkkECadgt55aVD0tKIrTcjHpIBk3i8'
 
 
 
-#Helper functions 
-def make_predictions(tweets):
-	# conn = S3Connection()
-	# bucket = conn.create_bucket(BUCKET_NAME)
-	# key_obj = Key(bucket)
-	# key_obj.key = MODEL_FILE_NAME
-	# contents = key_obj.get_contents_to_filename(MODEL_LOCAL_PATH)
-
-
-	predicted_json = [{'tweet':tweet} for tweet in tweets]
-	for model in config.REDDIT_MODELS:
-		#r = requests.get('https://s3.us-east-2.amazonaws.com/pretrained-models/model_AskReddit.bin')
-		#create_model = fastText.load_model(contents)
-		create_model =   fastText.load_model(config.PATH+ 'model_'+model+ config.EXTENSION)
-
-		#create_model = fastText.load_model(r)
-		predict_model = create_model.predict(tweets)[0]
-		for index,item in enumerate(predicted_json):
-			item[model] = int(predict_model[index][0] =='__label__removed')
-			if(item[model]):
-				if 'models_that_agree' in item:
-					item['models_that_agree'].append(model)
-				else:
-					item['models_that_agree'] = [model]
-	return predicted_json
-				
-
-#1. Checks if tweets are in English 2. Removes links, @ 3. Checks if tweet
+'''
+1. Checks if tweets are in English 2. Removes links, @ 3. Checks if tweet
+'''
 def clean_tweets(tweets):
 	cleaned_tweets = []
 	for tweet in tweets:
@@ -105,42 +78,18 @@ def get_user_timeline(screenName,tweetCount):
 	#print(status_texts)
 	return status_texts
 
-def calculate_consensus_score(tweet_json):
-	
-	user_consensus_count = 0
-	for item in tweet_json:
-		user_consensus_count+=item['tweet_score']
 
-	#user score = mean of tweet scores 
-	user_consensus_score = user_consensus_count/len(tweet_json)
-	return user_consensus_score
-
-
-def calculate_tweet_scores(predicted_tweet_json):
-	for item in predicted_tweet_json:
-		if 'models_that_agree' in item:
-			item['tweet_score'] = len(item['models_that_agree'])/len(config.MODELS)
-		else:
-			item['tweet_score'] = 0
-	return predicted_tweet_json
-
-
-def get_flagged_tweets(tweet_json):
-
-	flagged_tweets = []
-	for item in tweet_json:
-		if(item['tweet_score']*100 >= config.MIN_CAP):
-			flagged_tweets.append(item['tweet'])
-
-	return flagged_tweets
-
-#routes 
+'''
+routes 
+'''
 @app.route('/')
 def index():
 	return 'Hello from Twitter-Shield Server'
 
 
-#using perspective API 
+''' 
+Current version: using perspective API 
+'''
 @app.route('/toxicityscore', methods =['GET'])
 def toxicity_score():
 	screen_name = request.args.get('user')
@@ -213,9 +162,7 @@ def get_user_perspective_score(tweets_with_perspective_scores):
 	return user_perspective_scores_json
 
 
-
 def get_tweet_perspective_scores(tweets,models_setting_json):
-
 	service = discovery.build('commentanalyzer', 'v1alpha1', developerKey=API_KEY)
 	tweets_with_perspective_scores = []
 	tweet_count = 0
@@ -244,54 +191,114 @@ def get_tweet_perspective_scores(tweets,models_setting_json):
 	return tweets_with_perspective_scores
 
 
-#using eshwar's models
-@app.route('/abusivescoremodels', methods = ['GET'])
-def get_score():
-	master_json = {}
-	screen_name = request.args.get('user')
-	#screen_name = 'sonalitandon24'
+''' 
+functions when using Eshwar models. Not used in current version (using Perspecitve API)
+'''
 
-	#set default tweet count = 200 (maximum)
-	tweet_count = 200
+# def make_predictions(tweets):
+	# # conn = S3Connection()
+	# # bucket = conn.create_bucket(BUCKET_NAME)
+	# # key_obj = Key(bucket)
+	# # key_obj.key = MODEL_FILE_NAME
+	# # contents = key_obj.get_contents_to_filename(MODEL_LOCAL_PATH)
 
-	#get tweets on user's timeline
-	response_user_timeline = get_user_timeline(screen_name,tweet_count)	
-	#print(response_user_timeline)
-	user_timeline_tweets = [tweet.text for tweet in response_user_timeline]
 
-	#clean user tweets 
-	cleaned_user_timeline_tweets = clean_tweets(user_timeline_tweets)
-	#print(cleaned_user_timeline_tweets)
+	# predicted_json = [{'tweet':tweet} for tweet in tweets]
+	# for model in config.REDDIT_MODELS:
+	# 	#r = requests.get('https://s3.us-east-2.amazonaws.com/pretrained-models/model_AskReddit.bin')
+	# 	#create_model = fastText.load_model(contents)
+	# 	create_model =   fastText.load_model(config.PATH+ 'model_'+model+ config.EXTENSION)
 
-	#make predictions (label removed or not)
-	predicted_tweets_json = make_predictions(cleaned_user_timeline_tweets)
-	predicted_tweets_json = calculate_tweet_scores(predicted_tweets_json)
-	master_json['predicted_tweets'] = predicted_tweets_json
+	# 	#create_model = fastText.load_model(r)
+	# 	predict_model = create_model.predict(tweets)[0]
+	# 	for index,item in enumerate(predicted_json):
+	# 		item[model] = int(predict_model[index][0] =='__label__removed')
+	# 		if(item[model]):
+	# 			if 'models_that_agree' in item:
+	# 				item['models_that_agree'].append(model)
+	# 			else:
+	# 				item['models_that_agree'] = [model]
+	# return predicted_json
 
-	#get flagged tweets 
-	flagged_tweets = get_flagged_tweets(predicted_tweets_json)
-	master_json['flagged_tweets'] = flagged_tweets
+# def calculate_consensus_score(tweet_json):
+# 	user_consensus_count = 0
+# 	for item in tweet_json:
+# 		user_consensus_count+=item['tweet_score']
 
-	#calculate consensus score 
-	consensus_score = calculate_consensus_score(master_json['predicted_tweets'])
-	master_json['screen_name'] = screen_name
-	master_json['user_consensus_score'] = consensus_score
-	master_json['number_of_tweets_considered'] = len(master_json['predicted_tweets'])
-	return jsonify(master_json)
+# 	#user score = mean of tweet scores 
+# 	user_consensus_score = user_consensus_count/len(tweet_json)
+# 	return user_consensus_score
 
-@app.route('/predict', methods = ['POST', 'GET'])
-@cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
-def predict_tweets():
-	master_json = {}
-	tweets = json.loads(request.args.get('tweets'))
-	cleaned_tweets = clean_tweets(tweets)
-	predicted_tweets_json = make_predictions(cleaned_tweets)
-	predicted_tweets_json = calculate_tweet_scores(predicted_tweets_json)
-	master_json['predicted_tweets'] = predicted_tweets_json
-	flagged_tweets = get_flagged_tweets(predicted_tweets_json)
-	master_json['flagged_tweets'] = flagged_tweets
-	return jsonify(master_json)
 
+# def calculate_tweet_scores(predicted_tweet_json):
+# 	for item in predicted_tweet_json:
+# 		if 'models_that_agree' in item:
+# 			item['tweet_score'] = len(item['models_that_agree'])/len(config.MODELS)
+# 		else:
+# 			item['tweet_score'] = 0
+# 	return predicted_tweet_json
+
+
+# def get_flagged_tweets(tweet_json):
+
+# 	flagged_tweets = []
+# 	for item in tweet_json:
+# 		if(item['tweet_score']*100 >= config.MIN_CAP):
+# 			flagged_tweets.append(item['tweet'])
+
+# 	return flagged_tweets
+
+
+# @app.route('/abusivescoremodels', methods = ['GET'])
+# def get_score():
+# 	master_json = {}
+# 	screen_name = request.args.get('user')
+# 	#screen_name = 'sonalitandon24'
+
+# 	#set default tweet count = 200 (maximum)
+# 	tweet_count = 200
+
+# 	#get tweets on user's timeline
+# 	response_user_timeline = get_user_timeline(screen_name,tweet_count)	
+# 	#print(response_user_timeline)
+# 	user_timeline_tweets = [tweet.text for tweet in response_user_timeline]
+
+# 	#clean user tweets 
+# 	cleaned_user_timeline_tweets = clean_tweets(user_timeline_tweets)
+# 	#print(cleaned_user_timeline_tweets)
+
+# 	#make predictions (label removed or not)
+# 	predicted_tweets_json = make_predictions(cleaned_user_timeline_tweets)
+# 	predicted_tweets_json = calculate_tweet_scores(predicted_tweets_json)
+# 	master_json['predicted_tweets'] = predicted_tweets_json
+
+# 	#get flagged tweets 
+# 	flagged_tweets = get_flagged_tweets(predicted_tweets_json)
+# 	master_json['flagged_tweets'] = flagged_tweets
+
+# 	#calculate consensus score 
+# 	consensus_score = calculate_consensus_score(master_json['predicted_tweets'])
+# 	master_json['screen_name'] = screen_name
+# 	master_json['user_consensus_score'] = consensus_score
+# 	master_json['number_of_tweets_considered'] = len(master_json['predicted_tweets'])
+# 	return jsonify(master_json)
+
+# @app.route('/predict', methods = ['POST', 'GET'])
+# def predict_tweets():
+# 	master_json = {}
+# 	tweets = json.loads(request.args.get('tweets'))
+# 	cleaned_tweets = clean_tweets(tweets)
+# 	predicted_tweets_json = make_predictions(cleaned_tweets)
+# 	predicted_tweets_json = calculate_tweet_scores(predicted_tweets_json)
+# 	master_json['predicted_tweets'] = predicted_tweets_json
+# 	flagged_tweets = get_flagged_tweets(predicted_tweets_json)
+# 	master_json['flagged_tweets'] = flagged_tweets
+	# return jsonify(master_json)
+
+
+'''
+Added in order to prevent CORS issue
+'''
 @app.after_request
 def add_headers(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
