@@ -1,5 +1,8 @@
 /* Authors
 
+June 2019-Current
+Jane Im
+
 Jan 2018-Current
 Sonali Tandon
 
@@ -50,7 +53,7 @@ function sendPostsToPredict(){
 
     ////console.log('Preprocessed text length' +tweets_text.length)
 
-      // have to change this to http://twitter-shield/predict?tweets
+      // have to change this to twitter-shield.si.umich.edu
       var url = "http://127.0.0.1:5000/predict?tweets=" + JSON.stringify(tweets_text);
 
       //is it not picking up on time? is 3000 too short?
