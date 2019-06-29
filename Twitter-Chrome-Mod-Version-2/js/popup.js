@@ -1,4 +1,4 @@
-console.log("hi whatever2");
+console.log("popup.js");
 // This extension loads the saved background color for the current tab if one
 // exists. The user can select a new background color from the dropdown for the
 // current page, and it will be saved as part of the extension's isolated
@@ -32,14 +32,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function setThreshold(){
 
-chrome.tabs.executeScript({
+    chrome.tabs.executeScript({
         code: "var threshold=" + document.getElementById('thresholdId').value,
         allFrames: true
     }, function(result) {
         chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
         });
     });
-    }
+   }
 
 
 

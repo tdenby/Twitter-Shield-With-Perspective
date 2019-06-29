@@ -27,7 +27,7 @@ var currentPage = window.location.href;
 var global_tweetcount = 0;
 var flagged_posts =[]
 var flagged_tweets =[]
- var threshold;
+var threshold;
 
 //generic functionality that sends a bunch of tweets for prediction
 function sendPostsToPredict(){
@@ -50,6 +50,7 @@ function sendPostsToPredict(){
 
     ////console.log('Preprocessed text length' +tweets_text.length)
 
+      // have to change this to http://twitter-shield/predict?tweets
       var url = "http://127.0.0.1:5000/predict?tweets=" + JSON.stringify(tweets_text);
 
       //is it not picking up on time? is 3000 too short?
@@ -88,13 +89,14 @@ function getPostsFromNotificationTimeline(){
 function get_score(username, callback) {
     var url = "http://127.0.0.1:5000/toxicityscore?user=" + username + '&threshold=' + threshold;
     var request = new XMLHttpRequest();
-    request.onreadystatechange = function()
-    {
+    request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200)
         {
-            console.log('Here')
-            console.log(request)
+            console.log('Here request?')
+            console.log(request.responseText)
+            // request.responseText is empty
             callback(request.responseText); // Another callback here
+
 
         }
     };
@@ -129,12 +131,16 @@ function get_score2(username, callback) {
 // };
 
 function checkabusive(response) {
-  console.log('here in checkabusive:' + response)
+  console.log("RESPONSE?")
+  console.log(typeof(response));
+
+  console.log('here in checkabusive:' + response) // this keeps giving us an empty string
 //  response_json = JSON.parse(data);
   //flagged_tweets = response_json.flagged_tweets
 
   //console.log(response_json)
   changeBio(response)
+
   //highlightAbusivePosts(response_json.flagged_tweets)
 }
 
@@ -316,6 +322,7 @@ function loader(parentElement){
 function checkForJS_Finish() {
 
   threshold = localStorage.getItem('threshold');
+  // This comes up first
   console.log(threshold)
 
 
@@ -345,7 +352,10 @@ function checkForJS_Finish() {
   if (document.querySelector(".ProfileHeaderCard-bio")) {
     if (document.querySelector(".ProfileHeaderCard-screennameLink > span > b").innerText != userID){
       userID = findUserId(document);
+      console.log('user id')
+      console.log(userID)
       get_score(userID, checkabusive);
+
     //  addTab()
     }
     }
@@ -373,8 +383,10 @@ function checkForJS_Finish() {
 }
 
 function changeBio(response_json){
-  userID = document.querySelector(".ProfileHeaderCard-nameLink").innerText;
+    console.log('beginning of changeBio')
+    console.log(response_json)
 
+    userID = document.querySelector(".ProfileHeaderCard-nameLink").innerText;
 
     var prof = document.querySelector(".ProfileAvatar");
     console.log(prof);
@@ -392,8 +404,6 @@ function changeBio(response_json){
     var biobox = document.createElement("DIV");
     originalDiv[0].insertAdjacentElement("afterend", biobox);
     biobox.id = "bio-box";
-
-  
 
 
     // Title
@@ -420,11 +430,19 @@ function changeBio(response_json){
 
     var biobox_char = document.createElement("P");
     charbox.appendChild(biobox_char);
+    console.log("CHANGE--response_json below:")
+    console.log(typeof(response_json))
+    console.log(response_json)
+    //change response_json to json
+    response_json_parsed = JSON.parse(response_json)
+    score = response_json_parsed['TOXICITY']['score']
+
     biobox_char.id = "bio-box-text";
-    biobox_char.innerHTML = "Toxicity score: " + response_json 
+    biobox_char.innerHTML = "Toxicity score: " + score
+
     // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
     //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
-    if(response_json == '"Below threshold"')
+    if(response_json_parsed['visualize'] == '"Below threshold"')
       biobox_char.style.color = 'green';
     else
        biobox_char.style.color = '#FC427B';
@@ -511,83 +529,83 @@ function changeAvi() {
 }
 
 //listens for onclick of flagged tweets
-flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
+//flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
 
-flagged_tweets_tab.addEventListener('click',function(){
-
-  //deactivate active tab
-  if(flagged_tweets_tab.parentElement.parentElement.children.length){
-    var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
-    for(i=0;i<childrenElements.length;i++){
-      if(childrenElements[i].classList.contains("is-active")){
-        childrenElements[i].classList.remove("is-active")
-         childrenElements[i].classList.add("u-textUserColor")
-      }
-    }
-  }
-
-  //activate flagged tweets button
-  flagged_tweets_tab.parentElement.classList.add("is-active");
-  flagged_tweets_tab.parentElement.classList.remove("u-textUserColor");
-
-  //console.log('here')
-  flagged_posts =[]
-
-  var alltweets = document.querySelectorAll(".tweet-text");
-  console.log(alltweets.length)
-  console.log(flagged_tweets.length)
-
-
-  for(i=0;i<alltweets.length;i++){
-    var tweet = alltweets[i].innerText;
-    tweet = tweet.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
-    tweet =tweet.replace(/\W+/g," ")
-    tweet = tweet.toLowerCase().trim()
-    //console.log(flagged_tweets)
-    for(j=0;j<flagged_tweets.length;j++){
-      if(flagged_tweets[j].includes(tweet)){
-
-          flagged_posts.push(alltweets[i].closest(".js-stream-item.stream-item.stream-item"))
-        // if(document.getElementById('model-tag-'+j)==null){
-        //   var model_tags = document.createElement('span')
-        //   model_tags.innerHTML = flagged_tweets[j].models_that_agree
-        //   model_tags.id = "model-tag-"+j
-        //   model_tags.style.color =  "#e0245e"
-        //   //////console.log(model_tags)
-        //   var parent = alltweets[i].parentElement.parentElement.firstElementChild.children[1]
-        //   parent.appendChild(model_tags)
-        // }
-      }
-}
-}
-
-    console.log(flagged_posts)
-
-  if(document.querySelector("#stream-items-id"))
-  {
-
-    var element = document.getElementById("stream-items-id");
-    parentNode = element.parentNode
-    element.parentNode.removeChild(element);
-
-    // looping through children wasnt removing all posts
-    var reCreateElement = document.createElement("ol");
-   // reCreateElement.id = "stream-items-id";
-    reCreateElement.className ="stream-items js-navigable-stream";
-    parentNode.insertBefore(reCreateElement, parentNode.firstChild);
-    if(document.querySelector(".timeline-end.has-items.has-more-items"))
-      document.querySelector(".timeline-end.has-items.has-more-items").remove()
-
-    for(i=0;i<flagged_posts.length;i++){
-      console.log(flagged_posts[i])
-      reCreateElement.appendChild(flagged_posts[i])
-    }
-
-    // if(flagged_posts.length){
-    //   flagged_posts.forEach(function(item){
-    //     reCreateElement.appendChild(item)
-    //   })
-    // }
-  }
-});
+//flagged_tweets_tab.addEventListener('click',function(){
+//
+//  //deactivate active tab
+//  if(flagged_tweets_tab.parentElement.parentElement.children.length){
+//    var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
+//    for(i=0;i<childrenElements.length;i++){
+//      if(childrenElements[i].classList.contains("is-active")){
+//        childrenElements[i].classList.remove("is-active")
+//         childrenElements[i].classList.add("u-textUserColor")
+//      }
+//    }
+//  }
+//
+//  //activate flagged tweets button
+//  flagged_tweets_tab.parentElement.classList.add("is-active");
+//  flagged_tweets_tab.parentElement.classList.remove("u-textUserColor");
+//
+//  //console.log('here')
+//  flagged_posts =[]
+//
+//  var alltweets = document.querySelectorAll(".tweet-text");
+//  console.log(alltweets.length)
+//  console.log(flagged_tweets.length)
+//
+//
+//  for(i=0;i<alltweets.length;i++){
+//    var tweet = alltweets[i].innerText;
+//    tweet = tweet.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
+//    tweet =tweet.replace(/\W+/g," ")
+//    tweet = tweet.toLowerCase().trim()
+//    //console.log(flagged_tweets)
+//    for(j=0;j<flagged_tweets.length;j++){
+//      if(flagged_tweets[j].includes(tweet)){
+//
+//          flagged_posts.push(alltweets[i].closest(".js-stream-item.stream-item.stream-item"))
+//        // if(document.getElementById('model-tag-'+j)==null){
+//        //   var model_tags = document.createElement('span')
+//        //   model_tags.innerHTML = flagged_tweets[j].models_that_agree
+//        //   model_tags.id = "model-tag-"+j
+//        //   model_tags.style.color =  "#e0245e"
+//        //   //////console.log(model_tags)
+//        //   var parent = alltweets[i].parentElement.parentElement.firstElementChild.children[1]
+//        //   parent.appendChild(model_tags)
+//        // }
+//      }
+//}
+//}
+//
+//    console.log(flagged_posts)
+//
+//  if(document.querySelector("#stream-items-id"))
+//  {
+//
+//    var element = document.getElementById("stream-items-id");
+//    parentNode = element.parentNode
+//    element.parentNode.removeChild(element);
+//
+//    // looping through children wasnt removing all posts
+//    var reCreateElement = document.createElement("ol");
+//   // reCreateElement.id = "stream-items-id";
+//    reCreateElement.className ="stream-items js-navigable-stream";
+//    parentNode.insertBefore(reCreateElement, parentNode.firstChild);
+//    if(document.querySelector(".timeline-end.has-items.has-more-items"))
+//      document.querySelector(".timeline-end.has-items.has-more-items").remove()
+//
+//    for(i=0;i<flagged_posts.length;i++){
+//      console.log(flagged_posts[i])
+//      reCreateElement.appendChild(flagged_posts[i])
+//    }
+//
+//    // if(flagged_posts.length){
+//    //   flagged_posts.forEach(function(item){
+//    //     reCreateElement.appendChild(item)
+//    //   })
+//    // }
+//  }
+//});
 

@@ -4,17 +4,17 @@
 from flask import Flask, render_template, request,jsonify
 import json,requests,twitter,re,config,os
 #import fastText
-from flask_cors import CORS
-from langdetect import detect 
-# from boto.s3.key import Key
-# from boto.s3.connection import S3Connection
+from flask_cors import CORS, cross_origin
+from langdetect import detect
 from googleapiclient import discovery
 from flask import Response
 
 import tweepy
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, support_credentials=True)
+# logging.getLogger('flask_cors').level = logging.DEBUG
+
 app.config["DEBUG"] = True
 BUCKET_NAME = 'pretrained-models'
 MODEL_FILE_NAME = 'model_politics.bin'
@@ -173,16 +173,21 @@ def toxicity_score():
 	user_perspective_scores['tweets_considered_count'] = len(tweets_with_perspective_scores)
 	score = str(user_perspective_scores['TOXICITY']['score'])
 	print('threshold' + threshold)
-	print('score' + score)
+	print('score: ' + score)
 
-	# if (float(score) >= float(threshold)):
-	# 	response_text = score
-	# else:
-	# 	response_text = 'Below threshold'
-	
-	#return Response(response_text,mimetype='plain/text')
+	if (float(score) >= float(threshold)):
+		user_perspective_scores['visualize'] = score
+	else:
+		user_perspective_scores['visualize'] = 'Below threshold'
+	#
+	# return Response(response_text,mimetype='plain/text')
 	#return jsonify({'key':'jk'})
+
+	print(user_perspective_scores)
+	print('-----below should return dictionary')
+	print(type(user_perspective_scores)) # this should return dictionary...
 	return jsonify(user_perspective_scores)
+
 
 def get_user_perspective_score(tweets_with_perspective_scores):
 
@@ -274,6 +279,7 @@ def get_score():
 	return jsonify(master_json)
 
 @app.route('/predict', methods = ['POST', 'GET'])
+@cross_origin(origin='localhost',headers=['Content- Type','Authorization'])
 def predict_tweets():
 	master_json = {}
 	tweets = json.loads(request.args.get('tweets'))
@@ -285,7 +291,11 @@ def predict_tweets():
 	master_json['flagged_tweets'] = flagged_tweets
 	return jsonify(master_json)
 
-
+@app.after_request
+def add_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    return response
 
 if __name__ == '__main__':
     app.run()
