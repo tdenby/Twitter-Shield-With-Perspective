@@ -176,8 +176,10 @@ def toxicity_score():
 	print('score: ' + score)
 
 	if (float(score) >= float(threshold)):
+		print("ABOVE")
 		user_perspective_scores['visualize'] = score
 	else:
+		print("BELOW")
 		user_perspective_scores['visualize'] = 'Below threshold'
 	#
 	# return Response(response_text,mimetype='plain/text')
@@ -190,7 +192,6 @@ def toxicity_score():
 
 
 def get_user_perspective_score(tweets_with_perspective_scores):
-
 	user_perspective_scores_json = {}
 
 

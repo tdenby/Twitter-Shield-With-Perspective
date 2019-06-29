@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', function() {
 function setThreshold(){
 
     chrome.tabs.executeScript({
-        code: "var threshold=" + document.getElementById('thresholdId').value,
+        code: "var threshold=" + document.getElementById('thresholdId').value
+                + "; localStorage.setItem('threshold', " + document.getElementById('thresholdId').value + ");",
         allFrames: true
     }, function(result) {
         chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {

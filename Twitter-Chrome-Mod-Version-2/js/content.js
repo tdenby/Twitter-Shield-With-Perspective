@@ -390,11 +390,22 @@ function changeBio(response_json){
 
     var prof = document.querySelector(".ProfileAvatar");
     console.log(prof);
-    if(response_json == '"Below threshold"')
-      prof.style.borderColor = "green";
-    else
-      prof.style.borderColor = "#FC427B"; 
 
+    //change response_json to json
+    console.log("CHANGE--response_json below:")
+    console.log(typeof(response_json))
+    console.log(response_json)
+
+    response_json_parsed = JSON.parse(response_json)
+    score = response_json_parsed['TOXICITY']['score']
+    console.log(response_json_parsed['visualize'])
+    if(response_json_parsed['visualize'] == 'Below threshold'){
+      console.log("BELOW SHOULD BE GREEN")
+      prof.style.borderColor = "green";
+    }else{
+      console.log("ABOVE PINK")
+      prof.style.borderColor = "#FC427B"; 
+    }
   var originalDiv = document.getElementsByClassName("ProfileHeaderCard-screenname");
   var parents = document.getElementsByClassName("AppContent-main content-main u-cf");
   parents[0].setAttribute("style", "margin-top:50px;");
@@ -430,23 +441,17 @@ function changeBio(response_json){
 
     var biobox_char = document.createElement("P");
     charbox.appendChild(biobox_char);
-    console.log("CHANGE--response_json below:")
-    console.log(typeof(response_json))
-    console.log(response_json)
-    //change response_json to json
-    response_json_parsed = JSON.parse(response_json)
-    score = response_json_parsed['TOXICITY']['score']
-
     biobox_char.id = "bio-box-text";
     biobox_char.innerHTML = "Toxicity score: " + score
 
     // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
     //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
-    if(response_json_parsed['visualize'] == '"Below threshold"')
+    if(response_json_parsed['visualize'] == 'Below threshold') {
       biobox_char.style.color = 'green';
-    else
+    }
+    else {
        biobox_char.style.color = '#FC427B';
-
+    }
 
     // Prompt Abusive_toggle
     // var biobox_char = document.createElement("P");
