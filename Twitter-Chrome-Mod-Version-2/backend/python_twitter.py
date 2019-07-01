@@ -44,19 +44,21 @@ API_KEY='AIzaSyDlpWkkECadgt55aVD0tKIrTcjHpIBk3i8'
 1. Checks if tweets are in English 2. Removes links, @ 3. Checks if tweet
 '''
 def clean_tweets(tweets):
-	cleaned_tweets = []
+	# cleaned_tweets = []
+	cleaned_tweets = {}
 	for tweet in tweets:
 		#print('before clean ' + tweet)
 		try:
-			if(detect(tweet)=='en'):
-				tweet = re.sub(r'(@\S+)|(http\S+)', " ",str(tweet))
-				if(tweet and tweet.strip()):
+			if(detect(tweet) == 'en'):
+				cleaned_tweet = re.sub(r'(@\S+)|(http\S+)', " ", str(tweet))
+				if(cleaned_tweet and cleaned_tweet.strip()):
 					# print('\n')
 					# print('After clean ' + tweet)
 					# print('\n')
-					cleaned_tweets.append(tweet)
+					# cleaned_tweets.append(tweet)
+					cleaned_tweets[tweet] = cleaned_tweet
 		except Exception as e:
-			print('Tweet in response ' +tweet)
+			print('Exception wheen cleaning- Tweet in response: ' + tweet)
 			print(e)
 	print(len(cleaned_tweets))
 	return cleaned_tweets
@@ -111,15 +113,17 @@ def toxicity_score():
 
 	tweet_count = 200
 	#get tweets on user's timeline
-	user_timeline_tweets = get_user_timeline(screen_name,tweet_count)
+	user_timeline_tweets = get_user_timeline(screen_name, tweet_count)
 	cleaned_user_timeline_tweets = clean_tweets(user_timeline_tweets)	
 
-	tweets_with_perspective_scores = get_tweet_perspective_scores(cleaned_user_timeline_tweets,models_setting_json)
-	#insert into db
+
+	tweets_with_perspective_scores = get_tweet_perspective_scores(cleaned_user_timeline_tweets, models_setting_json)
+	# insert into db
 	user_perspective_scores = get_user_perspective_score(tweets_with_perspective_scores)
-	# #insert into db
+	# insert into db
 	user_perspective_scores['username'] = screen_name
 	user_perspective_scores['tweets_considered_count'] = len(tweets_with_perspective_scores)
+	user_perspective_scores['tweets_with_scores'] = tweets_with_perspective_scores
 	score = str(user_perspective_scores['TOXICITY']['score'])
 	print('threshold' + threshold)
 	print('score: ' + score)
@@ -134,9 +138,9 @@ def toxicity_score():
 	# return Response(response_text,mimetype='plain/text')
 	#return jsonify({'key':'jk'})
 
-	print(user_perspective_scores)
-	print('-----below should return dictionary')
-	print(type(user_perspective_scores)) # this should return dictionary...
+	# print(user_perspective_scores)
+	# print('-----below should return dictionary')
+	# print(type(user_perspective_scores)) # this should return dictionary...
 	return jsonify(user_perspective_scores)
 
 
@@ -162,15 +166,15 @@ def get_user_perspective_score(tweets_with_perspective_scores):
 	return user_perspective_scores_json
 
 
-def get_tweet_perspective_scores(tweets,models_setting_json):
+def get_tweet_perspective_scores(tweets, models_setting_json):
 	service = discovery.build('commentanalyzer', 'v1alpha1', developerKey=API_KEY)
 	tweets_with_perspective_scores = []
 	tweet_count = 0
 	
-	for tweet in tweets:
+	for original_tweet, cleaned_tweet in tweets.items():
 		model_response_json ={}
 		analyze_request = {
-				  'comment': { 'text': tweet},
+				  'comment': { 'text': cleaned_tweet},
 				  'requestedAttributes': models_setting_json}
 		try:
 			response = service.comments().analyze(body=analyze_request).execute()
@@ -178,10 +182,10 @@ def get_tweet_perspective_scores(tweets,models_setting_json):
 				for model in config.PERSPECTIVE_MODELS:
 					if model in response['attributeScores']:
 						model_response_json[model] = response['attributeScores'][model]['summaryScore']['value']
-				temp_json = {'tweet_text':tweet, 'tweet_scores':model_response_json}
+				temp_json = {'tweet_scores':model_response_json, 'cleaned_tweet_text':cleaned_tweet, 'original_tweet_text':original_tweet}
 				tweets_with_perspective_scores.append(temp_json)
 		except Exception as e:
-			print('Tweet in response ' +  tweet)
+			print('Exception when getting perspective scores - Tweet in response: ' +  original_tweet)
 			print(e)
 		
 	

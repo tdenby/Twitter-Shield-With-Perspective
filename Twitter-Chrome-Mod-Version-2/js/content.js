@@ -22,6 +22,7 @@ var userID;
 var item, abusive_list; // jSON returned from server. Making it public for highlighting abusive words on lazy loading
 var stranger_list = [];
 var response_json = {}
+
 var flagged_tweets_tab;
 var flagged_tweets_flag = false;
 //keep track of currentPage
@@ -34,23 +35,7 @@ var threshold;
 
 
 
-function getPostsFromHomeTimeline(){
-  //console.log('getPostsFromHomeTimeline')
-    sendPostsToPredict()
-    if(document.querySelector(".u-linkComplex-target")){
-      userID = document.querySelector(".u-linkComplex-target").innerText
-      get_score(userID, changeProfileStats,null)
-    }
 
-    sendUsersToPredict()
-}
-
-function getPostsFromNotificationTimeline(){
-   //console.log('getPostsFromNotificationTimeline')
-    sendPostsToPredict()
-    // add every user consensus score
-    sendUsersToPredict()
-}
 
 function get_score(username, callback) {
     var url = "http://127.0.0.1:5000/toxicityscore?user=" + username + '&threshold=' + threshold;
@@ -71,27 +56,31 @@ function get_score(username, callback) {
 }
 
 
-// window.onscroll = function(ev) {
-//     if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
-//         if(document.getElementsByClassName("home active")!=null)
-//           getPostsFromHomeTimeline()
-//         if (document.querySelector(".ProfileHeaderCard-bio"))
-//           highlightAbusivePosts(response_json.flagged_tweets)
-//     }
-// };
+window.onscroll = function(ev) {
+    if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+        // if(document.getElementsByClassName("home active")!=null)
+          // getPostsFromHomeTimeline()
+        if (document.querySelector(".ProfileHeaderCard-bio"))
+          // highlightAbusivePosts(response_json.flagged_tweets)
+          highlightAbusivePosts(response_json)
+    }
+};
+
 
 function checkabusive(response) {
   console.log("RESPONSE?")
   console.log(typeof(response));
 
-  console.log('here in checkabusive:' + response) // this keeps giving us an empty string
-//  response_json = JSON.parse(data);
+  console.log('here in checkabusive:' + response) 
+  // need to update!
+  response_json = JSON.parse(response);
   //flagged_tweets = response_json.flagged_tweets
 
   //console.log(response_json)
-  changeBio(response)
+  changeBio(response_json)
 
   // highlightAbusivePosts(response_json.flagged_tweets)
+  highlightAbusivePosts(response_json)
 }
 
 
@@ -109,10 +98,10 @@ function changeBio(response_json){
     console.log(typeof(response_json))
     console.log(response_json)
 
-    response_json_parsed = JSON.parse(response_json)
-    score = response_json_parsed['TOXICITY']['score']
-    console.log(response_json_parsed['visualize'])
-    if(response_json_parsed['visualize'] == 'Below threshold'){
+    // response_json_parsed = JSON.parse(response_json)
+    score = response_json['TOXICITY']['score']
+    console.log(response_json['visualize'])
+    if(response_json['visualize'] == 'Below threshold'){
       console.log("BELOW SHOULD BE GREEN")
       prof.style.borderColor = "green";
     }else{
@@ -159,7 +148,7 @@ function changeBio(response_json){
 
     // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
     //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
-    if(response_json_parsed['visualize'] == 'Below threshold') {
+    if(response_json['visualize'] == 'Below threshold') {
       biobox_char.style.color = 'green';
     }
     else {
@@ -227,20 +216,28 @@ function changeBio(response_json){
   }
 }
 
-function changeProfileStats(data) {
-  response_json = JSON.parse(data);
-  user_consensus_score = response_json.user_consensus_score;
-  var profileStats = document.querySelector(".ProfileCardStats-statLabel.u-block");
-    if(profileStats){
-            profileStats.innerText = 'Abusive Score';
-      profileStats.style.color = 'rgb(252, 66, 123)';
+// function changeProfileStats(data) {
+//   response_json = JSON.parse(data);
+//   user_consensus_score = response_json.user_consensus_score;
+//   var profileStats = document.querySelector(".ProfileCardStats-statLabel.u-block");
+//     if(profileStats){
+//             profileStats.innerText = 'Abusive Score';
+//       profileStats.style.color = 'rgb(252, 66, 123)';
 
-    }
+//     }
 
-   if(document.querySelector(".ProfileCardStats-statValue"))
-      document.querySelector(".ProfileCardStats-statValue").innerText = user_consensus_score.toFixed(2);
-     document.querySelector(".ProfileCardStats-statValue").style.color = 'rgb(252, 66, 123)'
+//    if(document.querySelector(".ProfileCardStats-statValue"))
+//       document.querySelector(".ProfileCardStats-statValue").innerText = user_consensus_score.toFixed(2);
+//       document.querySelector(".ProfileCardStats-statValue").style.color = 'rgb(252, 66, 123)'
+// }
+
+function getPostsFromNotificationTimeline(){
+   //console.log('getPostsFromNotificationTimeline')
+    // sendPostsToPredict()
+    // add every user consensus score
+    sendUsersToPredict()
 }
+
 
 function addTab(){
   if(!document.querySelector('ProfileHeading-toggleLink js-nav flagged-tweets')){
@@ -300,24 +297,27 @@ function checkNotifUserId(document) {
   });
 }
 
-function highlightAbusivePosts(flagged_tweets) {
-
+function highlightAbusivePosts(response_json) {
+  flagged_tweets = response_json['tweets_with_scores']
+    
   var alltweets = document.querySelectorAll(".tweet-text");
 
   for(i=0;i<alltweets.length;i++){
     var tweet = alltweets[i].innerText;
-    tweet = tweet.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
-    tweet =tweet.replace(/\W+/g," ")
-    tweet = tweet.toLowerCase().trim()
+    // tweet = tweet.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
+    // tweet = tweet.replace(/\W+/g," ")
+    // tweet = tweet.toLowerCase().trim()
     //console.log(flagged_tweets)
     for(j=0;j<flagged_tweets.length;j++){
-      if(document.querySelector(".ProfileAvatar"))
-        document.querySelector(".ProfileAvatar").style.borderColor = "rgb(252, 66, 123)";
-      if(flagged_tweets[j].includes(tweet)){
+      // if(document.querySelector(".ProfileAvatar"))
+      //   document.querySelector(".ProfileAvatar").style.borderColor = "rgb(252, 66, 123)";
+  
+      // need to change below to something else. 
+      if(flagged_tweets[j]["original_tweet_text"].includes(tweet)){
 
         alltweets[i].style.backgroundColor = "rgba(252, 66, 123,0.1)"
-       // if(document.querySelector(".avatar.js-action-profile-avatar"))
-         // alltweets[i].parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.style.border = '3px solid rgb(252, 66, 123)';
+        if(document.querySelector(".avatar.js-action-profile-avatar"))
+          alltweets[i].parentElement.parentElement.firstElementChild.firstElementChild.firstElementChild.style.border = '3px solid rgb(252, 66, 123)';
 
 
         // if(document.getElementById('model-tag-'+j)==null){
@@ -331,10 +331,12 @@ function highlightAbusivePosts(flagged_tweets) {
         // }
       }
       else {
-        // if(flagged_tweets_flag){
-        //   //console.log(alltweets[i].parentElement.parentElement.parentElement)
-        //   alltweets[i].parentElement.parentElement.parentElement.remove()
-        // }
+        console.log(flagged_tweets[j]["original_tweet_text"])
+        console.log(tweet)
+        if(flagged_tweets_flag){
+          //console.log(alltweets[i].parentElement.parentElement.parentElement)
+          alltweets[i].parentElement.parentElement.parentElement.remove()
+        }
       }
     }
     flagged_tweets_flag = false
@@ -566,7 +568,19 @@ function changeAvi() {
 //  }
 //});
 
-// function used previously.
+// functions used previously.
+// function getPostsFromHomeTimeline(){
+//   //console.log('getPostsFromHomeTimeline')
+//     // sendPostsToPredict()
+//     if(document.querySelector(".u-linkComplex-target")){
+//       userID = document.querySelector(".u-linkComplex-target").innerText
+//       get_score(userID, changeProfileStats,null)
+//     }
+
+//     sendUsersToPredict()
+// }
+
+
 // generic functionality that sends a bunch of tweets for prediction
 // function sendPostsToPredict(){
 
