@@ -55,7 +55,7 @@ function get_score(username, callback) {
     request.send();
 }
 
-
+// this visualizes flagged tweets when scrolling
 window.onscroll = function(ev) {
     if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
         // if(document.getElementsByClassName("home active")!=null)
@@ -68,15 +68,12 @@ window.onscroll = function(ev) {
 
 
 function checkabusive(response) {
-  console.log("RESPONSE?")
-  console.log(typeof(response));
 
   console.log('here in checkabusive:' + response) 
   // need to update!
   response_json = JSON.parse(response);
   //flagged_tweets = response_json.flagged_tweets
 
-  //console.log(response_json)
   changeBio(response_json)
 
   // highlightAbusivePosts(response_json.flagged_tweets)
@@ -88,6 +85,7 @@ function changeBio(response_json){
     console.log('beginning of changeBio')
     console.log(response_json)
 
+    // why would you need this?
     userID = document.querySelector(".ProfileHeaderCard-nameLink").innerText;
 
     var prof = document.querySelector(".ProfileAvatar");
@@ -98,7 +96,6 @@ function changeBio(response_json){
     console.log(typeof(response_json))
     console.log(response_json)
 
-    // response_json_parsed = JSON.parse(response_json)
     score = response_json['TOXICITY']['score']
     console.log(response_json['visualize'])
     if(response_json['visualize'] == 'Below threshold'){
@@ -108,6 +105,7 @@ function changeBio(response_json){
       console.log("ABOVE PINK")
       prof.style.borderColor = "#FC427B"; 
     }
+
   var originalDiv = document.getElementsByClassName("ProfileHeaderCard-screenname");
   var parents = document.getElementsByClassName("AppContent-main content-main u-cf");
   parents[0].setAttribute("style", "margin-top:50px;");
@@ -250,9 +248,6 @@ function addTab(){
     new_tab.appendChild(new_href)
     tab_header.appendChild(new_tab)
   }
-
-
-
 }
 
 function get_score_notif(userIDNode) {
@@ -331,8 +326,6 @@ function highlightAbusivePosts(response_json) {
         // }
       }
       else {
-        console.log(flagged_tweets[j]["original_tweet_text"])
-        console.log(tweet)
         if(flagged_tweets_flag){
           //console.log(alltweets[i].parentElement.parentElement.parentElement)
           alltweets[i].parentElement.parentElement.parentElement.remove()
@@ -443,7 +436,7 @@ function checkForJS_Finish() {
 
      addTab()
     }
-    }
+  }
   //     if (document.querySelector(".home.active")) {
   //       global_tweetcount = 0
   //       getPostsFromHomeTimeline();
@@ -489,7 +482,6 @@ function changeAvi() {
 
 //listens for onclick of flagged tweets
 flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
-
 flagged_tweets_tab.addEventListener('click',function(){
 
   //deactivate active tab
@@ -499,6 +491,16 @@ flagged_tweets_tab.addEventListener('click',function(){
       if(childrenElements[i].classList.contains("is-active")){
         childrenElements[i].classList.remove("is-active")
         childrenElements[i].classList.add("u-textUserColor")
+        // have to change the inner HTML to below
+        userID = findUserId(document);
+        // in case it's the first one
+        if(i==0){
+          childrenElements[i].innerHTML = '<a class="ProfileHeading-toggleLink js-nav" href="/' + userID + '" data-nav="tweets_toggle"> Tweets </a>'
+        }else if (i==1){
+          childrenElements[i].innerHTML = '<a class="ProfileHeading-toggleLink js-nav" href="/' + userID + '/with_replies" data-nav="tweets_with_replies_toggle">Tweets &amp; replies </a>'
+        }else if (i==2){
+          childrenElements[i].innerHTML = '<a class="ProfileHeading-toggleLink js-nav" href="/' + userID + '/media" data-nav="photos_and_videos_toggle"> Media </a>'
+        }
       }
     }
   }
@@ -537,35 +539,90 @@ flagged_tweets_tab.addEventListener('click',function(){
     } 
   }
 
-  console.log(flagged_posts)
+  // console.log(flagged_posts)
+  if(document.getElementById("flagged-tweets-stream")){
+    document.getElementById("flagged-tweets-stream").style.display = "block";
+    document.getElementById("stream-items-id").style.display = "none";
+  }else if(document.querySelector("#stream-items-id")){
 
- if(document.querySelector("#stream-items-id")){
+    var element = document.getElementById("stream-items-id");
+    parentNode = element.parentNode
+    element.style.display="none";
+    // element.parentNode.removeChild(element);
 
-   var element = document.getElementById("stream-items-id");
-   parentNode = element.parentNode
-   element.parentNode.removeChild(element);
+    // looping through children wasnt removing all posts
+    var reCreateElement = document.createElement("ol");
+    // reCreateElement.id = "stream-items-id";
+    reCreateElement.className ="stream-items js-navigable-stream";
+    reCreateElement.id = "flagged-tweets-stream"
+    parentNode.insertBefore(reCreateElement, parentNode.firstChild);
+    if(document.querySelector(".timeline-end.has-items.has-more-items"))
+      document.querySelector(".timeline-end.has-items.has-more-items").remove()
 
-   // looping through children wasnt removing all posts
-   var reCreateElement = document.createElement("ol");
-  // reCreateElement.id = "stream-items-id";
-   reCreateElement.className ="stream-items js-navigable-stream";
-   parentNode.insertBefore(reCreateElement, parentNode.firstChild);
-   if(document.querySelector(".timeline-end.has-items.has-more-items"))
-     document.querySelector(".timeline-end.has-items.has-more-items").remove()
+    for(i=0;i<flagged_posts.length;i++){
+      // console.log(flagged_posts[i])
+      reCreateElement.appendChild(flagged_posts[i])
+    }
 
-   for(i=0;i<flagged_posts.length;i++){
-     console.log(flagged_posts[i])
-     reCreateElement.appendChild(flagged_posts[i])
-   }
-
-   // if(flagged_posts.length){
-   //   flagged_posts.forEach(function(item){
-   //     reCreateElement.appendChild(item)
-   //   })
-   // }
- }
+    // if(flagged_posts.length){
+    //   flagged_posts.forEach(function(item){
+    //     reCreateElement.appendChild(item)
+    //   })
+    // }
+}
 
 });
+
+// have to add responses to other tabs
+var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
+console.log(childrenElements)
+console.log(childrenElements.length)
+childrenElements[0].addEventListener('click',function(){
+    console.log('test if childrenElements exist')
+    var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
+    console.log(childrenElements)
+    console.log(childrenElements[0])
+     //deactivate the flagged_tweets tab if it's activated
+    if(flagged_tweets_tab.parentElement.classList.contains("is-active")){
+      flagged_tweets_tab.parentElement.classList.remove("is-active");
+      flagged_tweets_tab.parentElement.classList.add("u-textUserColor");
+      document.getElementById("flagged-tweets-stream").style.display = "none";
+      console.log(childrenElements[0])
+    }
+    childrenElements[0].classList.add("is-active");
+    childrenElements[0].classList.remove("u-textUserColor");
+    childrenElements[0].innerHTML = '<span aria-hidden="true">Tweets</span> <span class="u-hiddenVisually">Tweets, current page.</span>';
+    document.getElementById("stream-items-id").style.display = "block";
+  });
+
+// Need to do something for the 2nd, 3rd
+
+
+
+// for(var i=0; i<childrenElements.length-1;i++){
+//   console.log('adding listener')
+//   childrenElements[i].addEventListener('click',function(){
+//     console.log('test if childrenElements exist')
+//     var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
+//     console.log(childrenElements)
+//     console.log(childrenElements[i])
+//     console.log('current i is: ')
+//     console.log(i)
+//      //deactivate the flagged_tweets tab if it's activated
+//     if(flagged_tweets_tab.parentElement.classList.contains("is-active")){
+//       console.log(childrenElements[i])
+//       flagged_tweets_tab.parentElement.classList.remove("is-active");
+//       flagged_tweets_tab.parentElement.classList.add("u-textUserColor");
+//       document.getElementById('flagged-tweets-stream').style = "none";
+//       console.log(childrenElements[i])
+//     }
+
+//     childrenElements[i].classList.add("is-active")
+//     childrenElements[i].classList.remove("u-textUserColor")
+//   });
+// }
+  
+
 
 // functions used previously.
 // function getPostsFromHomeTimeline(){
