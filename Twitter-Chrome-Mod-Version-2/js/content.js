@@ -441,7 +441,7 @@ function checkForJS_Finish() {
       console.log(userID)
       get_score(userID, checkabusive);
 
-    //  addTab()
+     addTab()
     }
     }
   //     if (document.querySelector(".home.active")) {
@@ -488,85 +488,84 @@ function changeAvi() {
 }
 
 //listens for onclick of flagged tweets
-//flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
+flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
 
-//flagged_tweets_tab.addEventListener('click',function(){
-//
-//  //deactivate active tab
-//  if(flagged_tweets_tab.parentElement.parentElement.children.length){
-//    var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
-//    for(i=0;i<childrenElements.length;i++){
-//      if(childrenElements[i].classList.contains("is-active")){
-//        childrenElements[i].classList.remove("is-active")
-//         childrenElements[i].classList.add("u-textUserColor")
-//      }
-//    }
-//  }
-//
-//  //activate flagged tweets button
-//  flagged_tweets_tab.parentElement.classList.add("is-active");
-//  flagged_tweets_tab.parentElement.classList.remove("u-textUserColor");
-//
-//  //console.log('here')
-//  flagged_posts =[]
-//
-//  var alltweets = document.querySelectorAll(".tweet-text");
-//  console.log(alltweets.length)
-//  console.log(flagged_tweets.length)
-//
-//
-//  for(i=0;i<alltweets.length;i++){
-//    var tweet = alltweets[i].innerText;
-//    tweet = tweet.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
-//    tweet =tweet.replace(/\W+/g," ")
-//    tweet = tweet.toLowerCase().trim()
-//    //console.log(flagged_tweets)
-//    for(j=0;j<flagged_tweets.length;j++){
-//      if(flagged_tweets[j].includes(tweet)){
-//
-//          flagged_posts.push(alltweets[i].closest(".js-stream-item.stream-item.stream-item"))
-//        // if(document.getElementById('model-tag-'+j)==null){
-//        //   var model_tags = document.createElement('span')
-//        //   model_tags.innerHTML = flagged_tweets[j].models_that_agree
-//        //   model_tags.id = "model-tag-"+j
-//        //   model_tags.style.color =  "#e0245e"
-//        //   //////console.log(model_tags)
-//        //   var parent = alltweets[i].parentElement.parentElement.firstElementChild.children[1]
-//        //   parent.appendChild(model_tags)
-//        // }
-//      }
-//}
-//}
-//
-//    console.log(flagged_posts)
-//
-//  if(document.querySelector("#stream-items-id"))
-//  {
-//
-//    var element = document.getElementById("stream-items-id");
-//    parentNode = element.parentNode
-//    element.parentNode.removeChild(element);
-//
-//    // looping through children wasnt removing all posts
-//    var reCreateElement = document.createElement("ol");
-//   // reCreateElement.id = "stream-items-id";
-//    reCreateElement.className ="stream-items js-navigable-stream";
-//    parentNode.insertBefore(reCreateElement, parentNode.firstChild);
-//    if(document.querySelector(".timeline-end.has-items.has-more-items"))
-//      document.querySelector(".timeline-end.has-items.has-more-items").remove()
-//
-//    for(i=0;i<flagged_posts.length;i++){
-//      console.log(flagged_posts[i])
-//      reCreateElement.appendChild(flagged_posts[i])
-//    }
-//
-//    // if(flagged_posts.length){
-//    //   flagged_posts.forEach(function(item){
-//    //     reCreateElement.appendChild(item)
-//    //   })
-//    // }
-//  }
-//});
+flagged_tweets_tab.addEventListener('click',function(){
+
+  //deactivate active tab
+  if(flagged_tweets_tab.parentElement.parentElement.children.length){
+    var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
+    for(i=0;i<childrenElements.length;i++){
+      if(childrenElements[i].classList.contains("is-active")){
+        childrenElements[i].classList.remove("is-active")
+        childrenElements[i].classList.add("u-textUserColor")
+      }
+    }
+  }
+
+  //activate flagged tweets button
+  flagged_tweets_tab.parentElement.classList.add("is-active");
+  flagged_tweets_tab.parentElement.classList.remove("u-textUserColor");
+
+  //console.log('here')
+  flagged_posts =[]
+
+  var alltweets = document.querySelectorAll(".tweet-text");
+  console.log(alltweets.length)
+  console.log(flagged_tweets.length)
+
+
+  for(i=0;i<alltweets.length;i++){
+    var tweet = alltweets[i].innerText;
+    // tweet = tweet.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
+    // tweet =tweet.replace(/\W+/g," ")
+    // tweet = tweet.toLowerCase().trim()
+    // //console.log(flagged_tweets)
+    for(j=0;j<flagged_tweets.length;j++){
+      if(flagged_tweets[j]["original_tweet_text"].includes(tweet)){
+        flagged_posts.push(alltweets[i].closest(".js-stream-item.stream-item.stream-item"))
+         // if(document.getElementById('model-tag-'+j)==null){
+           // var model_tags = document.createElement('span')
+           // model_tags.innerHTML = flagged_tweets[j].models_that_agree
+           // model_tags.id = "model-tag-"+j
+           // model_tags.style.color =  "#e0245e"
+           //////console.log(model_tags)
+           // var parent = alltweets[i].parentElement.parentElement.firstElementChild.children[1]
+           // parent.appendChild(model_tags)
+         // }
+      }
+    } 
+  }
+
+  console.log(flagged_posts)
+
+ if(document.querySelector("#stream-items-id")){
+
+   var element = document.getElementById("stream-items-id");
+   parentNode = element.parentNode
+   element.parentNode.removeChild(element);
+
+   // looping through children wasnt removing all posts
+   var reCreateElement = document.createElement("ol");
+  // reCreateElement.id = "stream-items-id";
+   reCreateElement.className ="stream-items js-navigable-stream";
+   parentNode.insertBefore(reCreateElement, parentNode.firstChild);
+   if(document.querySelector(".timeline-end.has-items.has-more-items"))
+     document.querySelector(".timeline-end.has-items.has-more-items").remove()
+
+   for(i=0;i<flagged_posts.length;i++){
+     console.log(flagged_posts[i])
+     reCreateElement.appendChild(flagged_posts[i])
+   }
+
+   // if(flagged_posts.length){
+   //   flagged_posts.forEach(function(item){
+   //     reCreateElement.appendChild(item)
+   //   })
+   // }
+ }
+
+});
 
 // functions used previously.
 // function getPostsFromHomeTimeline(){
