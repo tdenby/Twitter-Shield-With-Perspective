@@ -32,13 +32,14 @@
       <div class="panel-heading">
         <h3 class="panel-title">Twitter Profile Identifier</h3>
       </div>
-        <div class="panel-body">Improve our Code! <a href="https://github.com/jberman5/Twitter-Chrome-Mod" target="_blank">Github</a>
+        <div class="panel-body">Improve our Code! <a href="https://github.com/trusttri/Twitter-Shield-With-Perspective" target="_blank">Github</a>
       </div>
     </div>
 
     <div>
       <form onsubmit="setThreshold()">
-        Threshold <input type="number" name ="threshold" value ="0" id="thresholdId"/>
+        Threshold <input type="number" step="0.1" min="0" name ="threshold" value ="0" id="thresholdId"/>
+        <!--Threshold <input name ="threshold" value ="0" id="thresholdId"/>-->
         <input type="submit" value="Submit" id ="submitId">
       </form>
     </div>
