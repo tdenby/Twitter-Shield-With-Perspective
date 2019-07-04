@@ -114,8 +114,8 @@ function checkForJS_Finish() {
 
 
 function get_score(username, callback) {
-    // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
-    var url = "http://127.0.0.1:5000/toxicityscore?user=" + username + '&threshold=' + threshold;
+    var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
+    // var url = "http://127.0.0.1:5000/toxicityscore?user=" + username + '&threshold=' + threshold;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200)
@@ -315,8 +315,8 @@ function getPostsFromNotificationTimeline(){
 
 
 function get_score_notif(userIDNode) {
-  // var url =  "http://twitter-shield.si.umich.edu/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
-  var url = "http://127.0.0.1:5000/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
+  var url =  "http://twitter-shield.si.umich.edu/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
+  // var url = "http://127.0.0.1:5000/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
   ////console.log(url);
   var request = new XMLHttpRequest();
   request.onreadystatechange = function() {
