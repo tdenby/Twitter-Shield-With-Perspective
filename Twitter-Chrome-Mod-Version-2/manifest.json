@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "Twitter Profile Identifier",
+  "name": "Twitter Shield",
   "description": "Displays toxicity score for users",
   "version": "3.0",
   "web_accessible_resources": ["*.png","*.PNG"],
