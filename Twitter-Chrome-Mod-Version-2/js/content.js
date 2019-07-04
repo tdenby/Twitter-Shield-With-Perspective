@@ -33,7 +33,7 @@ var global_tweetcount = 0;
 var flagged_posts =[]
 var flagged_tweets =[]
 var threshold;
-
+var statusDiv;
 
 function checkForJS_Finish() {
 
@@ -49,7 +49,7 @@ function checkForJS_Finish() {
   
   // This comes up first
   console.log(threshold)
-
+  visualizeStatus()
 
   // let beforele = document.getElementsByClassName("ProfileTweet-action ProfileTweet-action--more js-more-ProfileTweet-actions");
   // let childEle = document.createElement("span");
@@ -157,6 +157,26 @@ function checkabusive(response) {
   highlightAbusivePosts(response_json)
 }
 
+function visualizeStatus(){
+  if(document.getElementById('status')==null){
+    statusDiv = document.createElement('span');
+    statusDiv.id = 'status'
+    statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
+    document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, document.getElementsByClassName('ProfileHeaderCard-name')[0])
+    document.getElementById('status').style.color  = 'white';
+  }
+  
+  var prof = document.querySelector(".ProfileAvatar");
+  if(prof.style.borderColor != "green" && prof.style.borderColor != "#FC427B"){
+    console.log('computing')
+    statusDiv.innerHTML = ' Computing... '
+  }else{
+    console.log('done')
+    statusDiv.innerHTML = '<br>';
+    statusDiv.setAttribute('style', 'padding:0px;')
+
+  }
+}
 
 function changeBio(response_json){
     console.log('beginning of changeBio')
@@ -185,7 +205,7 @@ function changeBio(response_json){
 
   var originalDiv = document.getElementsByClassName("ProfileHeaderCard-screenname");
   var parents = document.getElementsByClassName("AppContent-main content-main u-cf");
-  parents[0].setAttribute("style", "margin-top:50px;");
+  // parents[0].setAttribute("stsle", "margin-top:50px;");
 
   if (! document.getElementById("bio-box")) {
     // Parent Element
@@ -229,7 +249,8 @@ function changeBio(response_json){
     else {
        biobox_char.style.color = '#FC427B';
     }
-
+    statusDiv.innerHTML = '<br>';
+    statusDiv.setAttribute('style', 'padding:0px;');
     // Prompt Abusive_toggle
     // var biobox_char = document.createElement("P");
     // charbox.appendChild(biobox_char);
