@@ -15,8 +15,9 @@ Paiju Chang
 */
 
 // poll frequently to check first if URL is changed - avoid calling Twitter API
-var jsTimerForURLChange = setInterval(checkForJS_Finish, 10000);
-//call checkForJS_Finish() as init()
+// needed to go back and forth from different tabs as well
+var jsTimerForURLChange = setInterval(checkForJS_Finish, 5000);
+// call checkForJS_Finish() as init()
 window.onload = checkForJS_Finish()
 var userID;
 var item, abusive_list; // jSON returned from server. Making it public for highlighting abusive words on lazy loading
@@ -34,10 +35,86 @@ var flagged_tweets =[]
 var threshold;
 
 
+function checkForJS_Finish() {
+
+  if(localStorage.getItem('threshold') != null){
+    console.log('not null!')
+    threshold = localStorage.getItem('threshold');
+  }else{
+    // build popup
+    localStorage.setItem('threshold', 0.31);
+    threshold = localStorage.getItem('threshold');
+    console.log('set threshold as default for now')
+  }
+  
+  // This comes up first
+  console.log(threshold)
+
+
+  // let beforele = document.getElementsByClassName("ProfileTweet-action ProfileTweet-action--more js-more-ProfileTweet-actions");
+  // let childEle = document.createElement("span");
+  // childEle.className = "lds-ellipsis";
+  // let div1 = document.createElement("div");
+  // let div2 = document.createElement("div");
+  // let div3 = document.createElement("div");
+  // let div4 = document.createElement("div");
+
+  // childEle.appendChild(div1);
+  // childEle.appendChild(div2);
+  // childEle.appendChild(div3);
+  // childEle.appendChild(div4);
+
+  // let parentEle = document.querySelector("div.stream-item-header");
+
+  // parentEle.insertBefore(childEle,beforele[0]);
+
+ if(currentPage != window.location.href)     {
+  currentPage = window.location.href
+
+  console.log('currentpage' + currentPage)
+  console.log('window.location'+ window.location.href)
+
+  if (document.querySelector(".ProfileHeaderCard-bio")) {
+    if (document.querySelector(".ProfileHeaderCard-screennameLink > span > b").innerText != userID){
+      userID = findUserId(document);
+      console.log('user id')
+      console.log(userID)
+      get_score(userID, checkabusive);
+      addTab()
+    } else{
+        console.log('means the user moved from different tab')
+        get_score(userID, checkabusive);
+        addTab()
+
+    }
+  }
+  //     if (document.querySelector(".home.active")) {
+  //       global_tweetcount = 0
+  //       getPostsFromHomeTimeline();
+  //   }
+
+  //     if (document.querySelector(".NotificationsHeadingContent")) {
+  //       global_tweetcount = 0
+  //       getPostsFromNotificationTimeline();
+  //       addTab()
+  //   }
+  // }
+
+  // // keep polling on timeline/notification page - as this loads only first 5 tweets on URL change
+  // if (document.querySelector(".home.active")) {
+  //       getPostsFromHomeTimeline();
+  //   }
+
+  //     if (document.querySelector(".NotificationsHeadingContent")) {
+  //       getPostsFromNotificationTimeline();
+  //   }
+  }
+}
 
 
 
 function get_score(username, callback) {
+    // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
     var url = "http://127.0.0.1:5000/toxicityscore?user=" + username + '&threshold=' + threshold;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
@@ -237,20 +314,8 @@ function getPostsFromNotificationTimeline(){
 }
 
 
-function addTab(){
-  if(!document.querySelector('ProfileHeading-toggleLink js-nav flagged-tweets')){
-    let tab_header = document.querySelector('.ProfileHeading-toggle')
-    let new_tab = document.createElement('li')
-    new_tab.className = "ProfileHeading-toggleItem  u-textUserColor"
-    let new_href = document.createElement('button')
-    new_href.className = "ProfileHeading-toggleLink js-nav flagged-tweets"
-    new_href.innerText = "Flagged Tweets"
-    new_tab.appendChild(new_href)
-    tab_header.appendChild(new_tab)
-  }
-}
-
 function get_score_notif(userIDNode) {
+  // var url =  "http://twitter-shield.si.umich.edu/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
   var url = "http://127.0.0.1:5000/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
   ////console.log(url);
   var request = new XMLHttpRequest();
@@ -396,70 +461,6 @@ function loader(parentElement){
 }
 
 
-
-function checkForJS_Finish() {
-
-  threshold = localStorage.getItem('threshold');
-  // This comes up first
-  console.log(threshold)
-
-
-  // let beforele = document.getElementsByClassName("ProfileTweet-action ProfileTweet-action--more js-more-ProfileTweet-actions");
-  // let childEle = document.createElement("span");
-  // childEle.className = "lds-ellipsis";
-  // let div1 = document.createElement("div");
-  // let div2 = document.createElement("div");
-  // let div3 = document.createElement("div");
-  // let div4 = document.createElement("div");
-
-  // childEle.appendChild(div1);
-  // childEle.appendChild(div2);
-  // childEle.appendChild(div3);
-  // childEle.appendChild(div4);
-
-  // let parentEle = document.querySelector("div.stream-item-header");
-
-  // parentEle.insertBefore(childEle,beforele[0]);
-
- if(currentPage != window.location.href)     {
-  currentPage = window.location.href
-
-  //console.log('currentpage' + currentPage)
-  //console.log('window.location'+ window.location.href)
-
-  if (document.querySelector(".ProfileHeaderCard-bio")) {
-    if (document.querySelector(".ProfileHeaderCard-screennameLink > span > b").innerText != userID){
-      userID = findUserId(document);
-      console.log('user id')
-      console.log(userID)
-      get_score(userID, checkabusive);
-
-     addTab()
-    }
-  }
-  //     if (document.querySelector(".home.active")) {
-  //       global_tweetcount = 0
-  //       getPostsFromHomeTimeline();
-  //   }
-
-  //     if (document.querySelector(".NotificationsHeadingContent")) {
-  //       global_tweetcount = 0
-  //       getPostsFromNotificationTimeline();
-  //       addTab()
-  //   }
-  // }
-
-  // // keep polling on timeline/notification page - as this loads only first 5 tweets on URL change
-  // if (document.querySelector(".home.active")) {
-  //       getPostsFromHomeTimeline();
-  //   }
-
-  //     if (document.querySelector(".NotificationsHeadingContent")) {
-  //       getPostsFromNotificationTimeline();
-  //   }
-  }
-}
-
 function highlightUser(response_json, domelement){
   response_json = JSON.parse(response_json);
   console.log('highlightUser  ' + response_json.screen_name + ' ' + response_json.user_consensus_score);
@@ -480,9 +481,31 @@ function changeAvi() {
   container.appendChild(clone);
 }
 
-//listens for onclick of flagged tweets
-flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
-flagged_tweets_tab.addEventListener('click',function(){
+/*
+Code for visualizing flagged tweets tab
+*/
+function addTab(){
+  // if(!document.querySelector('ProfileHeading-toggleLink js-nav flagged-tweets')){
+
+  if(document.getElementsByClassName('ProfileHeading-toggleLink js-nav flagged-tweets').length == 0){
+    let tab_header = document.querySelector('.ProfileHeading-toggle')
+    let new_tab = document.createElement('li')
+    new_tab.className = "ProfileHeading-toggleItem  u-textUserColor"
+    let new_href = document.createElement('button')
+    // let new_href = document.createElement('a')
+    new_href.className = "ProfileHeading-toggleLink js-nav flagged-tweets"
+    new_href.innerText = "Flagged Tweets"
+    // new_href.href = 'https://twitter.com/im__jane'
+    new_tab.appendChild(new_href)
+    tab_header.appendChild(new_tab)
+  }
+
+  flagged_tweets_tab = document.querySelector(".ProfileHeading-toggleLink.js-nav.flagged-tweets");
+  flagged_tweets_tab.addEventListener('click',function(){
+  if(window.location.href == "https://twitter.com/im__jane/with_replies" || window.location.href == "https://twitter.com/im__jane/media"){
+    console.log('AT REPLY OR MEDIA')
+
+  }
 
   //deactivate active tab
   if(flagged_tweets_tab.parentElement.parentElement.children.length){
@@ -543,7 +566,8 @@ flagged_tweets_tab.addEventListener('click',function(){
   if(document.getElementById("flagged-tweets-stream")){
     document.getElementById("flagged-tweets-stream").style.display = "block";
     document.getElementById("stream-items-id").style.display = "none";
-  }else if(document.querySelector("#stream-items-id")){
+  } else {
+  //else if(document.querySelector("#stream-items-id")){
 
     var element = document.getElementById("stream-items-id");
     parentNode = element.parentNode
@@ -572,6 +596,9 @@ flagged_tweets_tab.addEventListener('click',function(){
 }
 
 });
+}
+
+
 
 // have to add responses to other tabs
 var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
@@ -596,6 +623,41 @@ childrenElements[0].addEventListener('click',function(){
   });
 
 // Need to do something for the 2nd, 3rd
+childrenElements[1].addEventListener('click',function(){
+  r = new RegExp('replies$')
+  console.log('testing tweet&reply tab')
+  var replyTabcheckInterval = setInterval(addTabForChange, 1000);
+  function addTabForChange(){
+    if(r.exec(window.location.href)){
+      console.log('reached tweet&reply page')
+      addTab();
+    }else{
+      console.log('didnt match')
+      clearInterval(replyTabcheckInterval);
+    }
+  }
+  
+
+});
+
+childrenElements[2].addEventListener('click',function(){
+  r = new RegExp('media$')
+  console.log('testing media tab')
+  var mediaTabcheckInterval = setInterval(addTabForChange, 1000);
+  function addTabForChange(){
+    if(r.exec(window.location.href)){
+      console.log('reached media page')
+      addTab();
+    }else{
+      console.log('didnt match')
+      clearInterval(mediaTabcheckInterval);
+    }
+  }
+  
+
+});
+
+
 
 
 

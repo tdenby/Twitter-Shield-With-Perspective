@@ -3,7 +3,7 @@ var Twit = require("twit");
 
 //console.log(config);
 
-localStorage.setItem('threshold', '11');
+localStorage.setItem('threshold', '0.35');
 
 
 var T = new Twit(

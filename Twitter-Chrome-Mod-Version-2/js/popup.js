@@ -8,10 +8,11 @@ console.log("popup.js");
 // chrome.storage.local allows the extension data to be synced across multiple
 // user devices.
 
+
 document.addEventListener('DOMContentLoaded', function() {
-
+  console.log('event listener for popup')
   document.getElementById('submitId').addEventListener('click', setThreshold);
-
+  
   // console.log(msg);
   // chrome.tabs.query({
   //   active: true,
@@ -31,16 +32,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 function setThreshold(){
-
     chrome.tabs.executeScript({
         code: "var threshold=" + document.getElementById('thresholdId').value
                 + "; localStorage.setItem('threshold', " + document.getElementById('thresholdId').value + ");",
         allFrames: true
     }, function(result) {
+         
         chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
+          console.log('set threshold!!!!')
         });
     });
    }
+
+// maybe 
+// chrome.runtime.onInstalled.addListener(function callback)
+// chrome.runtime.onInstalled.addListener(function object(){
+
+// })
 
 
 
