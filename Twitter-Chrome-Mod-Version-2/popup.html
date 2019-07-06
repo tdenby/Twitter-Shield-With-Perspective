@@ -14,10 +14,12 @@
     -->
     <!-- <script src="popup.js"></script> -->
     <link rel="stylesheet" href="css/popup.css">
-    <!-- Latest compiled and minified CSS -->
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'" >
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
+    <!-- Latest compiled and minified CSS -->s
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
 
     <!-- Optional theme -->
@@ -43,6 +45,12 @@
         <input type="submit" value="Submit" id ="submitId">
       </form>
     </div>
+
+    <div id="status"  style="padding:15">
+        
+    </div>
+
+    
   </body>
 
       <script type="text/javascript" src="js/popup.js"></script>
