@@ -16,7 +16,7 @@ Paiju Chang
 
 // poll frequently to check first if URL is changed - avoid calling Twitter API
 // needed to go back and forth from different tabs as well
-var jsTimerForURLChange = setInterval(checkForJS_Finish, 5000);
+var jsTimerForURLChange = setInterval(checkForJS_Finish, 8000);
 // call checkForJS_Finish() as init()
 window.onload = checkForJS_Finish()
 var userID;
@@ -47,9 +47,7 @@ function checkForJS_Finish() {
     console.log('set threshold as default for now')
   }
   
-  // This comes up first
   console.log(threshold)
-  visualizeStatus()
 
   // let beforele = document.getElementsByClassName("ProfileTweet-action ProfileTweet-action--more js-more-ProfileTweet-actions");
   // let childEle = document.createElement("span");
@@ -77,59 +75,57 @@ function checkForJS_Finish() {
   if (document.querySelector(".ProfileHeaderCard-bio")) {
     if (document.querySelector(".ProfileHeaderCard-screennameLink > span > b").innerText != userID){
       userID = findUserId(document);
-      console.log('user id')
+      console.log('checkForJS_Finish')
       console.log(userID)
-      get_score(userID, checkabusive);
+      // get_score(userID, checkabusive);
+      get_score(userID, pollStatus);
       addTab()
     } else{
         console.log('means the user moved from different tab')
-        get_score(userID, checkabusive);
+        get_score(userID, pollStatus);
         addTab()
 
     }
   }
-  //     if (document.querySelector(".home.active")) {
-  //       global_tweetcount = 0
-  //       getPostsFromHomeTimeline();
-  //   }
+  
+  // if (document.querySelector(".home.active")) {
+    // global_tweetcount = 0
+    // getPostsFromHomeTimeline();
+  // }
 
-  //     if (document.querySelector(".NotificationsHeadingContent")) {
+  // if (document.querySelector(".NotificationsHeadingContent")!=null) {
   //       global_tweetcount = 0
   //       getPostsFromNotificationTimeline();
   //       addTab()
   //   }
-  // }
+
 
   // // keep polling on timeline/notification page - as this loads only first 5 tweets on URL change
   // if (document.querySelector(".home.active")) {
-  //       getPostsFromHomeTimeline();
-  //   }
+        // getPostsFromHomeTimeline();
+    // }
 
-  //     if (document.querySelector(".NotificationsHeadingContent")) {
-  //       getPostsFromNotificationTimeline();
-  //   }
+      // if (document.querySelector(".NotificationsHeadingContent")) {
+        // getPostsFromNotificationTimeline();
+    // }
   }
 }
 
 
-
 function get_score(username, callback) {
     var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
-    // var url = "http://127.0.0.1:5000/toxicityscore?user=" + username + '&threshold=' + threshold;
+    console.log('get_score')
+    // var url = "http://127.0.0.1:8000/toxicityscore?user=" + username + '&threshold=' + threshold;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
-        if (request.readyState == 4 && request.status == 200)
-        {
-            console.log('Here request?')
-            console.log(request.responseText)
-            // request.responseText is empty
+        if (request.readyState == 4 && request.status == 200){
+            console.log('returned: ' + request.responseText)
             callback(request.responseText); // Another callback here
-
-
         }
     };
     request.open('GET', url);
     request.send();
+    console.log('done')
 }
 
 // this visualizes flagged tweets when scrolling
@@ -144,20 +140,75 @@ window.onscroll = function(ev) {
 };
 
 
-function checkabusive(response) {
+function pollStatus(response){
+  console.log('called poll status!')
+  console.log(response)
+  response_json = JSON.parse(response);
+  task_id = response_json['task_id']
+  screen_name = response_json['screen_name']
+  threshold = response_json['threshold']
+ 
+  //flagged_tweets = response_json.flagged_tweets
+  task_id = response_json['task_id']
+  screen_name = response_json['screen_name']
+  threshold = response_json['threshold']
+  // var url = "http://127.0.0.1:8000/poll_status?task_id=" + task_id + '&screen_name=' + screen_name + '&threshold=' + threshold
+  var url = "http://twitter-shield.si.umich.edu/poll_status?task_id=" + task_id + '&screen_name=' + screen_name + '&threshold=' + threshold
+  var request = new XMLHttpRequest();
 
-  console.log('here in checkabusive:' + response) 
+  request.onreadystatechange = function(){
+    // if (request.readyState == 4 && request.status == 200){
+    console.log(request.readyState)
+    if (request.readyState == 4){
+      console.log(request)
+      result = JSON.parse(request.responseText)
+      console.log('poll status')
+      // console.log(result)
+      console.log(result['state'])
+      if (result['state'] == 'PENDING'){
+        console.log('pending')
+        console.log(request.responseText)
+        status = JSON.parse(request.responseText)['result']
+        console.log(status)
+        visualizeStatus(status)
+        setTimeout(pollStatus(response), 3000);
+      }else if (result['state'] == 'SUCCESS'){
+        console.log('success')
+        // console.log(request.responseText)
+        checkabusive(request.responseText)
+        visualizeStatus('done')
+        addFlagging()
+      }
+
+      // checkabusive(request.responseText)
+    }else{
+      console.log('not yet 4')
+      console.log(request)
+    }
+  };
+
+  request.open('GET', url);
+  request.send();
+
+
+
+}
+
+
+function checkabusive(response) {
   // need to update!
   response_json = JSON.parse(response);
   //flagged_tweets = response_json.flagged_tweets
 
-  changeBio(response_json)
+  changeBio(response_json['result'])
 
   // highlightAbusivePosts(response_json.flagged_tweets)
-  highlightAbusivePosts(response_json)
+  highlightAbusivePosts(response_json['result'])
 }
 
-function visualizeStatus(){
+
+
+function visualizeStatus(status){
   if(document.getElementById('status')==null){
     statusDiv = document.createElement('span');
     statusDiv.id = 'status'
@@ -165,17 +216,28 @@ function visualizeStatus(){
     document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, document.getElementsByClassName('ProfileHeaderCard-name')[0])
     document.getElementById('status').style.color  = 'white';
   }
-  
-  var prof = document.querySelector(".ProfileAvatar");
-  if(prof.style.borderColor != "green" && prof.style.borderColor != "#FC427B"){
-    console.log('computing')
-    statusDiv.innerHTML = ' Computing... '
-  }else{
-    console.log('done')
+  console.log('visualizeStatus function')
+  console.log(status)
+
+  if(status == 'done'){
     statusDiv.innerHTML = '<br>';
     statusDiv.setAttribute('style', 'padding:0px;')
-
+  }else if (status == 'started'){
+    statusDiv.innerHTML = ' Started! '
+  }else{
+    statusDiv.innerHTML = status + ' stored!'
   }
+  
+  // var prof = document.querySelector(".ProfileAvatar");
+  // if(prof.style.borderColor != "green" && prof.style.borderColor != "#FC427B"){
+  //   console.log('computing')
+  //   statusDiv.innerHTML = ' Computing... '
+  // }else{
+  //   console.log('done')
+  //   statusDiv.innerHTML = '<br>';
+  //   statusDiv.setAttribute('style', 'padding:0px;')
+
+  // }
 }
 
 function changeBio(response_json){
@@ -248,6 +310,15 @@ function changeBio(response_json){
     }
     else {
        biobox_char.style.color = '#FC427B';
+    }
+
+    // temporary code
+    if(document.getElementById('status')==null){
+      statusDiv = document.createElement('span');
+      statusDiv.id = 'status'
+      statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
+      document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, document.getElementsByClassName('ProfileHeaderCard-name')[0])
+      document.getElementById('status').style.color  = 'white';
     }
     statusDiv.innerHTML = '<br>';
     statusDiv.setAttribute('style', 'padding:0px;');
@@ -327,6 +398,17 @@ function changeBio(response_json){
 //       document.querySelector(".ProfileCardStats-statValue").style.color = 'rgb(252, 66, 123)'
 // }
 
+function getPostsFromHomeTimeline(){
+  //console.log('getPostsFromHomeTimeline')
+    sendPostsToPredict()
+    if(document.querySelector(".u-linkComplex-target")){
+      userID = document.querySelector(".u-linkComplex-target").innerText
+      get_score(userID, changeProfileStats,null)
+    }
+
+    sendUsersToPredict()
+}
+
 function getPostsFromNotificationTimeline(){
    //console.log('getPostsFromNotificationTimeline')
     // sendPostsToPredict()
@@ -334,10 +416,48 @@ function getPostsFromNotificationTimeline(){
     sendUsersToPredict()
 }
 
+//generic functionality that sends a bunch of tweets for prediction
+function sendPostsToPredict(){
+
+  var tweets = document.querySelectorAll(".tweet-text");
+  var tweets_text = []
+  ////console.log('Global tweet count' + global_tweetcount)
+  ////console.log('Tweet queried length' + tweets.length)
+
+    if(tweets.length > global_tweetcount){
+      ////console.log(tweets)
+
+      global_tweetcount = tweets.length;
+       for(i=0;i<tweets.length;i++){
+      // clean URL to form JSON parameters
+      temp = tweets[i].innerText.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
+      temp =  temp.replace(/\W+/g," ")
+      tweets_text.push({"text":temp})
+    }
+
+    ////console.log('Preprocessed text length' +tweets_text.length)
+
+      var url = "http://127.0.0.1:5000/predict?tweets=" + JSON.stringify(tweets_text);
+
+      //is it not picking up on time? is 3000 too short?
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function() {
+        if (request.readyState == 4 && request.status == 200) {
+          response_json = JSON.parse(request.responseText);
+          //console.log('Flagged tweets length'+response_json.flagged_tweets.length)
+          flagged_tweets = response_json.flagged_tweets
+          highlightAbusivePosts(response_json.flagged_tweets);
+        }
+      };
+      request.open('GET', url);
+      request.send();
+      }
+}
+
 
 function get_score_notif(userIDNode) {
   var url =  "http://twitter-shield.si.umich.edu/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
-  // var url = "http://127.0.0.1:5000/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
+  // var url = "http://127.0.0.1:8000/tpi?user=" + userIDNode.innerText + "&numberTwit=200";
   ////console.log(url);
   var request = new XMLHttpRequest();
   request.onreadystatechange = function() {
@@ -460,10 +580,19 @@ function sendUsersToPredict(){
       //add_loader(list[i]);
       if(username){
       //  console.log(username.innerText.substring(1,username.length));
-        get_score(username.innerText.substring(1,username.length),highlightUser,list[i])
+        get_score(username.innerText.substring(1,username.length), highlightUser,list[i])
 
       }
     }
+}
+
+
+function highlightUser(response_json, domelement){
+  response_json = JSON.parse(response_json);
+  console.log('highlightUser  ' + response_json.screen_name + ' ' + response_json.user_consensus_score);
+  if(response_json.user_consensus_score > 0.2){
+    domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
+  }
 }
 
 function loader(parentElement){
@@ -482,13 +611,17 @@ function loader(parentElement){
 }
 
 
-function highlightUser(response_json, domelement){
-  response_json = JSON.parse(response_json);
-  console.log('highlightUser  ' + response_json.screen_name + ' ' + response_json.user_consensus_score);
-  if(response_json.user_consensus_score> 0.4){
-    domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
+function addFlagging(){
+  if(document.getElementById('flagAccount')==null){
+    flagDiv = document.createElement('button');
+    flagDiv.id = 'flagAccount'
+    flagDiv.setAttribute('style', 'font-size:1em; background-color:#657786; padding:3px; margin: 3px;')
+    document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(flagDiv, document.getElementsByClassName('ProfileHeaderCard-bio u-dir')[0])
+    document.getElementById('flagAccount').style.color  = 'white';
+    flagDiv.innerHTML = ' Provide feedback to the result. '
   }
-
+  console.log('flag account function')
+  console.log(status)
 
 }
 
@@ -677,85 +810,4 @@ childrenElements[2].addEventListener('click',function(){
   
 
 });
-
-
-
-
-
-// for(var i=0; i<childrenElements.length-1;i++){
-//   console.log('adding listener')
-//   childrenElements[i].addEventListener('click',function(){
-//     console.log('test if childrenElements exist')
-//     var childrenElements = flagged_tweets_tab.parentElement.parentElement.children;
-//     console.log(childrenElements)
-//     console.log(childrenElements[i])
-//     console.log('current i is: ')
-//     console.log(i)
-//      //deactivate the flagged_tweets tab if it's activated
-//     if(flagged_tweets_tab.parentElement.classList.contains("is-active")){
-//       console.log(childrenElements[i])
-//       flagged_tweets_tab.parentElement.classList.remove("is-active");
-//       flagged_tweets_tab.parentElement.classList.add("u-textUserColor");
-//       document.getElementById('flagged-tweets-stream').style = "none";
-//       console.log(childrenElements[i])
-//     }
-
-//     childrenElements[i].classList.add("is-active")
-//     childrenElements[i].classList.remove("u-textUserColor")
-//   });
-// }
-  
-
-
-// functions used previously.
-// function getPostsFromHomeTimeline(){
-//   //console.log('getPostsFromHomeTimeline')
-//     // sendPostsToPredict()
-//     if(document.querySelector(".u-linkComplex-target")){
-//       userID = document.querySelector(".u-linkComplex-target").innerText
-//       get_score(userID, changeProfileStats,null)
-//     }
-
-//     sendUsersToPredict()
-// }
-
-
-// generic functionality that sends a bunch of tweets for prediction
-// function sendPostsToPredict(){
-
-//   var tweets = document.querySelectorAll(".tweet-text");
-//   var tweets_text = []
-//   ////console.log('Global tweet count' + global_tweetcount)
-//   ////console.log('Tweet queried length' + tweets.length)
-
-//     if(tweets.length > global_tweetcount){
-//       ////console.log(tweets)
-
-//       global_tweetcount = tweets.length;
-//        for(i=0;i<tweets.length;i++){
-//       // clean URL to form JSON parameters
-//       temp = tweets[i].innerText.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
-//       temp =  temp.replace(/\W+/g," ")
-//       tweets_text.push({"text":temp})
-//     }
-
-//     ////console.log('Preprocessed text length' +tweets_text.length)
-
-//       // have to change this to twitter-shield.si.umich.edu
-//       var url = "http://127.0.0.1:5000/predict?tweets=" + JSON.stringify(tweets_text);
-
-//       //is it not picking up on time? is 3000 too short?
-//       var request = new XMLHttpRequest();
-//       request.onreadystatechange = function() {
-//         if (request.readyState == 4 && request.status == 200) {
-//           response_json = JSON.parse(request.responseText);
-//           //console.log('Flagged tweets length'+response_json.flagged_tweets.length)
-//           flagged_tweets = response_json.flagged_tweets
-//           highlightAbusivePosts(response_json.flagged_tweets);
-//         }
-//       };
-//       request.open('GET', url);
-//       request.send();
-//       }
-//     }
 
