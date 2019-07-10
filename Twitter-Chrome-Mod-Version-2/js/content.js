@@ -618,7 +618,7 @@ function addFlagging(){
     flagDiv.setAttribute('style', 'font-size:1em; background-color:#657786; padding:3px; margin: 3px;')
     document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(flagDiv, document.getElementsByClassName('ProfileHeaderCard-bio u-dir')[0])
     document.getElementById('flagAccount').style.color  = 'white';
-    flagDiv.innerHTML = ' Provide feedback to the result. '
+    flagDiv.innerHTML = ' Provide feedback regarding the result. '
   }
   console.log('flag account function')
   console.log(status)
