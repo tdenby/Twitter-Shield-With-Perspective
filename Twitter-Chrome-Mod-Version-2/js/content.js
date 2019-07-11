@@ -42,29 +42,11 @@ function checkForJS_Finish() {
     threshold = localStorage.getItem('threshold');
   }else{
     // build popup
-    localStorage.setItem('threshold', 0.31);
+    localStorage.setItem('threshold', 0.3);
     threshold = localStorage.getItem('threshold');
     console.log('set threshold as default for now')
   }
   
-  console.log(threshold)
-
-  // let beforele = document.getElementsByClassName("ProfileTweet-action ProfileTweet-action--more js-more-ProfileTweet-actions");
-  // let childEle = document.createElement("span");
-  // childEle.className = "lds-ellipsis";
-  // let div1 = document.createElement("div");
-  // let div2 = document.createElement("div");
-  // let div3 = document.createElement("div");
-  // let div4 = document.createElement("div");
-
-  // childEle.appendChild(div1);
-  // childEle.appendChild(div2);
-  // childEle.appendChild(div3);
-  // childEle.appendChild(div4);
-
-  // let parentEle = document.querySelector("div.stream-item-header");
-
-  // parentEle.insertBefore(childEle,beforele[0]);
 
  if(currentPage != window.location.href)     {
   currentPage = window.location.href
@@ -201,8 +183,6 @@ function checkabusive(response) {
   //flagged_tweets = response_json.flagged_tweets
 
   changeBio(response_json['result'])
-
-  // highlightAbusivePosts(response_json.flagged_tweets)
   highlightAbusivePosts(response_json['result'])
 }
 
@@ -221,23 +201,12 @@ function visualizeStatus(status){
 
   if(status == 'done'){
     statusDiv.innerHTML = '<br>';
-    statusDiv.setAttribute('style', 'padding:0px;')
+    statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
   }else if (status == 'started'){
     statusDiv.innerHTML = ' Started! '
   }else{
     statusDiv.innerHTML = status + ' stored!'
   }
-  
-  // var prof = document.querySelector(".ProfileAvatar");
-  // if(prof.style.borderColor != "green" && prof.style.borderColor != "#FC427B"){
-  //   console.log('computing')
-  //   statusDiv.innerHTML = ' Computing... '
-  // }else{
-  //   console.log('done')
-  //   statusDiv.innerHTML = '<br>';
-  //   statusDiv.setAttribute('style', 'padding:0px;')
-
-  // }
 }
 
 function changeBio(response_json){
@@ -613,12 +582,19 @@ function loader(parentElement){
 
 function addFlagging(){
   if(document.getElementById('flagAccount')==null){
-    flagDiv = document.createElement('button');
-    flagDiv.id = 'flagAccount'
-    flagDiv.setAttribute('style', 'font-size:1em; background-color:#657786; padding:3px; margin: 3px;')
-    document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(flagDiv, document.getElementsByClassName('ProfileHeaderCard-bio u-dir')[0])
+    flagButton = document.createElement('button');
+    flagButton.id = 'flagAccount'
+    flagButton.setAttribute('style', 'font-size:1em; background-color:#657786; padding:3px; margin-top: 3px; margin-bottom: 3px;')
+    document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(flagButton, document.getElementsByClassName('ProfileHeaderCard-bio u-dir')[0])
     document.getElementById('flagAccount').style.color  = 'white';
-    flagDiv.innerHTML = ' Provide feedback regarding the result. '
+    flagButton.innerHTML = ' Provide feedback about the result '
+    flagButton.onmouseover = function(){
+      this.style.backgroundColor = 'rgba(131, 156, 182, 1)'
+    }
+    flagButton.onmouseout = function(){
+      this.style.backgroundColor = '#657786'
+    }
+
   }
   console.log('flag account function')
   console.log(status)
@@ -634,6 +610,8 @@ function changeAvi() {
   clone.style.opacity = "0.9";
   container.appendChild(clone);
 }
+
+
 
 /*
 Code for visualizing flagged tweets tab
@@ -811,3 +789,23 @@ childrenElements[2].addEventListener('click',function(){
 
 });
 
+// function visualizeTicksOnTimeline(){
+
+  // let beforele = document.getElementsByClassName("ProfileTweet-action ProfileTweet-action--more js-more-ProfileTweet-actions");
+  // let childEle = document.createElement("span");
+  // childEle.className = "lds-ellipsis";
+  // let div1 = document.createElement("div");
+  // let div2 = document.createElement("div");
+  // let div3 = document.createElement("div");
+  // let div4 = document.createElement("div");
+
+  // childEle.appendChild(div1);
+  // childEle.appendChild(div2);
+  // childEle.appendChild(div3);
+  // childEle.appendChild(div4);
+
+  // let parentEle = document.querySelector("div.stream-item-header");
+
+  // parentEle.insertBefore(childEle,beforele[0]);
+
+// }
