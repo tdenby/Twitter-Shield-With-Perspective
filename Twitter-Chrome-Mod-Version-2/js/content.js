@@ -50,8 +50,6 @@ function checkForJS_Finish() {
 
  if(currentPage != window.location.href)     {
   currentPage = window.location.href
-
-  console.log('currentpage' + currentPage)
   console.log('window.location'+ window.location.href)
 
   if (document.querySelector(".ProfileHeaderCard-bio")) {
@@ -140,13 +138,11 @@ function pollStatus(response){
 
   request.onreadystatechange = function(){
     // if (request.readyState == 4 && request.status == 200){
-    console.log(request.readyState)
     if (request.readyState == 4){
       console.log(request)
       result = JSON.parse(request.responseText)
       console.log('poll status')
       // console.log(result)
-      console.log(result['state'])
       if (result['state'] == 'PENDING'){
         console.log('pending')
         console.log(request.responseText)
@@ -197,7 +193,6 @@ function visualizeStatus(status){
     document.getElementById('status').style.color  = 'white';
   }
   console.log('visualizeStatus function')
-  console.log(status)
 
   if(status == 'done'){
     statusDiv.innerHTML = '<br>';
@@ -221,16 +216,13 @@ function changeBio(response_json){
 
     //change response_json to json
     console.log("CHANGE--response_json below:")
-    console.log(typeof(response_json))
     console.log(response_json)
 
     score = response_json['TOXICITY']['score']
     console.log(response_json['visualize'])
     if(response_json['visualize'] == 'Below threshold'){
-      console.log("BELOW SHOULD BE GREEN")
       prof.style.borderColor = "green";
     }else{
-      console.log("ABOVE PINK")
       prof.style.borderColor = "#FC427B"; 
     }
 
@@ -594,10 +586,7 @@ function addFlagging(){
     flagButton.onmouseout = function(){
       this.style.backgroundColor = '#657786'
     }
-
   }
-  console.log('flag account function')
-  console.log(status)
 
 }
 
@@ -664,7 +653,6 @@ function addTab(){
   flagged_tweets_tab.parentElement.classList.add("is-active");
   flagged_tweets_tab.parentElement.classList.remove("u-textUserColor");
 
-  //console.log('here')
   flagged_posts =[]
 
   var alltweets = document.querySelectorAll(".tweet-text");
