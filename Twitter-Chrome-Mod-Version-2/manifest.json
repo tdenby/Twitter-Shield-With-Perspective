@@ -28,5 +28,6 @@
 
   "background": {
     "page" : "background.html"
-  }
+  },
+  "content_security_policy": "script-src 'self' https://cm.g.doubleclick.net https://ssl.google-analytics.com; object-src 'self'"
 }
