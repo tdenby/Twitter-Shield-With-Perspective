@@ -9,8 +9,8 @@
     {
       "matches": ["http://www.twitter.com/*",
                   "https://twitter.com/*","http://localhost:8000/"],
-      "js": ["js/content.js", "js/popup.js"],
-       "css": ["css/content.css"],
+      "js": ["js/jquery-min.js", "js/jquery-ui.min.js", "js/arrive.min.js", "js/content.js", "js/popup.js"],
+       "css": ["css/jquery-ui.css","css/content.css"],
       "run_at": "document_end"
     }
   ],
@@ -29,5 +29,5 @@
   "background": {
     "page" : "background.html"
   },
-  "content_security_policy": "script-src 'self' https://cm.g.doubleclick.net https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
 }
