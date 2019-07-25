@@ -44,6 +44,14 @@ function setThreshold(){
     });
    }
 
+var slider = document.getElementById("thresholdId");
+var output = document.getElementById("demo");
+output.innerHTML = slider.value; // Display the default slider value
+   
+slider.oninput = function() {
+  output.innerHTML = this.value;
+}
+
 // maybe 
 // chrome.runtime.onInstalled.addListener(function callback)
 // chrome.runtime.onInstalled.addListener(function object(){
