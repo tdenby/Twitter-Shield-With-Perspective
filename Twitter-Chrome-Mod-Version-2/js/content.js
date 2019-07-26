@@ -21,7 +21,18 @@ Paiju Chang
 // window.onload = checkForJS_Finish()
 var userID;
 var item, abusive_list; // jSON returned from server. Making it public for highlighting abusive words on lazy loading
-var stranger_list = [];
+// var stranger_list = [];
+console.log('LOCAL STORAGE')
+var profileStrangerString= localStorage.profileStrangers
+profileStrangerString = (profileStrangerString) ? profileStrangerString : '{}'
+profileStrangers = JSON.parse(profileStrangerString)
+console.log(profileStrangers)
+
+var timelineStrangerString= localStorage.timelineStrangers
+timelineStrangerString = (timelineStrangerString) ? timelineStrangerString : '{}'
+timelineStrangers = JSON.parse(timelineStrangerString)
+console.log(timelineStrangers)
+
 var response_json = {}
 
 var flagged_tweets_tab;
@@ -41,6 +52,7 @@ var computingBorderStyle = '';
 var safeUserBorderStyle = '';
 var URL_HEADER = 'http://127.0.0.1:8000'
 // var URL_HEADER. = 'http://twitter-shield.si.umich.edu'
+
 
 $(window).on('load',function(){
   console.log($('[data-testid="UserProfileHeader_Items"]').length)
@@ -70,13 +82,12 @@ $(window).on('load',function(){
     }else{
       currentPage = window.location.href
       if(currentPage.indexOf('/status/') < 0){
-        console.log('window.location: '+ window.location.href)
+        // console.log('window.location: '+ window.location.href)
         $(document).arrive('[data-testid="UserProfileHeader_Items"]', function(){
-          console.log('new version of twitter- profile page')
+          // console.log('new version of twitter- profile page')
           var thisPageID = currentPage.replace('https://twitter.com/', '')
           if (thisPageID != userID){
             userID = thisPageID;
-            console.log('checkForJS_Finish')
             console.log(userID)
             get_score(userID, pollStatusNewTwitter);
 
@@ -96,11 +107,11 @@ $(window).on('load',function(){
 window.onscroll = function(ev) {
   if(document.location.href == 'https://twitter.com/home') {
     global_tweetcount = 0
-    console.log('scrolling')
+
     sendUsersToPredictTimelineNewTwitter()
   }else if(document.location.href == 'https://twitter.com/notifications') {
     // console.log(document.querySelectorAll('.css-1dbjc4n.r-1jgb5lz.r-1ye8kvj.r-6337vo.r-13qz1uu'))
-    console.log('scrolling')
+
     sendUsersToPredictNotificationNewTwitter()
     // setTimeout(function(){ sendUsersToPredictNotificationNewTwitter();
     //                       console.log('second') }, 500)
@@ -132,7 +143,7 @@ function checkForJS_Finish() {
     }else if(document.location.href =='https://twitter.com/messages'){
       currentPage = document.location.href 
     }else{
-      console.log(window.location.href)
+      // console.log(window.location.href)
       if(document.getElementById('toxicityStatus')!=null){
         document.getElementById('toxicityStatus').innerText = '';
       }
@@ -141,12 +152,36 @@ function checkForJS_Finish() {
       document.querySelectorAll('.css-1dbjc4n.r-14lw9ot.r-11mg6pl.r-sdzlij.r-1phboty.r-14f9gny.r-1gzrgec.r-cnkkqs.r-1udh08x.r-13qz1uu')[0].style.borderColor = ''
       
       if(document.querySelectorAll('[data-testid="UserProfileHeader_Items"]').length>0){
-        console.log('new version of twitter- profile page')
+        // console.log('new version of twitter- profile page')
         var thisPageID = currentPage.replace('https://twitter.com/', '')
+
         if (thisPageID != userID){
           userID = thisPageID;
-          console.log(userID)
-          get_score(userID, pollStatusNewTwitter);
+          // console.log(userID)
+          //first check localstrage
+          if(userID in profileStrangers){
+            console.log('from localstraoge: profile')
+            var thisScore = profileStrangers[userID]
+            if (! document.getElementById("toxicityStatus")) {
+              var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
+              $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
+            }
+
+            toxicityStatusDiv = document.getElementById('toxicityStatus')
+            toxicityStatusDiv.innerHTML = "Toxicity score: " + thisScore
+
+            if(thisScore > threshold){
+              toxicityStatusDiv.style.color = '#FC427B';
+              document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+            }else{
+              toxicityStatusDiv.style.color = 'green';
+              document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = 'green'
+            }
+
+          }else{
+            get_score(userID, pollStatusNewTwitter);
+
+          }  
         }
       }else{
         console.log('not loaded yet')
@@ -158,7 +193,7 @@ function checkForJS_Finish() {
 
   
 function checkNotificationTimeline(){
-  console.log('notification timeline checker')
+  // console.log('notification timeline checker')
   if(document.location.href == 'https://twitter.com/home') {
     global_tweetcount = 0
     console.log('timeline')
@@ -185,7 +220,7 @@ function get_score(username, callback) {
     };
     request.open('GET', url);
     request.send();
-    console.log('done')
+
 }
 
 
@@ -195,18 +230,18 @@ function get_score_in_notification(username, callback, callback_input) {
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200){
-            console.log('returned: ' + request.responseText)
+            // console.log('returned: ' + request.responseText)
             callback(request.responseText, callback_input); // Another callback here
         }
     };
     request.open('GET', url);
     request.send();
-    console.log('done')
+
 }
 
 
 function pollStatusNewTwitter(response){
-  console.log('called poll status in new Twitter!')
+  // console.log('called poll status in new Twitter!')
   console.log(response)
   response_json = JSON.parse(response);
   task_id = response_json['task_id']
@@ -223,13 +258,13 @@ function pollStatusNewTwitter(response){
 
   request.onreadystatechange = function(){
     if (request.readyState == 4 && request.status == 200){
-      console.log(request)
+      // console.log(request)
       result = JSON.parse(request.responseText)
       console.log('poll status')
       // console.log(result)
       if (result['state'] == 'PENDING'){
-        console.log('pending')
-        console.log(request.responseText)
+        // console.log('pending')
+        // console.log(request.responseText)
         var status = JSON.parse(request.responseText)['result']
         console.log(status)
         if (document.querySelector(".NotificationsHeadingContent")==null) {
@@ -238,7 +273,7 @@ function pollStatusNewTwitter(response){
         setTimeout(pollStatusNewTwitter(response), 4000);
       }else if (result['state'] == 'SUCCESS'){
         console.log('success')
-        checkabusiveNewTwitter(request.responseText)
+        checkabusiveNewTwitter(request.responseText, screen_name)
         visualizeStatusNewTwitter('done')
         
       }
@@ -252,10 +287,10 @@ function pollStatusNewTwitter(response){
 
 
 
-function checkabusiveNewTwitter(response) {
+function checkabusiveNewTwitter(response, screen_name) {
   // need to update!
   response_json = JSON.parse(response);
-  changeBioNewTwitter(response_json['result'])
+  changeBioNewTwitter(response_json['result'], screen_name)
   // highlightAbusivePostsNewTwitter(response_json['result'])
 }
 
@@ -289,7 +324,7 @@ function visualizeStatusNewTwitter(status){
   }
 }
 
-function changeBioNewTwitter(response_json){
+function changeBioNewTwitter(response_json, screen_name){
   console.log('beginning of changeBio')
   var prof = document.querySelector(".ProfileAvatar");
 
@@ -317,6 +352,8 @@ function changeBioNewTwitter(response_json){
 
   toxicityStatusDiv = document.getElementById('toxicityStatus')
   toxicityStatusDiv.innerHTML = "Toxicity score: " + score
+  profileStrangers[screen_name] = score
+  localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
 
   if(response_json['visualize'] == 'Below threshold') {
       toxicityStatusDiv.style.color = 'green';
@@ -350,31 +387,39 @@ function sendUsersToPredictNotificationNewTwitter(){
   if (notificationPage.length > 0){
     var notifySections = notificationPage[0].querySelectorAll('.css-1dbjc4n.r-my5ep6.r-qklmqi.r-1adg3ll')
   
-    // console.log(notifySections)
     for(var i=0; i<notifySections.length; i++){
       var userCandidates = notifySections[i].querySelectorAll('a')
       for(var j=0; j<userCandidates.length; j++){
         var can = userCandidates[j]
         if(can.querySelectorAll('img').length == 1){
-          // console.log(userCandidates[j])
           var canId = userCandidates[j].href.replace("https://twitter.com/", '')
           console.log(canId)
-
-          //signal that we started to compute
-          console.log('change')
           var divToColor = userCandidates[j].querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
           if(divToColor!=null){
-            // divToColor.style.border ='3px solid #42a5fc';
-            if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
-              divToColor.classList.remove('computing')
-            }else{
-              divToColor.classList.add('computing')
-              console.log('class added!')
-            }
-            
-          }
-          get_score_in_notification(canId, pollInTimeline, userCandidates[j])
+            if(canId in timelineStrangers){
+              console.log('from localstraoge')
+              var thisScore = timelineStrangers[canId]
+              if(thisScore > threshold){
+                divToColor.classList.add('toxicUser')
 
+
+              }else{
+                divToColor.classList.add('safeUser')
+
+              }
+            }else{
+              //signal that we started to compute
+              console.log('outside localStorage')
+              // divToColor.style.border ='3px solid #42a5fc';
+              if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
+                divToColor.classList.remove('computing')
+              }else{
+                divToColor.classList.add('computing')
+                get_score_in_notification(canId, pollInTimeline, userCandidates[j])
+              }
+              
+            }
+          }
         }
         
       }
@@ -398,11 +443,22 @@ function sendUsersToPredictTimelineNewTwitter(){
       var divToColor = timelineSections[i].querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
       if(divToColor!=null){
         // divToColor.style.border ='3px solid #42a5fc';
-        if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
-          divToColor.classList.remove('computing')
+        if(canId in timelineStrangers){
+            console.log('from localstraoge')
+            var thisScore = timelineStrangers[canId]
+            if(thisScore > threshold){
+              divToColor.classList.add('toxicUser')
+            }else{
+              divToColor.classList.add('safeUser')
+
+            }
         }else{
-          divToColor.classList.add('computing')
-          console.log('class added!')
+          if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
+            divToColor.classList.remove('computing')
+          }else{
+            divToColor.classList.add('computing')
+            console.log('class added!')
+          }
         }
         
       }
@@ -448,7 +504,8 @@ function pollInTimeline(response, domelement){
         console.log('success')
         // console.log(request)
         // console.log(domelement)
-        highlightUser(request.responseText, domelement)
+        
+        highlightUser(request.responseText, domelement, screen_name)
         // console.log(request.responseText)
       }
 
@@ -465,14 +522,14 @@ function pollInTimeline(response, domelement){
 
 
 // used in pollInTimeline
-function highlightUser(response_json, domelement){
+function highlightUser(response_json, domelement, screen_name){
   if(domelement!=null){
     response_json = JSON.parse(response_json);
-
     domelement.classList.remove('computing')
 
     divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
     if(divToColor!=null){
+
       if(response_json['result']['TOXICITY']['score'] > threshold){
       // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
       // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
@@ -486,7 +543,9 @@ function highlightUser(response_json, domelement){
         console.log('safe classs')
       }
     }
-  
+    
+    timelineStrangers[screen_name] = response_json['result']['TOXICITY']['score']
+    localStorage.setItem('timelineStrangers', JSON.stringify(timelineStrangers))
   }
 }
 
