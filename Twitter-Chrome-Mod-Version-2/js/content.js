@@ -38,6 +38,7 @@ var statusDiv;
 
 var toxicUserBorderStyle = '';
 var computingBorderStyle = '';
+var safeUserBorderStyle = '';
 var URL_HEADER = 'http://127.0.0.1:8000'
 // var URL_HEADER. = 'http://twitter-shield.si.umich.edu'
 
@@ -359,19 +360,19 @@ function sendUsersToPredictNotificationNewTwitter(){
           var canId = userCandidates[j].href.replace("https://twitter.com/", '')
           console.log(canId)
 
+          //signal that we started to compute
           console.log('change')
           var divToColor = userCandidates[j].querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
           if(divToColor!=null){
             // divToColor.style.border ='3px solid #42a5fc';
-            if(!divToColor.classList.contains('toxicUser')){
+            if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
+              divToColor.classList.remove('computing')
+            }else{
               divToColor.classList.add('computing')
               console.log('class added!')
-            }else{
-              divToColor.classList.remove('computing')
             }
             
           }
-
           get_score_in_notification(canId, pollInTimeline, userCandidates[j])
 
         }
@@ -391,6 +392,21 @@ function sendUsersToPredictTimelineNewTwitter(){
       var userCandidate = timelineSections[i].querySelector('a')
       var canId = userCandidate.href.replace("https://twitter.com/", '')
       // console.log(canId)
+
+      //signal that we started to compute
+      console.log('change')
+      var divToColor = timelineSections[i].querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+      if(divToColor!=null){
+        // divToColor.style.border ='3px solid #42a5fc';
+        if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
+          divToColor.classList.remove('computing')
+        }else{
+          divToColor.classList.add('computing')
+          console.log('class added!')
+        }
+        
+      }
+
       get_score_in_notification(canId, pollInTimeline, userCandidate)
 
     }
@@ -452,24 +468,26 @@ function pollInTimeline(response, domelement){
 function highlightUser(response_json, domelement){
   if(domelement!=null){
     response_json = JSON.parse(response_json);
+
     domelement.classList.remove('computing')
-    if(response_json['result']['TOXICITY']['score'] > 0){
+
+    divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+    if(divToColor!=null){
+      if(response_json['result']['TOXICITY']['score'] > threshold){
       // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
       // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
       // domelement.style.background = '#FC427B'
-      divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
-      if(divToColor!=null){
-        // divToColor.style.border ='3px solid rgb(252, 66, 123)';
+  
         divToColor.classList.add('toxicUser')
         console.log('class added!')
+
+      }else{
+        divToColor.classList.add('safeUser')
+        console.log('safe classs')
       }
-      // console.log(domelement)
-    
-    }else{
-      divToColor.classList.remove('computing')
     }
-  }
   
+  }
 }
 
 
@@ -576,6 +594,11 @@ function createCssClasses(){
   toxicUserBorderStyle.type = 'text/css';
   toxicUserBorderStyle.innerHTML = '.toxicUser { border-style: solid; border-color: #FC427B; border-width: 3px; }';
   document.getElementsByTagName('head')[0].appendChild(toxicUserBorderStyle)
+
+  safeUserBorderStyle = document.createElement('style');
+  safeUserBorderStyle.type = 'text/css';
+  safeUserBorderStyle.innerHTML = '.safeUser { border-style: solid; border-color: #5de48a; border-width: 3px; }';
+  document.getElementsByTagName('head')[0].appendChild(safeUserBorderStyle)
 
 
   computingBorderStyle = document.createElement('style');
