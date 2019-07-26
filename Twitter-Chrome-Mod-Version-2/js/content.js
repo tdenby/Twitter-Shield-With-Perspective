@@ -36,6 +36,7 @@ var flagged_tweets =[]
 var threshold;
 var statusDiv;
 
+var toxicUserBorderStyle = '';
 var URL_HEADER = 'http://127.0.0.1:8000'
 // var URL_HEADER. = 'http://twitter-shield.si.umich.edu'
 
@@ -43,6 +44,12 @@ $(window).on('load',function(){
   console.log($('[data-testid="UserProfileHeader_Items"]').length)
   console.log(currentPage)
   console.log(window.location.href)
+
+  // create class
+  toxicUserBorderStyle = document.createElement('style');
+  toxicUserBorderStyle.type = 'text/css';
+  toxicUserBorderStyle.innerHTML = '.toxicUser { border-style: solid; border-color: #FC427B; border-width: 3px; }';
+  document.getElementsByTagName('head')[0].appendChild(toxicUserBorderStyle)
 
   if(localStorage.getItem('threshold') != null){
     // console.log('not null!')
@@ -852,7 +859,9 @@ function highlightUser(response_json, domelement){
       // domelement.style.background = '#FC427B'
       divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
       if(divToColor!=null){
-        divToColor.style.border ='3px solid rgb(252, 66, 123)';
+        // divToColor.style.border ='3px solid rgb(252, 66, 123)';
+        divToColor.classList.add('toxicUser')
+        console.log('class added!')
       }
       console.log(domelement)
     
