@@ -63,26 +63,30 @@ $(window).on('load',function(){
     }else if(document.location.href =='https://twitter.com/messages'){
       currentPage = document.location.href 
     }else{
-      console.log(window.location.href)
       currentPage = window.location.href
-      console.log('window.location: '+ window.location.href)
-      $(document).arrive('[data-testid="UserProfileHeader_Items"]', function(){
-        console.log('new version of twitter- profile page')
-        var thisPageID = currentPage.replace('https://twitter.com/', '')
-        if (thisPageID != userID){
-          userID = thisPageID;
-          console.log('checkForJS_Finish')
-          console.log(userID)
-          get_score(userID, pollStatusNewTwitter);
+      if(currentPage.indexOf('/status/') < 0){
+        console.log(window.location.href)
+        console.log('window.location: '+ window.location.href)
+        $(document).arrive('[data-testid="UserProfileHeader_Items"]', function(){
+          console.log('new version of twitter- profile page')
+          var thisPageID = currentPage.replace('https://twitter.com/', '')
+          if (thisPageID != userID){
+            userID = thisPageID;
+            console.log('checkForJS_Finish')
+            console.log(userID)
+            get_score(userID, pollStatusNewTwitter);
 
         }
       })
+      }
+      
     }
   }
 
 
   var jsTimerForURLChange = setInterval(checkForJS_Finish, 3000);
   var notificationTimelineChecker = setInterval(checkNotificationTimeline, 5000)
+  
   // setTimeout(checkForJS_Finish, 3000);
 });
 
@@ -368,46 +372,44 @@ function checkabusiveNewTwitter(response) {
 
 
 
-function visualizeStatus(status){
-  if(document.getElementById('status')==null){
-    statusDiv = document.createElement('span');
-    statusDiv.id = 'status'
-    statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
-    document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, document.getElementsByClassName('ProfileHeaderCard-name')[0])
-    document.getElementById('status').style.color  = 'white';
-  }
-  console.log('visualizeStatus function')
-
-  if(status == 'done'){
-    statusDiv.innerHTML = '<br>';
-    statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
-  }else if (status == 'started'){
-    statusDiv.innerHTML = ' Started! '
-  }else{
-    statusDiv.innerHTML = status + ' stored!'
-  }
-}
 
 function visualizeStatusNewTwitter(status){
-  if(document.getElementById('status')==null){
-    // statusDiv = document.createElement('span');
-    // statusDiv.id = 'status'
-    // statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
-    
-    // document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, $('[data-testid="UserDescription"]'))
-    var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
-    $(statusDivString).insertBefore('[data-testid="UserDescription"]')
-    document.getElementById('status').style.color  = 'white';
-  }
+  // if(document.getElementById('status')==null){
+  //   var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
+  //   $(statusDivString).insertBefore('[data-testid="UserDescription"]')
+  //   document.getElementById('status').style.color  = 'white';
+  // }
   console.log('visualizeStatus function')
-  var statusDiv = document.getElementById('status')
+  // var statusDiv = document.getElementById('status')
+  // if(status == 'done'){
+  //   statusDiv.innerHTML = '<br>';
+  //   // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+  // }else if (status == 'started'){
+  //   statusDiv.innerHTML = ' Started! '
+  // }else{
+  //   // statusDiv.innerHTML = status + ' stored'
+  //   statusDiv.innerHTML = ' Pending '
+  // }
+   if (! document.getElementById("toxicityStatus")) {
+    var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
+    $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
+    
+    // toxicityStatusDiv.style.fontFamily = "sans-serif";
+
+    // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
+    //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
+  }
+  toxicityStatusDiv = document.getElementById('toxicityStatus')
   if(status == 'done'){
-    statusDiv.innerHTML = '<br>';
-    statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+    // toxicityStatusDiv.innerHTML = '<br>';
+    // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
   }else if (status == 'started'){
-    statusDiv.innerHTML = ' Started! '
+    toxicityStatusDiv.innerHTML = ' Started! '
+    toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }else{
-    statusDiv.innerHTML = status + ' stored'
+    // statusDiv.innerHTML = status + ' stored'
+    toxicityStatusDiv.innerHTML = ' Pending '
+    toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }
 }
 
@@ -418,25 +420,20 @@ function changeBioNewTwitter(response_json){
   var prof = document.querySelector(".ProfileAvatar");
   console.log(prof);
 
-  //change response_json to json
-  console.log("CHANGE--response_json below:")
-  console.log(response_json)
-
   score = response_json['TOXICITY']['score']
-  console.log(response_json['visualize'])
+  // console.log(response_json['visualize'])
  
   // first erase the 'stored' messagae
   console.log('visualizeStatus function')
   var statusDiv = document.getElementById('status')
   if(status == 'done'){
     statusDiv.innerHTML = '<br>';
-    statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+    // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
   }
 
   if (! document.getElementById("toxicityStatus")) {
     var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
     $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
-    
     
     // toxicityStatusDiv.style.fontFamily = "sans-serif";
 
@@ -459,15 +456,15 @@ function changeBioNewTwitter(response_json){
   }
 
   // temporary code
-  if(document.getElementById('status')==null){
-    var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
-    $(statusDivString).insertBefore('[data-testid="UserDescription"]')
-    document.getElementById('status').style.color  = 'white';
-  }
-  statusDiv = document.getElementById('status')
-  console.log(statusDiv)
-  statusDiv.innerHTML = '';
-  statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+  // if(document.getElementById('status')==null){
+  //   var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
+  //   $(statusDivString).insertBefore('[data-testid="UserDescription"]')
+  //   document.getElementById('status').style.color  = 'white';
+  // }
+  // statusDiv = document.getElementById('status')
+  // console.log(statusDiv)
+  // statusDiv.innerHTML = '';
+  // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
 
 }
 
@@ -844,17 +841,24 @@ function pollInTimeline(response, domelement){
 }
 
 function highlightUser(response_json, domelement){
-  response_json = JSON.parse(response_json);
-  console.log('highlightUser')
-  console.log(response_json)
+  if(domelement!=null){
+    response_json = JSON.parse(response_json);
+    console.log('highlightUser')
+    console.log(response_json)
   
-  if(response_json['result']['TOXICITY']['score'] > 0){
-    // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
-    // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
-    domelement.style.background = '#FC427B'
-    console.log(domelement)
-  
+    if(response_json['result']['TOXICITY']['score'] > 0){
+      // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
+      // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
+      // domelement.style.background = '#FC427B'
+      divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+      if(divToColor!=null){
+        divToColor.style.border ='3px solid rgb(252, 66, 123)';
+      }
+      console.log(domelement)
+    
+    }
   }
+  
 }
 
 
@@ -1256,6 +1260,29 @@ if(document.getElementsByClassName('ProfileHeading-toggleLink js-nav flagged-twe
 
   });
 }
+
+// function visualizeStatus(status){
+//   if(document.getElementById('status')==null){
+//     statusDiv = document.createElement('span');
+//     statusDiv.id = 'status'
+//     statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
+//     document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, document.getElementsByClassName('ProfileHeaderCard-name')[0])
+//     document.getElementById('status').style.color  = 'white';
+//   }
+//   console.log('visualizeStatus function')
+
+//   if(status == 'done'){
+//     statusDiv.innerHTML = '<br>';
+//     // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+//   }else if (status == 'started'){
+//     statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
+//     statusDiv.innerHTML = ' Started! '
+//   }else{
+//     statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
+//     statusDiv.innerHTML = status + ' stored!'
+//   }
+// }
+
 
 // function visualizeTicksOnTimeline(){
 
