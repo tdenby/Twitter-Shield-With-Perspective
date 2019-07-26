@@ -50,7 +50,10 @@ var statusDiv;
 var toxicUserBorderStyle = '';
 var computingBorderStyle = '';
 var safeUserBorderStyle = '';
+var notEnoughTweetsBorderStyle = '';
 var URL_HEADER = 'http://127.0.0.1:8000'
+
+var toxicityStatusDiv = '';
 // var URL_HEADER. = 'http://twitter-shield.si.umich.edu'
 
 
@@ -165,6 +168,7 @@ function checkForJS_Finish() {
             if (! document.getElementById("toxicityStatus")) {
               var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
               $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
+
             }
 
             toxicityStatusDiv = document.getElementById('toxicityStatus')
@@ -300,14 +304,16 @@ function checkabusiveNewTwitter(response, screen_name) {
 function visualizeStatusNewTwitter(status){
   console.log('visualizeStatus function')
 
-  if (! document.getElementById("toxicityStatus")) {
-    var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
-    $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
-    
-    // toxicityStatusDiv.style.fontFamily = "sans-serif";
-
-    // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
-    //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
+  if (document.getElementById("toxicityStatus")==null) {
+    console.log('add toxicityStatus')
+    toxicityStatusDiv = document.createElement('div');
+    toxicityStatusDiv.id = 'toxicityStatus'
+    toxicityStatusDiv.setAttribute('style', 'font-size:1.6em; padding:1px;')
+    if(document.querySelector('[data-testid="UserDescription"]') != null){
+      document.querySelector('[data-testid="UserDescription"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserDescription"]'))
+    }else{
+      document.querySelector('[data-testid="UserProfileHeader_Items"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserProfileHeader_Items"]'))
+    }  
   }
 
   toxicityStatusDiv = document.getElementById('toxicityStatus')
@@ -327,54 +333,76 @@ function visualizeStatusNewTwitter(status){
 function changeBioNewTwitter(response_json, screen_name){
   console.log('beginning of changeBio')
   var prof = document.querySelector(".ProfileAvatar");
+  console.log(response_json)
+  if (document.getElementById("toxicityStatus") == null) {
+    console.log('insert status div')
+    // var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
+    // $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
 
-  score = response_json['TOXICITY']['score']
-  // console.log(response_json['visualize'])
- 
-  // first erase the 'stored' messagae
-  console.log('visualizeStatus function')
-  var statusDiv = document.getElementById('status')
-  if(status == 'done'){
-    statusDiv.innerHTML = '<br>';
-    // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
-  }
 
-  if (! document.getElementById("toxicityStatus")) {
-    var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
-    $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
+    toxicityStatusDiv = document.createElement('div');
+    toxicityStatusDiv.id = 'toxicityStatus'
+    toxicityStatusDiv.setAttribute('style', 'font-size:1.6em; padding:1px;')
+    if(document.querySelector('[data-testid="UserDescription"]') != null){
+      document.querySelector('[data-testid="UserDescription"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserDescription"]'))
+    }else{
+      document.querySelector('[data-testid="UserProfileHeader_Items"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserProfileHeader_Items"]'))
+
+    }
     
-    // toxicityStatusDiv.style.fontFamily = "sans-serif";
+      
+      // toxicityStatusDiv.style.fontFamily = "sans-serif";
 
-    // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
-    //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
-
+      // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
+      //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
   }
 
   toxicityStatusDiv = document.getElementById('toxicityStatus')
-  toxicityStatusDiv.innerHTML = "Toxicity score: " + score
-  profileStrangers[screen_name] = score
-  localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
+  console.log(toxicityStatusDiv)
+  
+  if(response_json == 'No tweets'){
+    console.log("NO TWEETS BRUTH")
+    toxicityStatusDiv.innerHTML = 'This user does not have enough tweets to compute scores.'
+    toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
+  }else{
+    score = response_json['TOXICITY']['score']
+    // console.log(response_json['visualize'])
+   
+    // first erase the 'stored' messagae
+    console.log('visualizeStatus function')
+    var statusDiv = document.getElementById('status')
+    if(status == 'done'){
+      statusDiv.innerHTML = '<br>';
+      // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+    }
 
-  if(response_json['visualize'] == 'Below threshold') {
-      toxicityStatusDiv.style.color = 'green';
-      document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = 'green'
+    
+    toxicityStatusDiv.innerHTML = "Toxicity score: " + score
+    profileStrangers[screen_name] = score
+    localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
 
-  }
-  else {
-       toxicityStatusDiv.style.color = '#FC427B';
-       document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-  }
+    if(response_json['visualize'] == 'Below threshold') {
+        toxicityStatusDiv.style.color = 'green';
+        document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = 'green'
 
-  // temporary code
-  // if(document.getElementById('status')==null){
-  //   var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
-  //   $(statusDivString).insertBefore('[data-testid="UserDescription"]')
-  //   document.getElementById('status').style.color  = 'white';
-  // }
-  // statusDiv = document.getElementById('status')
-  // console.log(statusDiv)
-  // statusDiv.innerHTML = '';
-  // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+    }
+    else {
+         toxicityStatusDiv.style.color = '#FC427B';
+         document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+    }
+
+    // temporary code
+    // if(document.getElementById('status')==null){
+    //   var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
+    //   $(statusDivString).insertBefore('[data-testid="UserDescription"]')
+    //   document.getElementById('status').style.color  = 'white';
+    // }
+    // statusDiv = document.getElementById('status')
+    // console.log(statusDiv)
+    // statusDiv.innerHTML = '';
+    // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
+    }
+  
 
 }
 
@@ -411,7 +439,7 @@ function sendUsersToPredictNotificationNewTwitter(){
               //signal that we started to compute
               console.log('outside localStorage')
               // divToColor.style.border ='3px solid #42a5fc';
-              if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
+              if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser') || divToColor.classList.contains('notEnoughTweets')){
                 divToColor.classList.remove('computing')
               }else{
                 divToColor.classList.add('computing')
@@ -453,17 +481,18 @@ function sendUsersToPredictTimelineNewTwitter(){
 
             }
         }else{
-          if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser')){
+          if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser') || divToColor.classList.contains('notEnoughTweets')){
             divToColor.classList.remove('computing')
           }else{
             divToColor.classList.add('computing')
             console.log('class added!')
+            get_score_in_notification(canId, pollInTimeline, userCandidate)
           }
         }
         
       }
 
-      get_score_in_notification(canId, pollInTimeline, userCandidate)
+      
 
     }
   }
@@ -525,27 +554,30 @@ function pollInTimeline(response, domelement){
 function highlightUser(response_json, domelement, screen_name){
   if(domelement!=null){
     response_json = JSON.parse(response_json);
-    domelement.classList.remove('computing')
-
+    
     divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+    divToColor.classList.remove('computing')
     if(divToColor!=null){
-
-      if(response_json['result']['TOXICITY']['score'] > threshold){
-      // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
-      // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
-      // domelement.style.background = '#FC427B'
-  
-        divToColor.classList.add('toxicUser')
-        console.log('class added!')
-
+      if(response_json['result']=='No tweets'){
+        // ?
+        divToColor.classList.add('notEnoughTweets')
       }else{
-        divToColor.classList.add('safeUser')
-        console.log('safe classs')
+        if(response_json['result']['TOXICITY']['score'] > threshold){
+        // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
+        // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
+        // domelement.style.background = '#FC427B'
+    
+          divToColor.classList.add('toxicUser')
+          console.log('class added!')
+
+        }else{
+          divToColor.classList.add('safeUser')
+          console.log('safe classs')
+        }
+        timelineStrangers[screen_name] = response_json['result']['TOXICITY']['score']
+        localStorage.setItem('timelineStrangers', JSON.stringify(timelineStrangers))
       }
     }
-    
-    timelineStrangers[screen_name] = response_json['result']['TOXICITY']['score']
-    localStorage.setItem('timelineStrangers', JSON.stringify(timelineStrangers))
   }
 }
 
@@ -659,6 +691,10 @@ function createCssClasses(){
   safeUserBorderStyle.innerHTML = '.safeUser { border-style: solid; border-color: #5de48a; border-width: 3px; }';
   document.getElementsByTagName('head')[0].appendChild(safeUserBorderStyle)
 
+  notEnoughTweetsBorderStyle = document.createElement('style');
+  notEnoughTweetsBorderStyle.type = 'text/css';
+  notEnoughTweetsBorderStyle.innerHTML = '.notEnoughTweets { }';
+  document.getElementsByTagName('head')[0].appendChild(notEnoughTweetsBorderStyle)
 
   computingBorderStyle = document.createElement('style');
   computingBorderStyle.type = 'text/css';
