@@ -37,6 +37,7 @@ var threshold;
 var statusDiv;
 
 var toxicUserBorderStyle = '';
+var computingBorderStyle = '';
 var URL_HEADER = 'http://127.0.0.1:8000'
 // var URL_HEADER. = 'http://twitter-shield.si.umich.edu'
 
@@ -46,16 +47,7 @@ $(window).on('load',function(){
   console.log(window.location.href)
 
   // create class
-  toxicUserBorderStyle = document.createElement('style');
-  toxicUserBorderStyle.type = 'text/css';
-  toxicUserBorderStyle.innerHTML = '.toxicUser { border-style: solid; border-color: #FC427B; border-width: 3px; }';
-  document.getElementsByTagName('head')[0].appendChild(toxicUserBorderStyle)
-
-
-  computingBorderStyle = document.createElement('style');
-  computingBorderStyle.type = 'text/css';
-  computingBorderStyle.innerHTML = '.computing { border-style: solid; border-color: #1d9dfa; border-width: 3px; }';
-  document.getElementsByTagName('head')[0].appendChild(computingBorderStyle)
+  createCssClasses()
 
   if(localStorage.getItem('threshold') != null){
     // console.log('not null!')
@@ -68,7 +60,6 @@ $(window).on('load',function(){
   }
   
   if(currentPage != window.location.href){
-
     if(document.location.href == 'https://twitter.com/home') {
       currentPage = document.location.href 
     }else if(document.location.href == 'https://twitter.com/notifications') {
@@ -78,7 +69,6 @@ $(window).on('load',function(){
     }else{
       currentPage = window.location.href
       if(currentPage.indexOf('/status/') < 0){
-        console.log(window.location.href)
         console.log('window.location: '+ window.location.href)
         $(document).arrive('[data-testid="UserProfileHeader_Items"]', function(){
           console.log('new version of twitter- profile page')
@@ -89,107 +79,27 @@ $(window).on('load',function(){
             console.log(userID)
             get_score(userID, pollStatusNewTwitter);
 
-        }
-      })
+          }
+        })
       }
       
     }
   }
-
 
   var jsTimerForURLChange = setInterval(checkForJS_Finish, 3000);
   var notificationTimelineChecker = setInterval(checkNotificationTimeline, 5000)
-  
-  // setTimeout(checkForJS_Finish, 3000);
+
 });
 
-function checkForJS_Finish() {
-
-  if(localStorage.getItem('threshold') != null){
-    // console.log('not null!')
-    threshold = localStorage.getItem('threshold');
-  }else{
-    // build popup
-    localStorage.setItem('threshold', 0.3);
-    threshold = localStorage.getItem('threshold');
-    console.log('set threshold as default for now')
-  }
-  
-  if(currentPage != window.location.href){
-    console.log('changed')
-    if(document.location.href == 'https://twitter.com/home') {
-      currentPage = document.location.href 
-      // global_tweetcount = 0
-      // console.log('timeline')
-      // sendUsersToPredictTimelineNewTwitter()
-      // getPostsFromHomeTimeline();
-    }else if(document.location.href == 'https://twitter.com/notifications') {
-      currentPage = document.location.href 
-      // console.log(document.querySelectorAll('.css-1dbjc4n.r-1jgb5lz.r-1ye8kvj.r-6337vo.r-13qz1uu'))
-      // sendUsersToPredictNotificationNewTwitter()
-        // console.log('start code for visualizing in notifcation page')
-        // global_tweetcount = 0
-        // getPostsFromNotificationTimeline();
-          // addTab()
-    }else if(document.location.href =='https://twitter.com/messages'){
-      currentPage = document.location.href 
-    }else{
-      // location.reload();
-      console.log(window.location.href)
-
-      // if(document.getElementById('toxicityStatus')!=null){
-      //   document.getElementById('toxicityStatus').innerText = '';
-      currentPage = window.location.href
-      document.querySelectorAll('.css-1dbjc4n.r-14lw9ot.r-11mg6pl.r-sdzlij.r-1phboty.r-14f9gny.r-1gzrgec.r-cnkkqs.r-1udh08x.r-13qz1uu')[0].style.borderColor = ''
-      if(document.getElementById('toxicityStatus')!=null){
-        document.getElementById('toxicityStatus').innerText = '';
-      }
-      
-
-      console.log('window.location: '+ window.location.href)
-      if(document.querySelectorAll('[data-testid="UserProfileHeader_Items"]').length>0){
-        console.log('new version of twitter- profile page')
-        var thisPageID = currentPage.replace('https://twitter.com/', '')
-        if (thisPageID != userID){
-          userID = thisPageID;
-          console.log('checkForJS_Finish')
-          console.log(userID)
-          get_score(userID, pollStatusNewTwitter);
-
-        }
-      }else{
-        console.log('not loaded yet')
-      }
-    }
-  
-  }
-
-  // // keep polling on timeline/notification page - as this loads only first 5 tweets on URL change
-  // if (document.querySelector(".home.active")) {
-        // getPostsFromHomeTimeline();
-    // }
-
-      // if (document.querySelector(".NotificationsHeadingContent")) {
-        // getPostsFromNotificationTimeline();
-    // }
-}
-
-  
-
- // if(currentPage != window.location.href){
-
-
-
-function checkNotificationTimeline(){
-  console.log('notification timeline checker')
+// this visualizes flagged tweets when scrolling
+window.onscroll = function(ev) {
   if(document.location.href == 'https://twitter.com/home') {
     global_tweetcount = 0
-    console.log('timeline')
+    console.log('scrolling')
     sendUsersToPredictTimelineNewTwitter()
-    // getPostsFromHomeTimeline();
   }else if(document.location.href == 'https://twitter.com/notifications') {
     // console.log(document.querySelectorAll('.css-1dbjc4n.r-1jgb5lz.r-1ye8kvj.r-6337vo.r-13qz1uu'))
-    console.log('notification')
+    console.log('scrolling')
     sendUsersToPredictNotificationNewTwitter()
     // setTimeout(function(){ sendUsersToPredictNotificationNewTwitter();
     //                       console.log('second') }, 500)
@@ -198,6 +108,63 @@ function checkNotificationTimeline(){
       // global_tweetcount = 0
       // getPostsFromNotificationTimeline();
         // addTab()
+  }else if(document.location.href =='https://twitter.com/messages'){
+
+  }
+};
+
+
+function checkForJS_Finish() {
+  if(localStorage.getItem('threshold') != null){
+    threshold = localStorage.getItem('threshold');
+  }else{
+    localStorage.setItem('threshold', 0.3);
+    threshold = localStorage.getItem('threshold');
+    console.log('set threshold as default for now')
+  }
+  
+  if(currentPage != window.location.href){
+    if(document.location.href == 'https://twitter.com/home') {
+      currentPage = document.location.href 
+    }else if(document.location.href == 'https://twitter.com/notifications') {
+      currentPage = document.location.href 
+    }else if(document.location.href =='https://twitter.com/messages'){
+      currentPage = document.location.href 
+    }else{
+      console.log(window.location.href)
+      if(document.getElementById('toxicityStatus')!=null){
+        document.getElementById('toxicityStatus').innerText = '';
+      }
+      
+      currentPage = window.location.href
+      document.querySelectorAll('.css-1dbjc4n.r-14lw9ot.r-11mg6pl.r-sdzlij.r-1phboty.r-14f9gny.r-1gzrgec.r-cnkkqs.r-1udh08x.r-13qz1uu')[0].style.borderColor = ''
+      
+      if(document.querySelectorAll('[data-testid="UserProfileHeader_Items"]').length>0){
+        console.log('new version of twitter- profile page')
+        var thisPageID = currentPage.replace('https://twitter.com/', '')
+        if (thisPageID != userID){
+          userID = thisPageID;
+          console.log(userID)
+          get_score(userID, pollStatusNewTwitter);
+        }
+      }else{
+        console.log('not loaded yet')
+      }
+    }
+  
+  }
+}
+
+  
+function checkNotificationTimeline(){
+  console.log('notification timeline checker')
+  if(document.location.href == 'https://twitter.com/home') {
+    global_tweetcount = 0
+    console.log('timeline')
+    sendUsersToPredictTimelineNewTwitter()
+  }else if(document.location.href == 'https://twitter.com/notifications') {
+    console.log('notification')
+    sendUsersToPredictNotificationNewTwitter()
   }else if(document.location.href =='https://twitter.com/messages'){
 
   }
@@ -223,7 +190,6 @@ function get_score(username, callback) {
 
 function get_score_in_notification(username, callback, callback_input) {
     // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
-    console.log('get_score')
     var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
@@ -237,85 +203,6 @@ function get_score_in_notification(username, callback, callback_input) {
     console.log('done')
 }
 
-// this visualizes flagged tweets when scrolling
-window.onscroll = function(ev) {
-  if(document.location.href == 'https://twitter.com/home') {
-    global_tweetcount = 0
-    console.log('scrolling')
-    sendUsersToPredictTimelineNewTwitter()
-    // getPostsFromHomeTimeline();
-  }else if(document.location.href == 'https://twitter.com/notifications') {
-    // console.log(document.querySelectorAll('.css-1dbjc4n.r-1jgb5lz.r-1ye8kvj.r-6337vo.r-13qz1uu'))
-    console.log('scrolling')
-    sendUsersToPredictNotificationNewTwitter()
-    // setTimeout(function(){ sendUsersToPredictNotificationNewTwitter();
-    //                       console.log('second') }, 500)
-    
-      // console.log('start code for visualizing in notifcation page')
-      // global_tweetcount = 0
-      // getPostsFromNotificationTimeline();
-        // addTab()
-  }else if(document.location.href =='https://twitter.com/messages'){
-
-  }
-};
-
-
-
-// function pollStatus(response){
-//   console.log('called poll status!')
-//   console.log(response)
-//   response_json = JSON.parse(response);
-//   task_id = response_json['task_id']
-//   screen_name = response_json['screen_name']
-//   threshold = response_json['threshold']
- 
-//   //flagged_tweets = response_json.flagged_tweets
-//   task_id = response_json['task_id']
-//   screen_name = response_json['screen_name']
-//   threshold = response_json['threshold']
-//   var url = URL_HEADER + "/poll_status?task_id=" + task_id + '&screen_name=' + screen_name + '&threshold=' + threshold
-//   // var url = "http://twitter-shield.si.umich.edu/poll_status?task_id=" + task_id + '&screen_name=' + screen_name + '&threshold=' + threshold
-//   var request = new XMLHttpRequest();
-
-//   request.onreadystatechange = function(){
-//     if (request.readyState == 4 && request.status == 200){
-//       console.log(request)
-//       result = JSON.parse(request.responseText)
-//       console.log('poll status')
-//       // console.log(result)
-//       if (result['state'] == 'PENDING'){
-//         console.log('pending')
-//         console.log(request.responseText)
-//         status = JSON.parse(request.responseText)['result']
-//         console.log(status)
-//         if (document.querySelector(".NotificationsHeadingContent")==null) {
-//           visualizeStatus(status)
-//         }
-//         setTimeout(pollStatus(response), 3000);
-//       }else if (result['state'] == 'SUCCESS'){
-//         console.log('success')
-//         // console.log(request.responseText)
-//         checkabusive(request.responseText)
-//         if (document.querySelector(".NotificationsHeadingContent")==null) {
-//           visualizeStatus('done')
-//         }
-//         // addFlagging()
-//       }
-
-//       // checkabusive(request.responseText)
-//     }else{
-//       console.log('not yet 4')
-//       console.log(request)
-//     }
-//   };
-
-//   request.open('GET', url);
-//   request.send();
-
-
-
-// }
 
 function pollStatusNewTwitter(response){
   console.log('called poll status in new Twitter!')
@@ -350,43 +237,23 @@ function pollStatusNewTwitter(response){
         setTimeout(pollStatusNewTwitter(response), 4000);
       }else if (result['state'] == 'SUCCESS'){
         console.log('success')
-        // console.log(request.responseText)
         checkabusiveNewTwitter(request.responseText)
         visualizeStatusNewTwitter('done')
         
-        // addFlagging()
       }
 
-      // checkabusive(request.responseText)
-    }else{
-      console.log('not yet 4')
-      console.log(request)
     }
   };
 
   request.open('GET', url);
   request.send();
-
-
-
 }
 
-
-function checkabusive(response) {
-  // need to update!
-  response_json = JSON.parse(response);
-  //flagged_tweets = response_json.flagged_tweets
-
-  changeBio(response_json['result'])
-  highlightAbusivePosts(response_json['result'])
-}
 
 
 function checkabusiveNewTwitter(response) {
   // need to update!
   response_json = JSON.parse(response);
-  //flagged_tweets = response_json.flagged_tweets
-
   changeBioNewTwitter(response_json['result'])
   // highlightAbusivePostsNewTwitter(response_json['result'])
 }
@@ -395,23 +262,9 @@ function checkabusiveNewTwitter(response) {
 
 
 function visualizeStatusNewTwitter(status){
-  // if(document.getElementById('status')==null){
-  //   var statusDivString = '<div id="status" style="font-size:1.4em; background-color:#0084B4; padding:3px;"></div>'
-  //   $(statusDivString).insertBefore('[data-testid="UserDescription"]')
-  //   document.getElementById('status').style.color  = 'white';
-  // }
   console.log('visualizeStatus function')
-  // var statusDiv = document.getElementById('status')
-  // if(status == 'done'){
-  //   statusDiv.innerHTML = '<br>';
-  //   // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
-  // }else if (status == 'started'){
-  //   statusDiv.innerHTML = ' Started! '
-  // }else{
-  //   // statusDiv.innerHTML = status + ' stored'
-  //   statusDiv.innerHTML = ' Pending '
-  // }
-   if (! document.getElementById("toxicityStatus")) {
+
+  if (! document.getElementById("toxicityStatus")) {
     var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
     $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
     
@@ -420,6 +273,7 @@ function visualizeStatusNewTwitter(status){
     // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
     //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
   }
+
   toxicityStatusDiv = document.getElementById('toxicityStatus')
   if(status == 'done'){
     // toxicityStatusDiv.innerHTML = '<br>';
@@ -429,17 +283,14 @@ function visualizeStatusNewTwitter(status){
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }else{
     // statusDiv.innerHTML = status + ' stored'
-    toxicityStatusDiv.innerHTML = ' Pending '
+    toxicityStatusDiv.innerHTML = ' Pending... '
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }
 }
 
 function changeBioNewTwitter(response_json){
   console.log('beginning of changeBio')
-  console.log(response_json)
-
   var prof = document.querySelector(".ProfileAvatar");
-  console.log(prof);
 
   score = response_json['TOXICITY']['score']
   // console.log(response_json['visualize'])
@@ -489,210 +340,6 @@ function changeBioNewTwitter(response_json){
 
 }
 
-
-function changeBio(response_json){
-    console.log('beginning of changeBio')
-    console.log(response_json)
-
-    var prof = document.querySelector(".ProfileAvatar");
-    console.log(prof);
-
-    //change response_json to json
-    console.log("CHANGE--response_json below:")
-    console.log(response_json)
-
-    score = response_json['TOXICITY']['score']
-    console.log(response_json['visualize'])
-    // if(response_json['visualize'] == 'Below threshold'){
-    //   prof.style.borderColor = "green";
-    // }else{
-    //   prof.style.borderColor = "#FC427B"; 
-    // }
-
-  var originalDiv = document.getElementsByClassName("ProfileHeaderCard-screenname");
-  var parents = document.getElementsByClassName("AppContent-main content-main u-cf");
-  // parents[0].setAttribute("stsle", "margin-top:50px;");
-
-  if (! document.getElementById("bio-box")) {
-    // Parent Element
- 
-    // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
-    //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
-    if(response_json['visualize'] == 'Below threshold') {
-      biobox_char.style.color = 'green';
-    }
-    else {
-       biobox_char.style.color = '#FC427B';
-    }
-
-    // temporary code
-    if(document.getElementById('status')==null){
-      statusDiv = document.createElement('span');
-      statusDiv.id = 'status'
-      statusDiv.setAttribute('style', 'font-size:1.2em; background-color:#0084B4; padding:3px; border-radius: 15px;')
-      document.getElementsByClassName('ProfileHeaderCard')[0].insertBefore(statusDiv, document.getElementsByClassName('ProfileHeaderCard-name')[0])
-      document.getElementById('status').style.color  = 'white';
-    }
-    statusDiv.innerHTML = '<br>';
-    statusDiv.setAttribute('style', 'padding:0px;');
-    // Prompt Abusive_toggle
-    // var biobox_char = document.createElement("P");
-    // charbox.appendChild(biobox_char);
-    // biobox_char.id = "bio-box-text";
-    // biobox_char.innerText = "This user is";
-
-    // // Abusive Toggle
-    // var biobox_char_toggle = document.createElement("P");
-    // biobox_char.appendChild(biobox_char_toggle);
-    // biobox_char_toggle.id = "bio-box-highlight";
-    // biobox_char_toggle.innerText = "Abusive";
-
-    // // Prompt Abusive_words
-    // var biobox_word = document.createElement("P");
-    // charbox.appendChild(biobox_word);
-    // biobox_word.id = "bio-box-text";
-    // biobox_word.innerText = "Few abusive words used";
-
-    // // Abusive_words
-    // var list_group = document.createElement("DIV");
-    // var word_div = document.createElement('H2');
-    // list_group.appendChild(word_div);
-    // charbox.appendChild(list_group);
-
-    // if(abusive_list.length >= 7) {
-    //   for(i=0; i<7; i++) {
-    //     var biobox_word_items = document.createElement("SPAN");
-    //     biobox_word_items.className = "badge badge-secondary";
-    //     biobox_word_items.id = "badge-word";
-    //     biobox_word_items.style.margin = "5px 5px 0 0";
-    //     biobox_word_items.innerText = abusive_list[i];
-    //     word_div.appendChild(biobox_word_items);
-    //   }
-    // }
-    // else {
-    //   for(i=0; i<abusive_list.length; i++) {
-    //     var biobox_word_items = document.createElement("SPAN");
-    //     biobox_word_items.className = "badge badge-secondary";
-    //     biobox_word_items.id = "badge-word";
-    //     biobox_word_items.style.margin = "5px 5px 0 0";
-    //     biobox_word_items.innerText = abusive_list[i];
-    //     word_div.appendChild(biobox_word_items);
-
-    //     var bio1 = document.getElementsByClassName("ProfileHeaderCard-bio");
-    //     var bio2 = document.getElementsByClassName("ProfileHeaderCard-location");
-    //     var bio3 = document.getElementsByClassName("ProfileHeaderCard-url");
-    //     var bio4 = document.getElementsByClassName("ProfileHeaderCard-joinDate");
-    //     var bio5 = document.getElementsByClassName("ProfileHeaderCard-birthdate");
-    //     var bio6 = document.getElementsByClassName("ProfileMessagingActions");
-
-    //     bio1[0].setAttribute("class", "u-hidden");
-    //     bio2[0].setAttribute("class", "u-hidden");
-    //     bio3[0].setAttribute("class", "u-hidden");
-    //     bio4[0].setAttribute("class", "u-hidden");
-    //     bio5[0].setAttribute("class", "u-hidden");
-    //     bio6[0].setAttribute("style", "margin-top:0px;");
-    //   }
-    // }
-  }
-}
-
-// function changeProfileStats(data) {
-//   response_json = JSON.parse(data);
-//   user_consensus_score = response_json.user_consensus_score;
-//   var profileStats = document.querySelector(".ProfileCardStats-statLabel.u-block");
-//     if(profileStats){
-//             profileStats.innerText = 'Abusive Score';
-//       profileStats.style.color = 'rgb(252, 66, 123)';
-
-//     }
-
-//    if(document.querySelector(".ProfileCardStats-statValue"))
-//       document.querySelector(".ProfileCardStats-statValue").innerText = user_consensus_score.toFixed(2);
-//       document.querySelector(".ProfileCardStats-statValue").style.color = 'rgb(252, 66, 123)'
-// }
-
-function getPostsFromHomeTimeline(){
-  //console.log('getPostsFromHomeTimeline')
-    // sendPostsToPredict()
-    if(document.querySelector(".u-linkComplex-target")){
-      userID = document.querySelector(".u-linkComplex-target").innerText
-      // get_score(userID, changeProfileStats, null)
-    }
-
-    sendUsersToPredictInTimeline()
-}
-
-function getPostsFromNotificationTimeline(){
-  console.log('getPostsFromNotificationTimeline')
-  // sendPostsToPredict()
-  // add every user consensus score
-  // sendUsersToPredict()
-  sendUsersToPredict()
-}
-
-// function oldSendUsersToPredict(){
-//     // var list = document.querySelectorAll("div.stream-item-header");
-//     var list = document.querySelectorAll("li> .js-profile-popup-actionable.js-tooltip")
-//     console.log(list.length)
-//     for(i=0;i<list.length;i++){
-//       // let username = list[i].querySelector("a > .username.u-dir.u-textTruncate");
-//       // console.log(username)
-//       //add_loader(list[i]);
-//       let username = list[i].href.replace("https://twitter.com/","")
-//       if(username){
-//         console.log(username);
-//         // get_score(username.innerText.substring(1, username.length), highlightUser, list[i])
-//         get_score_in_notification(username, pollInTimeline, list[i])
-
-//       }
-//     }
-// }
-
-
-// function sendUsersToPredict(){
-//     var notificationStreamIds = []
-//     var list = document.querySelectorAll(".js-stream-item.stream-item.stream-item.js-activity")
-//     console.log(list)
-
-//     for(i=0;i<list.length;i++){
-//       let streamActivityId = list[i].id
-
-//       notificationStreamIds.push(streamActivityId)
-//       // when reply
-//       var profiles = list[i].querySelectorAll("a.js-profile-popup-actionable.js-tooltip");
-//       console.log(profiles)
-//       if (profiles.length==0){
-//         profiles = list[i].querySelectorAll("a.account-group.js-account-group.js-action-profile.js-user-profile-link.js-nav");
-//       }
-//       console.log(profiles)
-
-//       for(j=0; j<profiles.length; j++){
-//           let username = profiles[j].href.replace("https://twitter.com/","")
-//           if(username){
-//             // console.log(username);
-//             var image = profiles[j].querySelector("a > img.avatar.size24.js-user-profile-link")
-//             if (image == null){
-//               image = profiles[j].querySelector('a > img.avatar.js-action-profile-avatar')
-//             }
-//             image.style.border = '4px solid #1d9dfaed';
-//             console.log('change')
-
-//             get_score_in_notification(username, pollInTimeline, profiles[j])
-
-//           }
-
-//         }
-      
-    
-//     }
-
-    // if (localStorage.getItem("notificationStreamIds") == null){
-    //   localStorage.setItem('notificationStreamIds', '#')
-    // }
-
-    // var notificationStreamIds = localStorage.getItem("notificationStreamIds")
-
-// }
 
 
 
@@ -751,85 +398,6 @@ function sendUsersToPredictTimelineNewTwitter(){
 }
 
 
-function sendUsersToPredictInTimeline(){
-    var notificationStreamIds = []
-    var list = document.querySelectorAll(".js-stream-item.stream-item.stream-item")
-    // console.log(list)
-
-    for(i=0;i<list.length;i++){
-      let streamActivityId = list[i].id
-
-      notificationStreamIds.push(streamActivityId)
-      // when reply
-      var profiles = list[i].querySelectorAll("a.js-profile-popup-actionable.js-tooltip");
-      console.log(profiles)
-      if (profiles.length==0){
-        profiles = list[i].querySelectorAll("a.account-group.js-account-group.js-action-profile.js-user-profile-link.js-nav");
-      }
-      // console.log(profiles)
-
-      for(j=0; j<profiles.length; j++){
-          let username = profiles[j].href.replace("https://twitter.com/","")
-          if(username){
-            console.log(username);
-            get_score_in_notification(username, pollInTimeline, profiles[j])
-
-          }
-
-        }
-      
-    
-    }
-
-    // if (localStorage.getItem("notificationStreamIds") == null){
-    //   localStorage.setItem('notificationStreamIds', '#')
-    // }
-
-    // var notificationStreamIds = localStorage.getItem("notificationStreamIds")
-
-}
-
-
-
-
-
-//generic functionality that sends a bunch of tweets for prediction
-function sendPostsToPredict(){
-
-  var tweets = document.querySelectorAll(".tweet-text");
-  var tweets_text = []
-  console.log('Global tweet count' + global_tweetcount)
-  console.log('Tweet queried length' + tweets.length)
-
-    if(tweets.length > global_tweetcount){
-      ////console.log(tweets)
-
-      global_tweetcount = tweets.length;
-      for(i=0;i<tweets.length;i++){
-        // clean URL to form JSON parameters
-        temp = tweets[i].innerText.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
-        temp =  temp.replace(/\W+/g," ")
-        tweets_text.push({"text":temp})
-      }
-
-      console.log('Preprocessed text length' +tweets_text.length)
-
-      var url = "http://127.0.0.1:5000/predict?tweets=" + JSON.stringify(tweets_text);
-
-      //is it not picking up on time? is 3000 too short?
-      var request = new XMLHttpRequest();
-      request.onreadystatechange = function() {
-        if (request.readyState == 4 && request.status == 200) {
-          response_json = JSON.parse(request.responseText);
-          //console.log('Flagged tweets length'+response_json.flagged_tweets.length)
-          flagged_tweets = response_json.flagged_tweets
-          highlightAbusivePosts(response_json.flagged_tweets);
-        }
-      };
-      request.open('GET', url);
-      request.send();
-      }
-}
 
 
 function pollInTimeline(response, domelement){
@@ -877,15 +445,13 @@ function pollInTimeline(response, domelement){
 
   request.open('GET', url);
   request.send();
-
-
 }
 
+
+// used in pollInTimeline
 function highlightUser(response_json, domelement){
   if(domelement!=null){
     response_json = JSON.parse(response_json);
-    // console.log('highlightUser')
-    // console.log(response_json)
     domelement.classList.remove('computing')
     if(response_json['result']['TOXICITY']['score'] > 0){
       // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
@@ -932,10 +498,6 @@ function changeNameHeader(userIDNode) {
   userIDNode.appendChild(warningNotification);
 }
 
-function findUserId(document) {
-  let userId = document.querySelector(".ProfileHeaderCard-screennameLink > span > b");
-  return userId.innerText;
-}
 
 function checkNotifUserId(document) {
   let container = document.querySelector(".stream");
@@ -1009,6 +571,20 @@ function highlightAbusivePostsNewTwitter(response_json) {
 
 }
 
+function createCssClasses(){
+  toxicUserBorderStyle = document.createElement('style');
+  toxicUserBorderStyle.type = 'text/css';
+  toxicUserBorderStyle.innerHTML = '.toxicUser { border-style: solid; border-color: #FC427B; border-width: 3px; }';
+  document.getElementsByTagName('head')[0].appendChild(toxicUserBorderStyle)
+
+
+  computingBorderStyle = document.createElement('style');
+  computingBorderStyle.type = 'text/css';
+  computingBorderStyle.innerHTML = '.computing { border-style: solid; border-color: #1d9dfa; border-width: 3px; }';
+  document.getElementsByTagName('head')[0].appendChild(computingBorderStyle)
+
+}
+
 function highlightAbusivePosts(response_json) {
   flagged_tweets = response_json['tweets_with_scores']
     
@@ -1052,11 +628,10 @@ function highlightAbusivePosts(response_json) {
     flagged_tweets_flag = false
   }
 
-
+}
 
 
 function loader(parentElement){
-
   let childEle = document.createElement("span");
   childEle.className = "lds-ellipsis";
   childEle.innerText = "Hey"
@@ -1099,7 +674,43 @@ function changeAvi() {
 }
 
 
+//generic functionality that sends a bunch of tweets for prediction
+// function sendPostsToPredict(){
 
+//   var tweets = document.querySelectorAll(".tweet-text");
+//   var tweets_text = []
+//   console.log('Global tweet count' + global_tweetcount)
+//   console.log('Tweet queried length' + tweets.length)
+
+//     if(tweets.length > global_tweetcount){
+//       ////console.log(tweets)
+
+//       global_tweetcount = tweets.length;
+//       for(i=0;i<tweets.length;i++){
+//         // clean URL to form JSON parameters
+//         temp = tweets[i].innerText.replace(/(?:https?|www):\/\/[\n\S]+/g, '')
+//         temp =  temp.replace(/\W+/g," ")
+//         tweets_text.push({"text":temp})
+//       }
+
+//       console.log('Preprocessed text length' +tweets_text.length)
+
+//       var url = "http://127.0.0.1:5000/predict?tweets=" + JSON.stringify(tweets_text);
+
+//       //is it not picking up on time? is 3000 too short?
+//       var request = new XMLHttpRequest();
+//       request.onreadystatechange = function() {
+//         if (request.readyState == 4 && request.status == 200) {
+//           response_json = JSON.parse(request.responseText);
+//           //console.log('Flagged tweets length'+response_json.flagged_tweets.length)
+//           flagged_tweets = response_json.flagged_tweets
+//           highlightAbusivePosts(response_json.flagged_tweets);
+//         }
+//       };
+//       request.open('GET', url);
+//       request.send();
+//       }
+// }
  
 
 // function visualizeStatus(status){
