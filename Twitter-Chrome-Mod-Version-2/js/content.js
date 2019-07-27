@@ -362,7 +362,7 @@ function changeBioNewTwitter(response_json, screen_name){
   
   if(response_json == 'No tweets'){
     console.log("NO TWEETS BRUTH")
-    toxicityStatusDiv.innerHTML = 'This user does not have enough tweets to compute scores.'
+    toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }else{
     score = response_json['TOXICITY']['score']
@@ -527,9 +527,9 @@ function pollInTimeline(response, domelement){
         // console.log(request.responseText)
         status = JSON.parse(request.responseText)['result']
         // console.log(status)
-        // visualizeStatus(status)
+        // visualizeStatus(status)s
         setTimeout(pollInTimeline(response), 3000);
-      }else if (result['state'] == 'SUCCESS'){
+      }else if (result['state'] == 'SUCCESS' && result['result']!='started'){
         console.log('success')
         // console.log(request)
         // console.log(domelement)
@@ -555,13 +555,15 @@ function highlightUser(response_json, domelement, screen_name){
   if(domelement!=null){
     response_json = JSON.parse(response_json);
     
-    divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+    var divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
     divToColor.classList.remove('computing')
     if(divToColor!=null){
       if(response_json['result']=='No tweets'){
         // ?
         divToColor.classList.add('notEnoughTweets')
       }else{
+        console.log(screen_name)
+        console.log(response_json)
         if(response_json['result']['TOXICITY']['score'] > threshold){
         // domelement.querySelector("a > img.avatar.js-action-profile-avatar").style.border = '4px solid rgb(252, 66, 123)';
         // var image =  domelement.querySelector("a > img.avatar.size24.js-user-profile-link")
