@@ -30,11 +30,6 @@ var ignoreURLs = ["https://twitter.com/i/bookmarks",
                 "https://twitter.com/explore",
                 "/status/", "/home", "notifications"]
 
-var profileURLs = ["/with_replies", 
-                  "/media",
-                  "/likes"
-                  ]
-
 var withRepliesRegex = new RegExp('/with_replies'+"$")
 var mediaRegex = new RegExp('/media'+"$")
 var likesRegex = new RegExp('/likes'+"$")
@@ -112,27 +107,22 @@ $(window).on('load',function(){
         thisPageID = result[0]
         thisTab = result[1]
         console.log(thisPageID)
-        console.log(thisTab)
-        console.log(currentPage)
         if (thisPageID != userID || thisTab != currentTab){
-          
+          // update current page or/and tab
           userID = thisPageID;
           currentTab = thisTab;
           console.log(userID)
           get_score(userID, pollStatusNewTwitter);
-
         }
-      })
-      
-      
-      
+      })     
     }
   }
-
-  var jsTimerForURLChange = setInterval(checkForJS_Finish, 2000);
+  // periodically call the followings
+  var jsTimerForURLChange = setInterval(checkProfile, 2000);
   var notificationTimelineChecker = setInterval(checkNotificationTimeline, 5000)
 
 });
+
 
 function checkTabWithinProfile(thisPageID){
   if(withRepliesRegex.test(thisPageID)){
@@ -153,11 +143,10 @@ function checkTabWithinProfile(thisPageID){
   return [thisPageID, thisTab]
 }
 
-// this visualizes flagged tweets when scrolling
+// this visualizes flagged tweets when scrolling 
 window.onscroll = function(ev) {
   if(document.location.href == 'https://twitter.com/home') {
     global_tweetcount = 0
-
     sendUsersToPredictTimelineNewTwitter()
   }else if(document.location.href == 'https://twitter.com/notifications') {
     sendUsersToPredictNotificationNewTwitter()
@@ -174,7 +163,7 @@ window.onscroll = function(ev) {
 };
 
 
-function checkForJS_Finish() {
+function checkProfile() {
   if(localStorage.getItem('threshold') != null){
     threshold = localStorage.getItem('threshold');
   }else{
@@ -198,71 +187,22 @@ function checkForJS_Finish() {
       
       // document.querySelectorAll('.css-1dbjc4n.r-14lw9ot.r-11mg6pl.r-sdzlij.r-1phboty.r-14f9gny.r-1gzrgec.r-cnkkqs.r-1udh08x.r-13qz1uu')[0].style.borderColor = ''
       if(document.querySelectorAll('[data-testid="UserProfileHeader_Items"]').length>0){
-        // console.log('new version of twitter- profile page')
         currentPage = window.location.href
-        
         var thisPageID = currentPage.replace('https://twitter.com/', '')
         var result = checkTabWithinProfile(thisPageID)
         thisPageID = result[0]
         thisTab = result[1]
 
         console.log(thisPageID)
-        console.log(thisTab)
-        console.log(currentPage)
         if (thisPageID != userID || thisTab != currentTab){
           userID = thisPageID;
           currentTab = thisTab;
           document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = ''
-          // console.log(userID)
-          //first check localstrage
           if(userID in profileStrangers){
-            console.log('from localstraoge: profile')
             var thisScore = profileStrangers[userID]
-            if (! document.getElementById("toxicityStatus")) {
-              var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
-              $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
-
-            }
-
-            toxicityStatusDiv = document.getElementById('toxicityStatus')
-            // toxicityStatusDiv.innerHTML = "Toxicity score: " + thisScore
-            if(thisScore > VERY_TOXIC_BOUNDARY){
-              toxicityStatusDiv.innerHTML = "Alert! Very toxic user!"
-              toxicityStatusDiv.style.color = '#FC427B';
-              toxicityStatusDiv.appendChild(frownImage);
-              document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-            
-            }else if(thisScore > TOXIC_BOUNDARY){
-              toxicityStatusDiv.innerHTML = "Alert! Toxic user!"
-              toxicityStatusDiv.style.color = '#FC427B';
-              toxicityStatusDiv.appendChild(frownImage);
-              document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-            
-            }else if(thisScore == -1){
-              toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
-              toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
-              document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '';
-
-            }else if(thisScore < TOXIC_BOUNDARY) {
-              toxicityStatusDiv.innerHTML = "This user is safe!"
-
-              toxicityStatusDiv.style.color = '#5aca7f';
-              toxicityStatusDiv.appendChild(checkImage);
-              document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#5aca7f'
-            
-            }
-
-            // if(thisScore > threshold){
-            //   toxicityStatusDiv.style.color = '#FC427B';
-            //   document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-            // }else{
-            //   toxicityStatusDiv.style.color = '#5aca7f';
-            //   document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#5aca7f'
-            // }
-
+            changeBioElement(userID, thisScore)
           }else{
             get_score(userID, pollStatusNewTwitter);
-
         }  
         }
       }
@@ -272,9 +212,8 @@ function checkForJS_Finish() {
 }
 
 
-
-  
-function checkNotificationTimeline(){
+   
+function checkNotificationTimeline() {
   // console.log('notification timeline checker')
   if(document.location.href == 'https://twitter.com/home') {
     global_tweetcount = 0
@@ -408,16 +347,9 @@ function visualizeStatusNewTwitter(status){
   }
 }
 
-function changeBioNewTwitter(response_json, screen_name){
-  console.log('beginning of changeBio')
-  var prof = document.querySelector(".ProfileAvatar");
-  console.log(response_json)
+function changeBioElement(userID, score){
   if (document.getElementById("toxicityStatus") == null) {
     console.log('insert status div')
-    // var toxicityDivString = '<div id="toxicityStatus" style="font-size:1.6em; padding:1px;"></div>'
-    // $(toxicityDivString).insertBefore('[data-testid="UserDescription"]')
-
-
     toxicityStatusDiv = document.createElement('div');
     toxicityStatusDiv.id = 'toxicityStatus'
     toxicityStatusDiv.setAttribute('style', 'font-size:1.6em; padding:1px;')
@@ -425,69 +357,53 @@ function changeBioNewTwitter(response_json, screen_name){
       document.querySelector('[data-testid="UserDescription"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserDescription"]'))
     }else{
       document.querySelector('[data-testid="UserProfileHeader_Items"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserProfileHeader_Items"]'))
-
     }
-    
-      
-      // toxicityStatusDiv.style.fontFamily = "sans-serif";
-
-      // + '</br>' + 'Number of tweets considered :' +response_json.tweets_considered_count
-      //+ "Number of tweets flagged : " + response_json.flagged_tweets.length+  " of " + response_json.number_of_tweets_considered;
   }
 
   toxicityStatusDiv = document.getElementById('toxicityStatus')
   console.log(toxicityStatusDiv)
-  
-  if(response_json == 'No tweets'){
+
+  if(score > VERY_TOXIC_BOUNDARY){
+    toxicityStatusDiv.innerHTML = "Alert! Very toxic user!"
+    toxicityStatusDiv.style.color = '#FC427B';
+    toxicityStatusDiv.appendChild(frownImage);
+    document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+ 
+  }else if(score > TOXIC_BOUNDARY){
+    toxicityStatusDiv.innerHTML = "Alert! Toxic user!"
+    toxicityStatusDiv.style.color = '#FC427B';
+    toxicityStatusDiv.appendChild(frownImage);
+    document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+  }else if(score == -1){
+    toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
+    toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
+    document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '';
     console.log("NO TWEETS BRUTH")
     toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
     document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '';
-    timelineStrangers[screen_name] = -1
-    profileStrangers[screen_name] = -1
-    localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
-    localStorage.setItem('timelineStrangers', JSON.stringify(timelineStrangers))
+  }else if(score < TOXIC_BOUNDARY){
+    toxicityStatusDiv.innerHTML = "This user is safe!"
+    toxicityStatusDiv.style.color = '#5aca7f';
+    toxicityStatusDiv.appendChild(checkImage);
+    document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#5aca7f's
+  }
+}
+
+function changeBioNewTwitter(response_json, screen_name){
+  console.log('beginning of changeBio')
+  var prof = document.querySelector(".ProfileAvatar");
+  console.log(response_json)
+  
+  if(response_json == 'No tweets'){
+    score = -1
+    changeBioElement(screen_name, -1)
   }else{
     score = response_json['TOXICITY']['score']
     // console.log(response_json['visualize'])
    
     // first erase the 'stored' messagae
-    console.log('visualizeStatus function')
-    var statusDiv = document.getElementById('status')
-    if(status == 'done'){
-      statusDiv.innerHTML = '<br>';
-      // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
-    }
-
-    
-    if(score > VERY_TOXIC_BOUNDARY){
-      toxicityStatusDiv.innerHTML = "Alert! Very toxic user!"
-      toxicityStatusDiv.style.color = '#FC427B';
-      toxicityStatusDiv.appendChild(frownImage);
-      document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-   
-    }else if(score > TOXIC_BOUNDARY){
-      toxicityStatusDiv.innerHTML = "Alert! Toxic user!"
-      toxicityStatusDiv.style.color = '#FC427B';
-      toxicityStatusDiv.appendChild(frownImage);
-      document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-   
-    }else if(score == -1){
-      toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
-      toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
-      document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '';
-    }else if(score < TOXIC_BOUNDARY){
-      toxicityStatusDiv.innerHTML = "This user is safe!"
-      toxicityStatusDiv.style.color = '#5aca7f';
-      toxicityStatusDiv.appendChild(checkImage);
-      document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#5aca7f'
-
-    }
-
-    profileStrangers[screen_name] = score
-    timelineStrangers[screen_name] = score
-    localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
-    localStorage.setItem('timelineStrangers', JSON.stringify(timelineStrangers))
+  }
     
     // if(response_json['visualize'] == 'Below threshold') {
     //     toxicityStatusDiv.style.color = '#5aca7f';
@@ -509,7 +425,13 @@ function changeBioNewTwitter(response_json, screen_name){
     // console.log(statusDiv)
     // statusDiv.innerHTML = '';
     // statusDiv.setAttribute('style', 'padding:0px; margin-bottom: 3px;')
-    }
+    
+    changeBioElement(screen_name, score)
+    
+    profileStrangers[screen_name] = score
+    timelineStrangers[screen_name] = score
+    localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
+    localStorage.setItem('timelineStrangers', JSON.stringify(timelineStrangers))
   
 
 
