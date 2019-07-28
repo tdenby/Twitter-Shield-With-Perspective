@@ -50,6 +50,7 @@ var global_tweetcount = 0;
 // var flagged_tweets =[]
 var threshold;
 var statusDiv;
+var exampleTweets;
 
 //styles
 var toxicUserBorderStyle = '';
@@ -189,6 +190,22 @@ function checkProfile() {
   }
 }
 
+function createExampleTweetsButton(userID){
+  exampleTweets = document.createElement('div')
+  exampleTweets.id = 'exampleTweets'
+  exampleTweets.style = 'padding: 2px 6px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 19px; margin-left:10px; cursor: pointer; color:white;'
+  exampleTweets.innerText = 'Example toxic tweets'
+  if(document.getElementById('toxicityStatus') != null){
+    document.getElementById('toxicityStatus').append(exampleTweets)
+  }
+  $('#exampleTweets').on('mouseover', function(){
+    $(this).css('background-color', 'rgba(208, 26, 26, 0.69)')
+  })
+  $('#exampleTweets').on('mouseout', function(){
+    $(this).css('background-color', '#ca3e3eb0')
+  })
+
+}
    
 function checkNotificationTimeline() {
   // console.log('notification timeline checker')
@@ -346,12 +363,14 @@ function changeBioElement(userID, score){
     toxicityStatusDiv.style.color = '#FC427B';
     toxicityStatusDiv.appendChild(frownImage);
     document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+    createExampleTweetsButton(userID)
  
   }else if(score > TOXIC_BOUNDARY){
     toxicityStatusDiv.innerHTML = "Alert! Toxic user!"
     toxicityStatusDiv.style.color = '#FC427B';
     toxicityStatusDiv.appendChild(frownImage);
     document.querySelectorAll('[href="/' + userID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+    createExampleTweetsButton(userID)
   }else if(score == -1){
     toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
