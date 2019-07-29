@@ -29,6 +29,11 @@ var ignoreURLs = ["https://twitter.com/i/bookmarks",
                 "https://twitter.com/explore", "/status/", 
                 "/home", "notifications"]
 
+var notificationQueueString = localStorage.notificationQueue
+notificationQueueString = (notificationQueueString ) ? notificationQueueString : '{}'
+notificationQueue = JSON.parse(notificationQueueString)
+console.log(notificationQueue)
+
 var withRepliesRegex = new RegExp('/with_replies'+"$")
 var mediaRegex = new RegExp('/media'+"$")
 var likesRegex = new RegExp('/likes'+"$")
@@ -211,10 +216,10 @@ function checkNotificationTimeline() {
   // console.log('notification timeline checker')
   if(document.location.href == 'https://twitter.com/home') {
     global_tweetcount = 0
-    console.log('timeline')
+    // console.log('timeline')
     sendUsersToPredictTimelineNewTwitter()
   }else if(document.location.href == 'https://twitter.com/notifications' || document.location.href == 'https://twitter.com/notifications/mentions') {
-    console.log('notification')
+    // console.log('notification')
     sendUsersToPredictNotificationNewTwitter()
   }else if(document.location.href =='https://twitter.com/messages'){
   }
@@ -254,6 +259,7 @@ function getTimelineScores(username, callback, callback_input) {
 }
 
 
+
 function pollStatusNewTwitter(response){
   // console.log('called poll status in new Twitter!')
   console.log(response)
@@ -279,7 +285,7 @@ function pollStatusNewTwitter(response){
         
         visualizeStatusNewTwitter(status)
         
-        setTimeout(pollStatusNewTwitter(response), 5000);
+        setTimeout(function(){pollStatusNewTwitter(response)}, 3000);
 
       }else if (result['state'] == 'SUCCESS'){
         console.log('success')
@@ -303,10 +309,10 @@ function changeBioAfterRequest(response, screen_name){
   console.log(response_json)
   var prof = document.querySelector(".ProfileAvatar");
   console.log(response_json)
-  if(response_json == 'No tweets'){
+  if(response_json['result'] == 'No tweets'){
     var score = -1
     changeBioElement(screen_name, -1)
-  }else if('result' in response_json){
+  }else if(response_json['result']!='started'){
     var score = response_json['result']['TOXICITY']['score']
   }
   if(score != null){
@@ -406,11 +412,11 @@ function sendUsersToPredictNotificationNewTwitter(){
         var can = userCandidates[j]
         if(can.querySelectorAll('img').length == 1){
           var canId = userCandidates[j].href.replace("https://twitter.com/", '')
-          console.log(canId)
+          // console.log(canId)
           var divToColor = userCandidates[j].querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
           if(divToColor!=null){
             if(canId in profileStrangers){
-              console.log('from localstraoge')
+              // console.log('from localstraoge')
               var thisScore = profileStrangers[canId]
               // if(thisScore > threshold){
               if(thisScore > TOXIC_BOUNDARY){
@@ -422,13 +428,13 @@ function sendUsersToPredictNotificationNewTwitter(){
               }
             }else{
               //signal that we started to compute
-              console.log('outside localStorage')
+              // console.log('outside localStorage')
               // divToColor.style.border ='3px solid #42a5fc';
               if(divToColor.classList.contains('toxicUser') || divToColor.classList.contains('safeUser') || divToColor.classList.contains('notEnoughTweets')){
                 divToColor.classList.remove('computing')
               }else{
                 divToColor.classList.add('computing')
-                getTimelineScores(canId, pollInTimeline, userCandidates[j])
+                getNotificationScores(canId, pollInNotification, userCandidates[j])
               }
               
             }
@@ -507,7 +513,8 @@ function pollInTimeline(response, domelement){
       result = JSON.parse(request.responseText)
       if (result['state'] == 'PENDING'){
         status = JSON.parse(request.responseText)['result']
-        setTimeout(pollInTimeline(response), 5000);
+        setTimeout(function(){pollInTimeline(response)}, 3000);
+        console.log('poll in timeline - ' + screen_name + ' - ' + task_id)
       }else if (result['state'] == 'SUCCESS' && result['result']!='started'){
         console.log('success')
         highlightUser(request.responseText, domelement, response_json['screen_name'])
@@ -523,6 +530,122 @@ function pollInTimeline(response, domelement){
   request.send();
 }
 
+function getNotificationScores(username, callback, callback_input) {
+    // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
+    // first check queue
+    if(username in notificationQueue){
+      console.log(notificationQueue[username])
+      notificationQueue[username].add(callback_input)
+      console.log(notificationQueue[username])
+      console.log('notification queue added!')
+      localStorage.setItem('notificationQueue', JSON.stringify(notificationQueue))
+      // console.log(! callback_input.outerHTML in notificationQueue[username])
+      // if(! callback_input.outerHTML in notificationQueue[username]){
+      // if(! callback_input in notificationQueue[username]){
+      //   // notificationQueue[username].push(callback_input.outerHTML)
+      //   notificationQueue[username].add(callback_input)
+      //   console.log('notification queue added!')
+      //   console.log(notificationQueue)
+      //   localStorage.setItem('notificationQueue', JSON.stringify(notificationQueue))
+      // }else{
+      //   console.log('hmm')
+      //   console.log(notificationQueue[username])
+      //   console.log(callback_input)
+      // }
+    }else{
+      notificationQueue[username] = new Set([callback_input])
+      console.log(notificationQueue[username])
+      localStorage.setItem('notificationQueue', JSON.stringify(notificationQueue))
+
+      var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function(){
+          if (request.readyState == 4 && request.status == 200){
+              // console.log('returned: ' + request.responseText)
+              callback(request.responseText, callback_input); // Another callback here
+          }
+      };
+      request.open('GET', url);
+      request.send();
+    }
+}
+
+function pollInNotification(response, domelement){
+  // console.log('called poll status in timeline')
+  // console.log(domelement)
+  var response_json = JSON.parse(response);
+  var task_id = response_json['task_id']
+  var screen_name = response_json['screen_name']
+  var threshold = response_json['threshold']
+ 
+  var url = URL_HEADER + "/poll_status?task_id=" + task_id + '&screen_name=' + screen_name + '&threshold=' + threshold
+  // var url = "http://twitter-shield.si.umich.edu/poll_status?task_id=" + task_id + '&screen_name=' + screen_name + '&threshold=' + threshold
+  var request = new XMLHttpRequest();
+
+  request.onreadystatechange = function(){
+    // if (request.readyState == 4 && request.status == 200){
+    if (request.readyState == 4  && request.status == 200){
+      result = JSON.parse(request.responseText)
+      if (result['state'] == 'PENDING'){
+        status = JSON.parse(request.responseText)['result']
+        setTimeout(function(){
+                    pollInNotification(response)}, 
+                    3000);
+        console.log('poll in timeline - ' + screen_name + ' - ' + task_id)
+      }else if (result['state'] == 'SUCCESS' && result['result']!='started'){
+        console.log('success')
+        highlightUserNotification(request.responseText, response_json['screen_name'])
+        // console.log(request.responseText)
+      }
+    }else{
+      // console.log('not yet 4')
+      // console.log(request)
+    }
+  };
+
+  request.open('GET', url);
+  request.send();
+}
+
+function highlightUserNotification(response_json, screen_name){
+  var elementsToChange = notificationQueue[screen_name]
+  console.log('highlight doms - ' + screen_name)
+  console.log(elementsToChange.length)
+  console.log(elementsToChange)
+  response_json = JSON.parse(response_json);
+  // for(i=0; i<elementsToChange.length; i++){
+  elementsToChange.forEach(domelement => {
+    console.log(domelement)
+    if(domelement!=null){
+      var divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+      divToColor.classList.remove('computing')
+      if(divToColor!=null){
+        if(response_json['result']=='No tweets'){
+          divToColor.classList.add('notEnoughTweets')
+          var score = -1
+          storeLocally(screen_name, score)
+        }else if(response_json['result']!='started'){
+          console.log(screen_name)
+          console.log(response_json)
+          var score = response_json['result']['TOXICITY']['score']
+          storeLocally(screen_name, score)
+          // if(response_json['result']['TOXICITY']['score'] > threshold){
+          if(response_json['result']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
+            divToColor.classList.add('toxicUser')
+            console.log('class added!')
+          }else{
+            divToColor.classList.add('safeUser')
+            console.log('safe classs')
+          }
+        }
+        
+      }
+    }
+  });
+  delete notificationQueue[screen_name]
+  localStorage.setItem('notificationQueue', JSON.stringify(notificationQueue))
+}
+
 
 // used in pollInTimeline
 function highlightUser(response_json, domelement, screen_name){
@@ -535,9 +658,10 @@ function highlightUser(response_json, domelement, screen_name){
       if(response_json['result']=='No tweets'){
         divToColor.classList.add('notEnoughTweets')
         var score = -1
-      }else{
+      }else if(response_json['result']!='started'){
         console.log(screen_name)
         console.log(response_json)
+        var score = response_json['result']['TOXICITY']['score']
         // if(response_json['result']['TOXICITY']['score'] > threshold){
         if(response_json['result']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
           divToColor.classList.add('toxicUser')
@@ -547,7 +671,7 @@ function highlightUser(response_json, domelement, screen_name){
           console.log('safe classs')
         }
       }
-      storeLocally(screen_name, response_json['result']['TOXICITY']['score'])
+      storeLocally(screen_name, score)
     }
   }
 }
