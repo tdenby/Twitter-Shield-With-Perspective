@@ -34,6 +34,12 @@ notificationQueueString = (notificationQueueString ) ? notificationQueueString :
 notificationQueue = JSON.parse(notificationQueueString)
 console.log(notificationQueue)
 
+var timelineQueueString = localStorage.timelineQueue
+timelineQueueString = (timelineQueueString ) ? timelineQueueString : '{}'
+timelineQueue = JSON.parse(timelineQueueString)
+console.log(timelineQueue)
+
+
 var withRepliesRegex = new RegExp('/with_replies'+"$")
 var mediaRegex = new RegExp('/media'+"$")
 var likesRegex = new RegExp('/likes'+"$")
@@ -245,16 +251,41 @@ function getProfileScore(username, callback) {
 
 function getTimelineScores(username, callback, callback_input) {
     // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
-    var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (request.readyState == 4 && request.status == 200){
-            // console.log('returned: ' + request.responseText)
-            callback(request.responseText, callback_input); // Another callback here
-        }
-    };
-    request.open('GET', url);
-    request.send();
+    if(username in timelineQueue){
+      console.log(timelineQueue[username])
+      timelineQueue[username].add(callback_input)
+      console.log(timelineQueue[username])
+      console.log('timeline queue added!')
+      localStorage.setItem('timelineQueue', JSON.stringify(timelineQueue))
+      // console.log(! callback_input.outerHTML in notificationQueue[username])
+      // if(! callback_input.outerHTML in notificationQueue[username]){
+      // if(! callback_input in notificationQueue[username]){
+      //   // notificationQueue[username].push(callback_input.outerHTML)
+      //   notificationQueue[username].add(callback_input)
+      //   console.log('notification queue added!')
+      //   console.log(notificationQueue)
+      //   localStorage.setItem('notificationQueue', JSON.stringify(notificationQueue))
+      // }else{
+      //   console.log('hmm')
+      //   console.log(notificationQueue[username])
+      //   console.log(callback_input)
+      // }
+    }else{
+      timelineQueue[username] = new Set([callback_input])
+      console.log(timelineQueue[username])
+      localStorage.setItem('timelineQueue', JSON.stringify(timelineQueue))
+
+      var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
+      var request = new XMLHttpRequest();
+      request.onreadystatechange = function(){
+          if (request.readyState == 4 && request.status == 200){
+              // console.log('returned: ' + request.responseText)
+              callback(request.responseText, callback_input); // Another callback here
+          }
+      };
+      request.open('GET', url);
+      request.send();
+    }
 
 }
 
@@ -517,7 +548,8 @@ function pollInTimeline(response, domelement){
         console.log('poll in timeline - ' + screen_name + ' - ' + task_id)
       }else if (result['state'] == 'SUCCESS' && result['result']!='started'){
         console.log('success')
-        highlightUser(request.responseText, domelement, response_json['screen_name'])
+        highlightUserTimeline(request.responseText, response_json['screen_name'])
+        // highlightUser(request.responseText, domelement, response_json['screen_name'])
         // console.log(request.responseText)
       }
     }else{
@@ -648,32 +680,38 @@ function highlightUserNotification(response_json, screen_name){
 
 
 // used in pollInTimeline
-function highlightUser(response_json, domelement, screen_name){
-  if(domelement!=null){
-    response_json = JSON.parse(response_json);
-    
-    var divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
-    divToColor.classList.remove('computing')
-    if(divToColor!=null){
-      if(response_json['result']=='No tweets'){
-        divToColor.classList.add('notEnoughTweets')
-        var score = -1
-      }else if(response_json['result']!='started'){
-        console.log(screen_name)
-        console.log(response_json)
-        var score = response_json['result']['TOXICITY']['score']
-        // if(response_json['result']['TOXICITY']['score'] > threshold){
-        if(response_json['result']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
-          divToColor.classList.add('toxicUser')
-          console.log('class added!')
-        }else{
-          divToColor.classList.add('safeUser')
-          console.log('safe classs')
+function highlightUserTimeline(response_json, screen_name){
+  var elementsToChange = timelineQueue[screen_name]
+  console.log('highlight doms - ' + screen_name)
+  console.log(elementsToChange.length)
+  console.log(elementsToChange)
+  response_json = JSON.parse(response_json);
+  // for(i=0; i<elementsToChange.length; i++){
+  elementsToChange.forEach(domelement => {
+    if(domelement!=null){  
+      var divToColor = domelement.querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
+      divToColor.classList.remove('computing')
+      if(divToColor!=null){
+        if(response_json['result']=='No tweets'){
+          divToColor.classList.add('notEnoughTweets')
+          var score = -1
+        }else if(response_json['result']!='started'){
+          console.log(screen_name)
+          console.log(response_json)
+          var score = response_json['result']['TOXICITY']['score']
+          // if(response_json['result']['TOXICITY']['score'] > threshold){
+          if(response_json['result']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
+            divToColor.classList.add('toxicUser')
+            console.log('class added!')
+          }else{
+            divToColor.classList.add('safeUser')
+            console.log('safe classs')
+          }
         }
+        storeLocally(screen_name, score)
       }
-      storeLocally(screen_name, score)
     }
-  }
+  });
 }
 
 
