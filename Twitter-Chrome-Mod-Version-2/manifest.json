@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
 
-  "name": "Twitter Shield",
-  "description": "Displays toxicity score for users",
+  "name": "Stranger Danger",
+  "description": "Improving social signals on Twitter",
   "version": "3.0",
   "web_accessible_resources": ["*.png","*.PNG"],
   "content_scripts": [
@@ -11,7 +11,7 @@
                   "https://twitter.com/*","http://localhost:8000/"],
       "js": ["js/jquery-min.js", "js/jquery-ui.min.js", "js/arrive.min.js", "js/content.js", "js/popup.js"],
        "css": ["css/jquery-ui.css","css/content.css"],
-      "run_at": "document_end"
+      "run_at": "document_start"
     }
   ],
   "browser_action": {
@@ -29,7 +29,6 @@
   "background": {
     "page" : "background.html"
   },
-
   "web_accessible_resources": ["img/checkmark.png", "img/slightly-frowning.png"],
   "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
 }
