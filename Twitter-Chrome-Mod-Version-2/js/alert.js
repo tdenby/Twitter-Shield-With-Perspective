@@ -1,3 +1,5 @@
+var URL_HEADER = 'http://twitter-shield.si.umich.edu'
+
 console.log("On submit")
 console.log(accountName);
 localStorage.setItem('accountName', accountName)
@@ -18,7 +20,7 @@ function getFollowingList(accountName){
   if(accountName in followingList){
     console.log('already in')
   }else{
-    var url = "http://127.0.0.1:8000/get_following?user=" + accountName;
+    var url = URL_HEADER + "/get_following?user=" + accountName;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200){
