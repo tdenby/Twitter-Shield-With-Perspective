@@ -51,18 +51,10 @@ console.log('LOCAL STORAGE')
 var profileStrangerString = localStorage.profileStrangers
 var flaggedTweetsString = localStorage.flaggedTweets
 
-// var response_json = {}
-
-// var flagged_tweets_tab;
-// var flagged_tweets_flag = false;
-//keep track of currentPage
-// var currentPage = window.location.href;
 var currentPage = '';
 
 //global variables common to hometimeline/notificationtweets
 var global_tweetcount = 0;
-// var flagged_posts =[]
-// var flagged_tweets =[]
 var threshold;
 var statusDiv;
 var exampleTweets;
@@ -73,10 +65,10 @@ var computingBorderStyle = '';
 var safeUserBorderStyle = '';
 var notEnoughTweetsBorderStyle = '';
 
-var URL_HEADER = 'http://127.0.0.1:8000'
+// var URL_HEADER = 'http://127.0.0.1:8000'
+var URL_HEADER = 'http://twitter-shield.si.umich.edu'
 
 var toxicityStatusDiv = '';
-// var URL_HEADER. = 'http://twitter-shield.si.umich.edu'
 
 var VERY_TOXIC_BOUNDARY = 0.8
 var TOXIC_BOUNDARY = 0.45
@@ -96,7 +88,7 @@ function getFollowingList(accountName){
   if(accountName in followingList){
     console.log('already in')
   }else{
-    var url = "http://127.0.0.1:8000/get_following?user=" + accountName;
+    var url = URL_HEADER + "/get_following?user=" + accountName;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200){
@@ -332,7 +324,7 @@ function checkNotificationTimeline() {
 function getProfileScore(username, callback) {
     // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
     console.log('get_score')
-    var url = "http://127.0.0.1:8000/toxicityscore?user=" + username + '&threshold=' + threshold;
+    var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200){
