@@ -162,10 +162,10 @@ $(window).on('load',function(){
         currentPage = document.location.href 
       }else if(! ignoreURL(window.location.href)){
         console.log('likely profile page')
+        currentPage = window.location.href
         // console.log('window.location: '+ window.location.href)
         $(document).arrive('[data-testid="UserProfileHeader_Items"]', function(){
           // console.log('new version of twitter- profile page')
-          currentPage = window.location.href
           var thisPageID = currentPage.replace('https://twitter.com/', '')
           var result = checkTabWithinProfile(thisPageID)
           thisPageID = result[0]
@@ -201,6 +201,8 @@ $(window).on('load',function(){
 
 // this visualizes flagged tweets when scrolling 
 window.onscroll = function(ev) {
+  console.log(currentPage)
+  console.log(window.location.href)
   if(localStorage.getItem('accountName') != null){
     // console.log('not null!')
     accountName = localStorage.getItem('accountName');
@@ -226,6 +228,8 @@ window.onscroll = function(ev) {
 
 function checkProfile() {
   console.log('check profile')
+  console.log(currentPage)
+  console.log(window.location.href)
   if(localStorage.getItem('threshold') != null){
     threshold = localStorage.getItem('threshold');
   }else{
@@ -235,6 +239,7 @@ function checkProfile() {
   }
   
   if(currentPage != window.location.href){
+    console.log('diff')
     if(document.location.href == 'https://twitter.com/home') {
       currentPage = document.location.href 
       userID = '';
