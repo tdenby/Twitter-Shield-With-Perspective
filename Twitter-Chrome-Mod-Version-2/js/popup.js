@@ -46,10 +46,25 @@ function setThreshold(){
 
 var slider = document.getElementById("thresholdId");
 var output = document.getElementById("demo");
-output.innerHTML = slider.value; // Display the default slider value
+output.innerHTML = 'Low Toxicity'; // Display the default slider value
    
 slider.oninput = function() {
-  output.innerHTML = this.value;
+  if(slider.value < .2) {
+    output.innerHTML = 'Low Toxicity';
+  }
+  else if((slider.value >= .2) && (slider.value < .4)) {
+    output.innerHTML = 'Moderate Toxicity';
+  }
+  else if((slider.value >= .4) && (slider.value < .6)) {
+    output.innerHTML = 'Considerable Toxicity';
+  }
+  else if((slider.value >= .6) && (slider.value < .8)) {
+    output.innerHTML = 'High Toxicity';
+  }
+  else if((slider.value >= .8) && (slider.value <= 1)) {
+    output.innerHTML = 'Severe Toxicity';
+  }
+  //output.innerHTML = this.value;
 }
 
 // maybe 
