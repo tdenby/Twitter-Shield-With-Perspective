@@ -1,4 +1,4 @@
-var URL_HEADER = 'http://twitter-shield.si.umich.edu'
+var URL_HEADER = 'https://twitter-shield.si.umich.edu'
 
 console.log("On submit")
 console.log(accountName);
