@@ -5,14 +5,14 @@
  -->
 <html>
   <head>
-    <title>Tweety Holmes</title>
+    <title>Stranger Danger</title>
     <!--
       - JavaScript and HTML must be in separate files: see our Content Security
       - Policy documentation[1] for details and explanation.
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
     -->
-    <!-- <script src="popup.js"></script> -->
+    
     <link rel="stylesheet" href="css/popup.css">
 
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'" >
@@ -31,30 +31,49 @@
 
   <body>
     <div class="panel panel-default">
-      <div class="panel-heading">
-        <h3 class="panel-title">Twitter Profile Identifier</h3>
-      </div>
-        <div class="panel-body">Improve our Code! <a href="https://github.com/trusttri/Twitter-Shield-With-Perspective" target="_blank">Github</a>
+      <!--<div class="panel-heading">-->
+        
+      <!--</div>-->
+        <div class="panel-body" style="margin-left: 15px; margin-right:15px;">
+          <div><b>Stranger Danger</b> 
+            <img id='icon' style="float:center;" src="img/icon.png"></div>
+
+          Improving social signals on Twitter!
+          <!--Improve our Code! <a href="https://github.com/trusttri/Twitter-Shield-With-Perspective" target="_blank">Github</a>-->
       </div>
     </div>
 
+<<<<<<< HEAD
     <div style="padding:15" class="slidecontainer">
       <form onsubmit="setThreshold()">
         Threshold <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
         <!--Threshold <input name ="threshold" value ="0" id="thresholdId"/>-->
         <p>Value: <span id="demo"></span></p>
+=======
+    <div style="padding:15px" id="allPanel">
+      <div style="margin-bottom:15px; margin-left: 15px; margin-right: 15px;" id="statePanel">
+        Submit your Twitter handle below to get started!
+        <br>
+        Your information will be only stored locally.
+        <br>
+      </div>
+
+      <!-- <form onsubmit="setThreshold()" style="margin:15px"> -->
+      <form style="margin:15px" id="submitPanel">
+        <!--Threshold <input type="number" step="0.1" min="0" max="1" name ="threshold" value ="0" id="thresholdId">-->
+        <!--Threshold <input name ="threshold" value ="0" id="thresholdId"/>-->
+        <input type="text" value="" name="accountName" id="accountHandle" autofocus>
+        
+>>>>>>> 0403ba07a65e2ee7f0aa6078c4c8514e1e0da852
         <input type="submit" value="Submit" id ="submitId">
       </form>
     </div>
-
-    <div id="status"  style="padding:15">
-        
-    </div>
-
     
+
   </body>
 
-      <script type="text/javascript" src="js/popup.js"></script>
+  <script type="text/javascript" src="js/popup.js"></script>
+  <script type="text/javascript" src="js/alert.js"></script>
 
 <!--   <script>
 
