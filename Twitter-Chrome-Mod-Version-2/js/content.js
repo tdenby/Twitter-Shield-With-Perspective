@@ -50,6 +50,7 @@ var likesRegex = new RegExp('/likes'+"$")
 console.log('LOCAL STORAGE')
 var profileStrangerString = localStorage.profileStrangers
 var flaggedTweetsString = localStorage.flaggedTweets
+var flaggedCredTweetsString = localStorage.flaggedCredTweets
 
 var currentPage = '';
 
@@ -65,22 +66,51 @@ var computingBorderStyle = '';
 var safeUserBorderStyle = '';
 var notEnoughTweetsBorderStyle = '';
 
-// var URL_HEADER = 'http://127.0.0.1:8000'
-var URL_HEADER = 'https://twitter-shield.si.umich.edu'
+var URL_HEADER = 'http://127.0.0.1:8000'
+// var URL_HEADER = 'https://twitter-shield.si.umich.edu'
 
 var toxicityStatusDiv = '';
 
 var VERY_TOXIC_BOUNDARY = 0.8
 var TOXIC_BOUNDARY = 0.45
 var TWEET_TOXIC_BOUNDARY = 0.7
+var CRED_BOUNDARY = 0.01
 
 // images
 var checkImage;
 var frownImage;
-
+var loggedIn = false;
 
 var followingListString = localStorage.followingList
 
+// port = chrome.runtime.connect(null, {name: 'hi'}); 
+// console.log(port)
+
+// chrome.runtime.onConnect.addListener(function(port){
+//   console.log('connected ', port);
+
+//   if (port.name === 'hi') {
+//       port.onMessage.addListener(function(request, sender, sendResponse){
+//       console.log('test here')
+//       if(request.functsionName == 'setLogin'){
+//         loggedIn = true;
+//         sendResponse({result: 'done'})
+//         alert(request.accountName)
+//       }
+//     })
+//   }
+// });
+// functionName: 'setLogin', accountName: accountName
+  
+
+// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
+//   console.log('test here')
+//   if(request.functsionName == 'setLogin'){
+//     loggedIn = true;
+//     sendResponse({result: 'done'})
+//     alert(request.accountName)
+//   }
+// })
 
 function getFollowingList(accountName){
   console.log('following list')
@@ -98,7 +128,6 @@ function getFollowingList(accountName){
             var thisFollowing = response_json['following']
             followingList[accountName] = thisFollowing
             localStorage.setItem('followingList', JSON.stringify(followingList))
-            console.log('syardi' in followingList['im__jane'])
             console.log(followingList)
         }
     };
@@ -106,8 +135,8 @@ function getFollowingList(accountName){
     request.send();
 
   }
-  
 }
+
 
 function checkIfFollowing(pageID, accountName){
   if(pageID in followingList[accountName]){
@@ -144,7 +173,6 @@ $(window).on('load',function(){
 
   if(accountName != ''){
     getFollowingList(accountName)
-  
     if(currentPage != window.location.href){
       if(document.location.href == 'https://twitter.com/home') {
         currentPage = document.location.href 
@@ -171,9 +199,16 @@ $(window).on('load',function(){
             currentTab = thisTab;
             console.log(userID)
             if(thisPageID in profileStrangers){
-              var thisScore = profileStrangers[thisPageID]
+              // toxicity
+              var thisScore = profileStrangers[thisPageID]['toxicity']
               var accountFlaggedTweets = flaggedTweets[thisPageID]
               changeBioElement(thisPageID, thisScore, accountFlaggedTweets)
+              // credibility
+              var credScore = profileStrangers[thisPageID]['uncrediblity']
+              var accountCredFlaggedTweets = flaggedCredTweets[thisPageID]
+              changeBioCrediblityStatus(thisPageID, credScore, accountCredFlaggedTweets)
+              // bio color
+              changeBorderColor(thisScore, credScore, userID)
             }else{
               getProfileScore(thisPageID, pollStatusNewTwitter);
             }
@@ -193,8 +228,7 @@ $(window).on('load',function(){
 
 // this visualizes flagged tweets when scrolling 
 window.onscroll = function(ev) {
-  console.log(currentPage)
-  console.log(window.location.href)
+
   if(localStorage.getItem('accountName') != null){
     // console.log('not null!')
     accountName = localStorage.getItem('accountName');
@@ -220,8 +254,6 @@ window.onscroll = function(ev) {
 
 function checkProfile() {
   console.log('check profile')
-  console.log(currentPage)
-  console.log(window.location.href)
   if(localStorage.getItem('threshold') != null){
     threshold = localStorage.getItem('threshold');
   }else{
@@ -241,7 +273,7 @@ function checkProfile() {
     }else if(document.location.href =='https://twitter.com/messages'){
       currentPage = document.location.href 
       userID = '';
-    }else if(! ignoreURL(window.location.href)){
+    }else if(! (ignoreURL(window.location.href))){
       console.log('likely profile page')
       if(document.getElementById('toxicityStatus')!=null){
         document.getElementById('toxicityStatus').innerText = '';
@@ -261,15 +293,23 @@ function checkProfile() {
         if (thisPageID != userID || thisTab != currentTab){
           userID = thisPageID;
           currentTab = thisTab;
-          document.querySelectorAll('[href="/' + thisPageID + '/photo"]')[0].querySelector('div').style.borderColor = ''
-        
-          if(thisPageID in profileStrangers){
-            var thisScore = profileStrangers[thisPageID]
-            var accountFlaggedTweets = flaggedTweets[thisPageID]
-            changeBioElement(thisPageID, thisScore, accountFlaggedTweets)
-          }else{
-            getProfileScore(thisPageID, pollStatusNewTwitter);
-        }  
+          initializeBorderColor(thisPageID)
+          if(! (followingList[accountName].includes(thisPageID))){
+            if(thisPageID in profileStrangers){
+              // toxicity
+              var thisScore = profileStrangers[thisPageID]['toxicity']
+              var accountFlaggedTweets = flaggedTweets[thisPageID]
+              changeBioElement(thisPageID, thisScore, accountFlaggedTweets)
+              // credibility
+              var credScore = profileStrangers[thisPageID]['uncrediblity']
+              console.log(flaggedTweets)
+              var accountCredFlaggedTweets = flaggedCredTweets[thisPageID]
+              changeBioCrediblityStatus(thisPageID, credScore, accountCredFlaggedTweets)
+              changeBorderColor(thisScore, credScore, userID)
+            }else{
+              getProfileScore(thisPageID, pollStatusNewTwitter);
+            }  
+          }
         }
       }
     }
@@ -277,13 +317,45 @@ function checkProfile() {
   }
 }
 
+function initializeBorderColor(thisPageID){
+  if(document.querySelectorAll('[href="/' + thisPageID + '/photo"]').length > 0){
+    document.querySelectorAll('[href="/' + thisPageID + '/photo"]')[0].querySelector('div').style.borderColor = '';
+  }else{
+    document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '';
+  }         
+}
+
+function createExampleCredibleTweets(thisID, accountUncredibleTweets){
+  uncredibleTweets = document.createElement('div')
+  uncredibleTweets.id = 'uncredibleTweets'
+  uncredibleTweets.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  uncredibleTweets.innerText = 'Example misinfo. tweets'
+  // if(document.getElementById('toxicityStatus') != null){
+  //   document.getElementById('toxicityStatus').append(exampleTweets)
+  // }
+  if(document.getElementById('credDiv') != null){
+    document.getElementById('credDiv').append(uncredibleTweets)
+  }
+  $('#uncredibleTweets').on('mouseover', function(){
+    $(this).css('background-color', 'rgb(226, 114, 43)')
+  })
+  $('#uncredibleTweets').on('mouseout', function(){
+    $(this).css('background-color', 'rgb(230, 131, 69)')
+  })
+  console.log(accountUncredibleTweets)
+  addCredibilityModal(accountUncredibleTweets, thisID)
+}
+
 function createExampleTweetsButton(thisID, accountFlaggedTweets){
   exampleTweets = document.createElement('div')
   exampleTweets.id = 'exampleTweets'
-  exampleTweets.style = 'padding: 2px 6px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 1em; margin-left:10px; cursor: pointer; color:white;'
+  exampleTweets.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
   exampleTweets.innerText = 'Example toxic tweets'
-  if(document.getElementById('toxicityStatus') != null){
-    document.getElementById('toxicityStatus').append(exampleTweets)
+  // if(document.getElementById('toxicityStatus') != null){
+  //   document.getElementById('toxicityStatus').append(exampleTweets)
+  // }
+  if(document.getElementById('toxicDiv') != null){
+    document.getElementById('toxicDiv').append(exampleTweets)
   }
   $('#exampleTweets').on('mouseover', function(){
     $(this).css('background-color', 'rgba(208, 26, 26, 0.69)')
@@ -293,7 +365,7 @@ function createExampleTweetsButton(thisID, accountFlaggedTweets){
   })
 
 
-  addModal(accountFlaggedTweets, thisID);
+  addToxicityModal(accountFlaggedTweets, thisID);
 
 }
    
@@ -322,9 +394,11 @@ function checkNotificationTimeline() {
 
 
 function getProfileScore(username, callback) {
-    // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
     console.log('get_score')
-    var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
+    oauth_token = localStorage.getItem('oauth_token')
+    oauth_token_secret = localStorage.getItem('oauth_token_secret')
+    var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold + '&oauth_token=' + oauth_token + '&oauth_token_secret=' + oauth_token_secret
+
     var request = new XMLHttpRequest();
     request.onreadystatechange = function(){
         if (request.readyState == 4 && request.status == 200){
@@ -339,7 +413,6 @@ function getProfileScore(username, callback) {
 
 
 function getTimelineScores(username, callback, callback_input) {
-    // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
     if(username in timelineQueue){
       // console.log(timelineQueue[username])
       timelineQueue[username].add(callback_input)
@@ -364,7 +437,11 @@ function getTimelineScores(username, callback, callback_input) {
       // console.log(timelineQueue[username])
       localStorage.setItem('timelineQueue', JSON.stringify(timelineQueue))
 
-      var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
+      // var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
+      oauth_token = localStorage.getItem('oauth_token')
+      oauth_token_secret = localStorage.getItem('oauth_token_secret')
+      var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold + '&oauth_token=' + oauth_token + '&oauth_token_secret=' + oauth_token_secret
+
       var request = new XMLHttpRequest();
       request.onreadystatechange = function(){
           if (request.readyState == 4 && request.status == 200){
@@ -428,20 +505,35 @@ function changeBioAfterRequest(response, screen_name){
   console.log(response_json)
   var prof = document.querySelector(".ProfileAvatar");
   console.log(response_json)
+  // toxicity
   var accountFlaggedTweets = getFlaggedTweets(response_json)
   flaggedTweets[screen_name] = accountFlaggedTweets
   localStorage.setItem('flaggedTweets', JSON.stringify(flaggedTweets))
+  //credibility
+  var accountCredFlaggedTweets = getCredFlaggedTweets(response_json)
+  flaggedCredTweets[screen_name] = accountCredFlaggedTweets
+  localStorage.setItem('flaggedCredTweets', JSON.stringify(flaggedCredTweets))
 
   if(response_json['result'] == 'No tweets'){
     var score = -1
+    var credScore = -1
     changeBioElement(screen_name, -1, accountFlaggedTweets)
   }else if(response_json['result']!='started'){
-    var score = response_json['result']['TOXICITY']['score']
+    var score = response_json['result']['toxicity']['TOXICITY']['score']
+    var credScore = response_json['result']['uncrediblity']['uncrediblity']
   }
+
   if(score != null){
+    console.log('init!')
+    createStatusDiv();
+    //first initialize
+    document.getElementById('toxicityStatus').innerHTML = '';
+    //then change
     changeBioElement(screen_name, score, accountFlaggedTweets)
+    changeBioCrediblityStatus(screen_name, credScore, accountCredFlaggedTweets)
+    changeBorderColor(score, credScore, screen_name)
     //store
-    storeLocally(screen_name, score)
+    storeLocally(screen_name, score, credScore)
   }
   
 }
@@ -449,7 +541,7 @@ function changeBioAfterRequest(response, screen_name){
 function getFlaggedTweets(response_json, screen_name){
   var accountFlaggedTweets = []
   // if(response_json['result']!=null){
-    var thisUserTweets = response_json['result']['tweets_with_scores']
+    var thisUserTweets = response_json['result']['toxicity']['tweets_with_scores']
     // console.log(thisUserTweets)
 
     for(i=0; i<thisUserTweets.length; i++){
@@ -460,6 +552,24 @@ function getFlaggedTweets(response_json, screen_name){
     }
   // }
   return accountFlaggedTweets
+}
+
+function getCredFlaggedTweets(response_json, screen_name){
+  console.log('store cred tweets')
+  var accountCredFlaggedTweets = []
+  // if(response_json['result']!=null){
+  var thisUserTweets = response_json['result']['uncrediblity']['tweets_with_scores']
+    // console.log(thisUserTweets)
+  for(i=0; i<thisUserTweets.length; i++){
+    if(parseFloat(thisUserTweets[i]['uncrediblity']) > 0){
+      console.log(thisUserTweets[i])
+      console.log(thisUserTweets[i]['urls'])
+      accountCredFlaggedTweets.push([thisUserTweets[i]['tweet_text'], thisUserTweets[i]['urls']])
+      console.log(thisUserTweets[i]['tweet_text'])
+    }
+  }
+  // }
+  return accountCredFlaggedTweets
 }
 
 
@@ -488,47 +598,57 @@ function visualizeStatusNewTwitter(status){
   }
 }
 
-function changeBioElement(thisID, score, accountFlaggedTweets){
-  if (document.getElementById("toxicityStatus") == null) {
-    // console.log('insert status div')
-    toxicityStatusDiv = document.createElement('div');
-    toxicityStatusDiv.id = 'toxicityStatus'
-    toxicityStatusDiv.setAttribute('style', 'font-size:1.2em; padding:1px;')
-    if(document.querySelector('[data-testid="UserDescription"]') != null){
-      console.log('change before')
-      document.querySelector('[data-testid="UserDescription"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserDescription"]'))
-    }else{
-      console.log('change after')
-      document.querySelector('[data-testid="UserProfileHeader_Items"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserProfileHeader_Items"]'))
-    }
-  }
 
+function appendToxicDiv(statusDiv){
+  statusDiv.innerHTML = ""
+  var toxicDiv = document.createElement('span');
+  toxicDiv.id = 'toxicSpan'
+  toxicDiv.innerHTML = "Toxicity"
+  toxicDiv.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  // if(document.getElementById('toxicityStatus') != null){
+  //   document.getElementById('toxicityStatus').append(exampleTweets)
+  // }
+  statusDiv.append(toxicDiv)
+  $('#toxicSpan').on('mouseover', function(){
+    $(this).css('background-color', 'rgba(208, 26, 26, 0.69)')
+  })
+  $('#toxicSpan').on('mouseout', function(){
+    $(this).css('background-color', '#ca3e3eb0')
+  })
+
+  
+}
+
+function appendUncredibleDiv(statusDiv){ 
+  // statusDiv.innerHTML = ""
+  var credDiv = document.createElement('span');
+  credDiv.id = 'credSpan'
+  credDiv.innerHTML = "Misinformation"
+  credDiv.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  // if(document.getElementById('toxicityStatus') != null){
+  //   document.getElementById('toxicityStatus').append(exampleTweets)
+  // }
+  statusDiv.append(credDiv)
+  $('#credSpan').on('mouseover', function(){
+    $(this).css('background-color', 'rgba(240, 105, 7, 1)')
+  })
+  $('#credSpan').on('mouseout', function(){
+    $(this).css('background-color', 'rgb(230, 131, 69)')
+  })
+}
+
+function changeBioElement(thisID, score, accountFlaggedTweets){
+  createStatusDiv();
   toxicityStatusDiv = document.getElementById('toxicityStatus')
   console.log(toxicityStatusDiv)
 
-  if(score > VERY_TOXIC_BOUNDARY){
-    toxicityStatusDiv.innerHTML = "Alert! Very toxic user!"
-    toxicityStatusDiv.style.color = '#FC427B';
-    toxicityStatusDiv.appendChild(frownImage);
+  if(score > TOXIC_BOUNDARY){
+    //new fucntion for appending
+    appendToxicDiv(toxicityStatusDiv)
     if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
-      document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
+      document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
     }else{
-      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '#FC427B';
-    }
-    
-    createExampleTweetsButton(thisID, accountFlaggedTweets)
- 
-  }else if(score > TOXIC_BOUNDARY){
-    toxicityStatusDiv.innerHTML = "Likely to be a toxic user"
-    toxicityStatusDiv.style.color = '#FC427B';
-    toxicityStatusDiv.appendChild(frownImage);
-    // $(document).arrive('[href="/' + thisID + '/photo"]', function(){
-    console.log('ready')
-    console.log(document.querySelectorAll('[href="/' + thisID + '/photo"]'))
-    if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
-      document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '#FC427B';
-    }else{
-      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '#FC427B';
+      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
     }
     
     createExampleTweetsButton(thisID, accountFlaggedTweets)
@@ -544,27 +664,91 @@ function changeBioElement(thisID, score, accountFlaggedTweets){
     console.log("NO TWEETS BRUTH")
     
   }else if(score < TOXIC_BOUNDARY){
-    // toxicityStatusDiv.innerHTML = "This user is safe!"
-    // toxicityStatusDiv.style.color = '#5aca7f';
-    // toxicityStatusDiv.appendChild(checkImage);
-    toxicityStatusDiv.innerHTML = ""
-    toxicityStatusDiv.style.color = '';
-    // toxicityStatusDiv.appendChild(checkImage);
+    // toxicDiv = document.getElementById('toxicDiv')
+    // toxicDiv.innerHTML = ""
+    // toxicDiv.style.color = '';
+    if(document.getElementById('toxicSpan')!=null){
+      document.getElementById('toxicSpan').remove()
+    }
+  }
+
+}
+
+function changeBorderColor(toxicScore, credScore, thisID){
+  if(toxicScore > TOXIC_BOUNDARY || credScore > CRED_BOUNDARY){
+    if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
+      document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
+    }else{
+      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
+    }
+  }else{
     if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
       // document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '#5aca7f';
       document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '';
     }else{
-      // document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '#5aca7f';
-      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '';
+        // document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '#5aca7f';
+        document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '';
     }
   }
+  
+}
 
+function createStatusDiv(){
+  if (document.getElementById("toxicityStatus") == null) {
+    // console.log('insert status div')
+    toxicityStatusDiv = document.createElement('div');
+    toxicityStatusDiv.id = 'toxicityStatus'
+    toxicityStatusDiv.setAttribute('style', 'font-size:1.2em; padding:1px;')
+    if(document.querySelector('[data-testid="UserDescription"]') != null){
+      document.querySelector('[data-testid="UserDescription"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserDescription"]'))
+    }else{
+      document.querySelector('[data-testid="UserProfileHeader_Items"]').parentElement.insertBefore(toxicityStatusDiv, document.querySelector('[data-testid="UserProfileHeader_Items"]'))
+    }
+  }
+}
 
+function changeBioCrediblityStatus(thisID, credScore, accountUncredibleTweets){
+  createStatusDiv();
+  toxicityStatusDiv = document.getElementById('toxicityStatus')
+
+  if(credScore> CRED_BOUNDARY){
+    appendUncredibleDiv(toxicityStatusDiv)
+
+    if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
+      document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
+    }else{
+      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
+    }
+
+    createExampleCredibleTweets(thisID, accountUncredibleTweets)
+    
+  }else if(credScore == -1){
+    toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
+    toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
+    if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
+      document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '';
+    }else{
+      document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = '';
+    }
+    console.log("NO TWEETS BRUTH")
+    
+  }else if(credScore < CRED_BOUNDARY){
+    if(document.getElementById('credSpan')!=null){
+      document.getElementById('credSpan').remove()
+    }
+  }
 }
 
 
-function storeLocally(screen_name, score){
-  profileStrangers[screen_name] = score
+
+function storeLocally(screen_name, toxicityScore, credScore){
+  if(!(screen_name in profileStrangers)){
+    profileStrangers[screen_name] = {}
+  }
+  profileStrangers[screen_name]['toxicity'] = toxicityScore
+  profileStrangers[screen_name]['uncrediblity'] = credScore
+  console.log('store!')
+  console.log(profileStrangers[screen_name])
   localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
 }
 
@@ -583,18 +767,19 @@ function sendUsersToPredictNotificationNewTwitter(){
           var canId = userCandidates[j].href.replace("https://twitter.com/", '')
           // console.log(canId + '-' + accountName)
           // console.log(canId in followingList[accountName])
-          if(! followingList[accountName].includes(canId)){
+          if(! (followingList[accountName].includes(canId))){
             var divToColor = userCandidates[j].querySelector('.css-1dbjc4n.r-sdzlij.r-1p0dtai.r-1mlwlqe.r-1d2f490.r-1udh08x.r-u8s1d.r-zchlnj.r-ipm5af.r-417010')
             if(divToColor!=null){
               if(canId in profileStrangers){
                 // console.log('from localstraoge')
-                var thisScore = profileStrangers[canId]
+                var thisScore = profileStrangers[canId]['toxicity']
+                var thisCredScore = profileStrangers[canId]['uncrediblity']
                 // if(thisScore > threshold){
-                if(thisScore > TOXIC_BOUNDARY){
+                if(thisScore > TOXIC_BOUNDARY || thisCredScore > CRED_BOUNDARY){
                   divToColor.classList.add('toxicUser')
                 }else if(thisScore < 0){
                   divToColor.classList.add('notEnoughTweets')
-                }else if(0 < thisScore && thisScore < TOXIC_BOUNDARY){
+                }else if(0 < thisScore && thisScore < TOXIC_BOUNDARY && thisCredScore < CRED_BOUNDARY){
                   divToColor.classList.add('safeUser')
                 }
               }else{
@@ -639,13 +824,14 @@ function sendUsersToPredictTimelineNewTwitter(){
           // divToColor.style.border ='3px solid #42a5fc';
           if(canId in profileStrangers){
               // console.log('from localstraoge')
-              var thisScore = profileStrangers[canId]
+              var thisScore = profileStrangers[canId]['toxicity']
+              var thisCredScore = profileStrangers[canId]['uncrediblity']
               // if(thisScore > threshold){
-              if(thisScore > TOXIC_BOUNDARY){
+              if(thisScore > TOXIC_BOUNDARY || thisCredScore > CRED_BOUNDARY){
                 divToColor.classList.add('toxicUser')
               }else if(thisScore < 0){
                   divToColor.classList.add('notEnoughTweets')
-              }else if(0 < thisScore && thisScore < TOXIC_BOUNDARY){
+              }else if(0 < thisScore && thisScore < TOXIC_BOUNDARY && thisCredScore < CRED_BOUNDARY){
                 divToColor.classList.add('safeUser')
 
               }
@@ -693,9 +879,15 @@ function pollInTimeline(response, domelement){
       }else if (result['state'] == 'SUCCESS' && result['result']!='started'){
         // console.log('success')
         highlightUserTimeline(request.responseText, response_json['screen_name'])
-        var accountFlaggedTweets = getFlaggedTweets(JSON.parse(request.responseText))
+        var result_json = JSON.parse(request.responseText)
+        //toxicity
+        var accountFlaggedTweets = getFlaggedTweets(result_json)
         flaggedTweets[screen_name] = accountFlaggedTweets
         localStorage.setItem('flaggedTweets', JSON.stringify(flaggedTweets))
+        //credibility
+        var accountCredFlaggedTweets = getCredFlaggedTweets(result_json)
+        flaggedCredTweets[screen_name] = accountCredFlaggedTweets
+        localStorage.setItem('flaggedCredTweets', JSON.stringify(flaggedCredTweets))
         // highlightUser(request.responseText, domelement, response_json['screen_name'])
         // console.log(request.responseText)
       }
@@ -710,7 +902,6 @@ function pollInTimeline(response, domelement){
 }
 
 function getNotificationScores(username, callback, callback_input) {
-    // var url = "http://twitter-shield.si.umich.edu/toxicityscore?user=" + username + '&threshold=' + threshold;
     // first check queue
     if(username in notificationQueue){
       console.log(notificationQueue[username])
@@ -735,8 +926,9 @@ function getNotificationScores(username, callback, callback_input) {
       notificationQueue[username] = new Set([callback_input])
       console.log(notificationQueue[username])
       // localStorage.setItem('notificationQueue', JSON.stringify(notificationQueue))
-
-      var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold;
+      oauth_token = localStorage.getItem('oauth_token')
+      oauth_token_secret = localStorage.getItem('oauth_token_secret')
+      var url = URL_HEADER + "/toxicityscore?user=" + username + '&threshold=' + threshold + '&oauth_token=' + oauth_token + '&oauth_token_secret=' + oauth_token_secret
       var request = new XMLHttpRequest();
       request.onreadystatechange = function(){
           if (request.readyState == 4 && request.status == 200){
@@ -774,9 +966,15 @@ function pollInNotification(response, domelement){
       }else if (result['state'] == 'SUCCESS' && result['result']!='started'){
         console.log('success')
         highlightUserNotification(request.responseText, response_json['screen_name'])
-        var accountFlaggedTweets = getFlaggedTweets(JSON.parse(request.responseText))
+        var result_json = JSON.parse(request.responseText)
+        //toxicity
+        var accountFlaggedTweets = getFlaggedTweets(result_json)
         flaggedTweets[screen_name] = accountFlaggedTweets
         localStorage.setItem('flaggedTweets', JSON.stringify(flaggedTweets))
+        //credibility
+        var accountCredFlaggedTweets = getCredFlaggedTweets(result_json)
+        flaggedCredTweets[screen_name] = accountCredFlaggedTweets
+        localStorage.setItem('flaggedCredTweets', JSON.stringify(flaggedCredTweets))
         // console.log(request.responseText)s
       }
     }else{
@@ -805,14 +1003,16 @@ function highlightUserNotification(response_json, screen_name){
         if(response_json['result']=='No tweets'){
           divToColor.classList.add('notEnoughTweets')
           var score = -1
-          storeLocally(screen_name, score)
+          var credScore = -1
+          storeLocally(screen_name, score, credScore)
         }else if(response_json['result']!='started'){
           console.log(screen_name)
           console.log(response_json)
-          var score = response_json['result']['TOXICITY']['score']
-          storeLocally(screen_name, score)
+          var score = response_json['result']['toxicity']['TOXICITY']['score']
+          var credScore = response_json['result']['uncrediblity']['uncrediblity']
+          storeLocally(screen_name, score, credScore)
           // if(response_json['result']['TOXICITY']['score'] > threshold){
-          if(response_json['result']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
+          if(response_json['result']['toxicity']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
             divToColor.classList.add('toxicUser')
             console.log('class added!')
           }else{
@@ -845,14 +1045,16 @@ function highlightUserTimeline(response_json, screen_name){
         if(response_json['result']=='No tweets'){
           divToColor.classList.add('notEnoughTweets')
           var score = -1
-          storeLocally(screen_name, score)
+          var credScore = -1
+          storeLocally(screen_name, score, credScore)
         }else if(response_json['result']!='started'){
           // console.log(screen_name)
           // console.log(response_json)
-          var score = response_json['result']['TOXICITY']['score']
-          storeLocally(screen_name, score)
+          var score = response_json['result']['toxicity']['TOXICITY']['score']
+          var credScore = response_json['result']['uncrediblity']['uncrediblity']
+          storeLocally(screen_name, score, credScore)
           // if(response_json['result']['TOXICITY']['score'] > threshold){
-          if(response_json['result']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
+          if(response_json['result']['toxicity']['TOXICITY']['score'] > TOXIC_BOUNDARY){ 
             divToColor.classList.add('toxicUser')
             // console.log('class added!')
           }else{
@@ -1016,7 +1218,7 @@ function createCssClasses(){
 
   computingBorderStyle = document.createElement('style');
   computingBorderStyle.type = 'text/css';
-  computingBorderStyle.innerHTML = '.computing { border-style: solid; border-color: #1d9dfa; border-width: 3.5px; }';
+  computingBorderStyle.innerHTML = '.computing { border-style: double; border-color: #1d9dfa; border-width: 5px; }';
   document.getElementsByTagName('head')[0].appendChild(computingBorderStyle)
 
 }
@@ -1025,17 +1227,24 @@ function setLocalStorage(){
   profileStrangerString = (profileStrangerString) ? profileStrangerString : '{}'
   profileStrangers = JSON.parse(profileStrangerString)
   console.log(profileStrangers)
+  localStorage.setItem('profileStrangers', JSON.stringify(profileStrangers))
 
   flaggedTweetsString = (flaggedTweetsString) ? flaggedTweetsString : '{}'
   flaggedTweets = JSON.parse(flaggedTweetsString)
   console.log(flaggedTweets)
   localStorage.setItem('flaggedTweets', JSON.stringify(flaggedTweets))
 
+  flaggedCredTweetsString = (flaggedCredTweetsString) ? flaggedCredTweetsString : '{}'
+  flaggedCredTweets = JSON.parse(flaggedCredTweetsString)
+  localStorage.setItem('flaggedCredTweets', JSON.stringify(flaggedCredTweets))
+
   followingListString = (followingListString) ? followingListString : '{}'
   followingList = JSON.parse(followingListString)
   console.log(followingList)
   console.log(followingList['im__jane'])
   localStorage.setItem('followingList', JSON.stringify(followingList))
+
+
 }
 
 function appendImages(){
@@ -1045,20 +1254,20 @@ function appendImages(){
   checkImage.src = chrome.runtime.getURL('img/checkmark.png')
 
   frownImage = document.createElement('img')
-  frownImage.id = 'frown'
-  frownImage.style = 'width: 22px; padding-left: 4px;'
+  frownImage.class = 'frown'
+  frownImage.style = 'width: 16px; padding-left: 4px;'
   frownImage.src = chrome.runtime.getURL('img/slightly-frowning.png')
 }
 
 
-function addModal(accountFlaggedTweets, screen_name){
+function addToxicityModal(accountFlaggedTweets, screen_name){
   var modal = document.createElement('div');
-  modal.id = 'myModal'
+  modal.id = 'toxicModal'
   modal.classList.add('modal')
   console.log(modal)
 
   var modalContent =  document.createElement('div');
-  modalContent.id = 'modelContent'
+  modalContent.id = 'toxicModalContent'
   modalContent.classList.add('modal-content')
 
   var closeButton = document.createElement('span');
@@ -1075,7 +1284,7 @@ function addModal(accountFlaggedTweets, screen_name){
   document.getElementsByTagName('body')[0].appendChild(modal)
 
   // Get the button that opens the modal
-  var btn = document.getElementById("exampleTweets");
+  var btn = document.getElementById("toxicSpan");
 
   // Get the <span> element that closes the modal
   for(i=0; i<accountFlaggedTweets.length; i++){
@@ -1094,9 +1303,74 @@ function addModal(accountFlaggedTweets, screen_name){
   }
   // When the user clicks anywhere outside of the modal, close it
   window.onclick = function(event) {
-      if (event.target == modal) {
-          modal.style.display = "none";
-      }
+    console.log(event.target)
+    console.log(modal)
+    if(document.getElementById('toxicModal')!=null && event.target == document.getElementById('toxicModal')){
+      document.getElementById('toxicModal').style.display = "none";
+    }
+    if(document.getElementById('credModal')!=null && event.target == document.getElementById('credModal')){
+      document.getElementById('credModal').style.display = "none";
+    }
+  }
+}
+
+
+function addCredibilityModal(accountUncredibleTweets, screen_name){
+  var modal = document.createElement('div');
+  modal.id = 'credModal'
+  modal.classList.add('modal')
+  console.log(modal)
+
+  var modalContent =  document.createElement('div');
+  modalContent.id = 'credModalContent'
+  modalContent.classList.add('modal-content')
+
+  var closeButton = document.createElement('span');
+  closeButton.classList.add('close')
+  console.log(closeButton)
+  modalContent.append(closeButton)
+  modal.append(modalContent)
+
+  var accountInfo = document.createElement('div');
+  accountInfo.classList.add('modal-account-info');
+  accountInfo.innerText = 'Below are the most recent misinformation related tweets of @' + screen_name + "."
+  modalContent.append(accountInfo)
+
+  document.getElementsByTagName('body')[0].appendChild(modal)
+
+  // Get the button that opens the modal
+  var btn = document.getElementById("credSpan");
+
+  // Get the <span> element that closes the modal
+  for(i=0; i<accountUncredibleTweets.length; i++){
+    var cell = document.createElement('div')
+    cell.classList.add('modal-cell')
+    cell.innerHTML += accountUncredibleTweets[i][0] + '\n'
+    cell.innerHTML += '<br><br> <b>Misinformation related sources in this tweet: <b> <br>'
+    for(j=0; j<accountUncredibleTweets[i][1].length; j++){
+      cell.innerHTML += '<a href="' + accountUncredibleTweets[i][1][j] + '">' + accountUncredibleTweets[i][1][j] + "</a>"
+    }
+    
+    modalContent.append(cell)
+  }
+  // When the user clicks the button, open the modal 
+  btn.onclick = function() {
+      modal.style.display = "block";
+  }
+  // When the user clicks on <span> (x), close the modal
+  closeButton.onclick = function() {
+      modal.style.display = "none";
+  }
+  // When the user clicks anywhere outside of the modal, close it
+  window.onclick = function(event) {
+    console.log(event.target)
+    console.log(modal)
+    if(document.getElementById('toxicModal')!=null && event.target == document.getElementById('toxicModal')){
+      document.getElementById('toxicModal').style.display = "none";
+    }
+    if(document.getElementById('credModal')!=null && event.target == document.getElementById('credModal')){
+      document.getElementById('credModal').style.display = "none";
+    }
   }
 }
 

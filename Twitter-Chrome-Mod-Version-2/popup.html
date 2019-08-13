@@ -25,7 +25,7 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
 
-    <!-- Latest compiled and minified JavaScript -->
+    
 
   </head>
 
@@ -35,12 +35,20 @@
         
       <!--</div>-->
         <div class="panel-body" style="margin-left: 15px; margin-right:15px;">
+          
           <div><b>Stranger Danger</b> 
-            <img id='icon' style="float:center;" src="img/icon.png"></div>
+            <img id='icon' style="float:center;" src="img/icon.png">
+            <label class="switch">
+                <input type="checkbox">
+                <span class="slider round"></span>
+            </label>
+          </div>
 
           Improving social signals on Twitter!
           <!--Improve our Code! <a href="https://github.com/trusttri/Twitter-Shield-With-Perspective" target="_blank">Github</a>-->
       </div>
+
+      
     </div>
 
     <div style="padding:15px" id="allPanel">
@@ -59,13 +67,24 @@
         
         <input type="submit" value="Submit" id ="submitId">
       </form>
+      <form>
+        <p>Toxicity Threshold</p>
+        <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
+      </form>
+
+      <p>Misinformation Threshold</p>
+        <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
+      </form>
     </div>
+
+
     
 
   </body>
-
+  <script type="text/javascript" src="js/oauth.min.js"></script>
   <script type="text/javascript" src="js/popup.js"></script>
   <script type="text/javascript" src="js/alert.js"></script>
+  
 
 <!--   <script>
 

@@ -47,6 +47,11 @@ u {
 }
 */
 
+.frown {
+  width: 16px; 
+  padding-left: 4px;
+}
+
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */

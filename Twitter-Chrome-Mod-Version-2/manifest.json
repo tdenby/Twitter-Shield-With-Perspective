@@ -9,7 +9,7 @@
     {
       "matches": ["http://www.twitter.com/*",
                   "https://twitter.com/*","http://localhost:8000/"],
-      "js": ["js/jquery-min.js", "js/jquery-ui.min.js", "js/arrive.min.js", "js/content.js", "js/popup.js"],
+      "js": ["js/jquery-min.js", "js/jquery-ui.min.js", "js/arrive.min.js", "js/oauth.min.js", "js/content.js", "js/popup.js"],
        "css": ["css/jquery-ui.css","css/content.css"],
       "run_at": "document_start"
     }
@@ -23,6 +23,7 @@
     "storage",
     "tabs",
     "*://*.twitter.com/*",
+    "https://oauth.io/*",
     "https://*.herokuapp.com/"
   ],
 
@@ -30,5 +31,5 @@
     "page" : "background.html"
   },
   "web_accessible_resources": ["img/checkmark.png", "img/slightly-frowning.png"],
-  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://oauth.io/*' https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
 }

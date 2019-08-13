@@ -1,15 +1,6 @@
 console.log("popup.js");
-// This extension loads the saved background color for the current tab if one
-// exists. The user can select a new background color from the dropdown for the
-// current page, and it will be saved as part of the extension's isolated
-// storage. The chrome.storage API is used for this purpose. This is different
-// from the window.localStorage API, which is synchronous and stores data bound
-// to a document's origin. Also, using chrome.storage.sync instead of
-// chrome.storage.local allows the extension data to be synced across multiple
-// user devices.
-
-
-
+console.log(localStorage)
+OAuth.initialize('b7WiSGtdkDLZC1XXsW7_VCKyFwA');
 document.addEventListener('DOMContentLoaded', function () {
   console.log('event listener for popup')
   document.getElementById('submitId').addEventListener('click', setAccountHandle);
@@ -34,21 +25,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
-function setAccountHandle(){
 
+function setAccountHandle(){
   chrome.tabs.executeScript({
         code: "var accountName =" + '"' + document.getElementById('accountHandle').value +'";',
         allFrames: true
     }, function(result) {
         chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
-         
         });
     });
 
+
   document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + document.getElementById('accountHandle').value + '</b>'
-
-
- 
   
   document.getElementById('submitPanel').remove();
 
