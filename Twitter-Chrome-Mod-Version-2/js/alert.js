@@ -1,7 +1,6 @@
 var URL_HEADER = 'https://twitter-shield.si.umich.edu'
 
 console.log("On submit")
-console.log(accountName);
 localStorage.setItem('accountName', accountName)
 console.log('get following list')
 
