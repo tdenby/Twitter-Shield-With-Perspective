@@ -505,14 +505,17 @@ function changeBioAfterRequest(response, screen_name){
   console.log(response_json)
   var prof = document.querySelector(".ProfileAvatar");
   console.log(response_json)
-  // toxicity
-  var accountFlaggedTweets = getFlaggedTweets(response_json)
-  flaggedTweets[screen_name] = accountFlaggedTweets
-  localStorage.setItem('flaggedTweets', JSON.stringify(flaggedTweets))
-  //credibility
-  var accountCredFlaggedTweets = getCredFlaggedTweets(response_json)
-  flaggedCredTweets[screen_name] = accountCredFlaggedTweets
-  localStorage.setItem('flaggedCredTweets', JSON.stringify(flaggedCredTweets))
+  if (response_json['result'] != 'No tweets' && response_json['result']!='started'){
+     // toxicity
+    var accountFlaggedTweets = getFlaggedTweets(response_json)
+    flaggedTweets[screen_name] = accountFlaggedTweets
+    localStorage.setItem('flaggedTweets', JSON.stringify(flaggedTweets))
+    //credibility
+    var accountCredFlaggedTweets = getCredFlaggedTweets(response_json)
+    flaggedCredTweets[screen_name] = accountCredFlaggedTweets
+    localStorage.setItem('flaggedCredTweets', JSON.stringify(flaggedCredTweets))
+  }
+ 
 
   if(response_json['result'] == 'No tweets'){
     var score = -1
@@ -541,6 +544,7 @@ function changeBioAfterRequest(response, screen_name){
 function getFlaggedTweets(response_json, screen_name){
   var accountFlaggedTweets = []
   // if(response_json['result']!=null){
+
     var thisUserTweets = response_json['result']['toxicity']['tweets_with_scores']
     // console.log(thisUserTweets)
 
