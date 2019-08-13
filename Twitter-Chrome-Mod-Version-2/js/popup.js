@@ -2,6 +2,7 @@
 console.log("popup.js");
 console.log(localStorage)
 OAuth.initialize('b7WiSGtdkDLZC1XXsW7_VCKyFwA');
+console.log('initialized!')
 skipLogin();
 // This extension loads the saved background color for the current tab if one
 // exists. The user can select a new background color from the dropdown for the
@@ -25,7 +26,7 @@ function skipLogin() {
                     + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
 
     var btn = document.createElement('div')
-    btn.innerHTML = 'Log in with a different handle'
+    btn.innerHTML = 'Log out'
     btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
                     + 'text-decoration: none; display: font-size: 14px; '
                     + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
@@ -91,7 +92,7 @@ function setAccountHandle(){
                   + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
 
   var btn = document.createElement('div')
-  btn.innerHTML = 'Log in with a different handle'
+  btn.innerHTML = 'Log out'
   btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
                   + 'text-decoration: none; display: font-size: 14px; '
                   + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'

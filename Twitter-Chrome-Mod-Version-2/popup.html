@@ -12,7 +12,8 @@
       -
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
     -->
-    
+    <!-- <script src="https://cdn.rawgit.com/oauth-io/oauth-js/c5af4519/dist/oauth.js"></script> -->
+    <script type="text/javascript" src="js/oauth.min.js"></script>
     <link rel="stylesheet" href="css/popup.css">
 
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'" >
@@ -24,6 +25,7 @@
 
     <!-- Optional theme -->
     <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+
 
     
 
@@ -67,6 +69,7 @@
         
         <input type="submit" value="Submit" id ="submitId">
       </form>
+
       <form>
         <p>Toxicity Threshold</p>
         <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
@@ -81,10 +84,10 @@
     
 
   </body>
-  <script type="text/javascript" src="js/oauth.min.js"></script>
+  
   <script type="text/javascript" src="js/popup.js"></script>
   <script type="text/javascript" src="js/alert.js"></script>
-  
+
 
 <!--   <script>
 
