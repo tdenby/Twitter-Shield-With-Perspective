@@ -76,9 +76,6 @@ var TOXIC_BOUNDARY = 0.45
 var TWEET_TOXIC_BOUNDARY = 0.7
 var CRED_BOUNDARY = 0.01
 
-// images
-var checkImage;
-var frownImage;
 var loggedIn = false;
 
 var followingListString = localStorage.followingList
@@ -152,7 +149,6 @@ $(window).on('load',function(){
 
   createCssClasses()
   setLocalStorage()
-  appendImages()
 
 
   if(localStorage.getItem('threshold') != null){
@@ -1253,17 +1249,6 @@ function setLocalStorage(){
 
 }
 
-function appendImages(){
-  checkImage = document.createElement('img')
-  checkImage.id = 'check'
-  checkImage.style = 'width: 17px;'
-  checkImage.src = chrome.runtime.getURL('img/checkmark.png')
-
-  frownImage = document.createElement('img')
-  frownImage.class = 'frown'
-  frownImage.style = 'width: 16px; padding-left: 4px;'
-  frownImage.src = chrome.runtime.getURL('img/slightly-frowning.png')
-}
 
 
 function addToxicityModal(accountFlaggedTweets, screen_name){
