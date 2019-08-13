@@ -30,6 +30,5 @@
   "background": {
     "page" : "background.html"
   },
-  "web_accessible_resources": ["img/checkmark.png", "img/slightly-frowning.png"],
   "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://oauth.io/*' https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
 }
