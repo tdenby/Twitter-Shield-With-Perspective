@@ -1,4 +1,4 @@
-var URL_HEADER = 'http://127.0.0.1:8000'
+var URL_HEADER = 'https://twitter-shield.si.umich.edu'
 
 console.log("On submit")
 console.log(accountName);
@@ -30,7 +30,6 @@ OAuth.popup('twitter').then(function(twitter) {
 
 
 function getFollowingList(accountName, oauth_token, oauth_token_secret){
-
   var followingListString = localStorage.followingList
   followingListString = (followingListString) ? followingListString : '{}'
   followingList = JSON.parse(followingListString)
