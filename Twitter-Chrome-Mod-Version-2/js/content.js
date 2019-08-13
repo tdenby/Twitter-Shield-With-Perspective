@@ -544,17 +544,18 @@ function changeBioAfterRequest(response, screen_name){
 function getFlaggedTweets(response_json, screen_name){
   var accountFlaggedTweets = []
   // if(response_json['result']!=null){
-
-    var thisUserTweets = response_json['result']['toxicity']['tweets_with_scores']
+    if('toxicity' in response_json['result'] && 'tweets_with_scores' in response_json['result']['toxicity']){
+      var thisUserTweets = response_json['result']['toxicity']['tweets_with_scores']
     // console.log(thisUserTweets)
 
-    for(i=0; i<thisUserTweets.length; i++){
-      if(parseFloat(thisUserTweets[i]['tweet_scores']['TOXICITY']) > TWEET_TOXIC_BOUNDARY){
-        accountFlaggedTweets.push(thisUserTweets[i]['tweet_text'])
-        console.log(thisUserTweets[i]['tweet_text'])
+      for(i=0; i<thisUserTweets.length; i++){
+        if(parseFloat(thisUserTweets[i]['tweet_scores']['TOXICITY']) > TWEET_TOXIC_BOUNDARY){
+          accountFlaggedTweets.push(thisUserTweets[i]['tweet_text'])
+          console.log(thisUserTweets[i]['tweet_text'])
+        }
       }
     }
-  // }
+    
   return accountFlaggedTweets
 }
 
@@ -562,17 +563,18 @@ function getCredFlaggedTweets(response_json, screen_name){
   console.log('store cred tweets')
   var accountCredFlaggedTweets = []
   // if(response_json['result']!=null){
-  var thisUserTweets = response_json['result']['uncrediblity']['tweets_with_scores']
-    // console.log(thisUserTweets)
-  for(i=0; i<thisUserTweets.length; i++){
-    if(parseFloat(thisUserTweets[i]['uncrediblity']) > 0){
-      console.log(thisUserTweets[i])
-      console.log(thisUserTweets[i]['urls'])
-      accountCredFlaggedTweets.push([thisUserTweets[i]['tweet_text'], thisUserTweets[i]['urls']])
-      console.log(thisUserTweets[i]['tweet_text'])
+  if('uncrediblity' in response_json['result'] && 'tweets_with_scores' in response_json['result']['uncrediblity']){
+    var thisUserTweets = response_json['result']['uncrediblity']['tweets_with_scores']
+      // console.log(thisUserTweets)
+    for(i=0; i<thisUserTweets.length; i++){
+      if(parseFloat(thisUserTweets[i]['uncrediblity']) > 0){
+        console.log(thisUserTweets[i])
+        console.log(thisUserTweets[i]['urls'])
+        accountCredFlaggedTweets.push([thisUserTweets[i]['tweet_text'], thisUserTweets[i]['urls']])
+        console.log(thisUserTweets[i]['tweet_text'])
+      }
     }
   }
-  // }
   return accountCredFlaggedTweets
 }
 
