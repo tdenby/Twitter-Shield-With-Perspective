@@ -14,8 +14,8 @@ skipLogin();
 // user devices.
 
 function skipLogin() {
-  if(localStorage.getItem('username') != null) {
-    document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('username') + '</b>'
+  if(localStorage.getItem('accountName') != null) {
+    document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
   
     document.getElementById('submitPanel').remove();
 
@@ -35,11 +35,10 @@ function skipLogin() {
     document.getElementById('allPanel').append(btn)
 
     btn.addEventListener('click', logOut, false);
-    document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('username') + '</b>'
+    document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
   }
 }
 
-//document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + chrome.storage.local.get(['username']) + '</b>'
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('event listener for popup')
@@ -69,9 +68,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function setAccountHandle(){
 
-/*localStorage.setItem({username: document.getElementById('accountHandle').value}, function() {
-  console.log('Value is set to ' + document.getElementById('accountHandle').value);
-});*/
   chrome.tabs.executeScript({
       code: "var accountName =" + '"' + document.getElementById('accountHandle').value +'";',
       allFrames: true
@@ -79,7 +75,7 @@ function setAccountHandle(){
       chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
       });
   });
-  localStorage.setItem('username', document.getElementById('accountHandle').value);
+  localStorage.setItem('accountName', document.getElementById('accountHandle').value);
 
   document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + document.getElementById('accountHandle').value + '</b>'
   
@@ -105,7 +101,7 @@ function setAccountHandle(){
 
 
   btn.addEventListener('click', logOut, false);
-  document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem(['username']) + '</b>'
+  document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
                                                               + '<br> You successfully logged in..'
                                                         
 
@@ -113,8 +109,10 @@ function setAccountHandle(){
 }
 
 function logOut() {
-  localStorage.removeItem('username');
+  console.log('log out!')
+  localStorage.removeItem('accountName');
   document.location.reload()
+  console.log(localStorage.getItem('accountName'))
 }
 
 var slider = document.getElementById("thresholdId");
