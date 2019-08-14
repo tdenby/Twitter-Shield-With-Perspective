@@ -31,6 +31,46 @@ function skipLogin() {
                     + 'text-decoration: none; display: font-size: 14px; '
                     + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
     
+    var slider = document.createElement('input')
+    slider.className = 'slider';
+    slider.type="RANGE";
+    //slider.method='POST';
+    slider.step=.2;
+    slider.min=0;
+    slider.max=.8;
+    slider.value=0;
+    slider.id='ThresholdId';
+    slider.name='threshold;';
+    //var outputt = document.getElementById("demo");
+    var sliderLabel = document.createElement('div');
+    sliderLabel.innerHTML = 'Toxicity Threshold Selector';
+    var br = document.createElement("br");
+    sliderLabel.appendChild(br);
+    document.getElementById('sliderform').append(sliderLabel);
+    document.getElementById('sliderform').append(slider)
+    document.getElementById('value').append("Value: ")
+
+    var slider2 = document.createElement('input')
+    slider2.className = 'slider';
+    slider2.type="RANGE";
+    //slider.method='POST';
+    slider2.step=.2;
+    slider2.min=0;
+    slider2.max=.8;
+    slider2.value=0;
+    slider2.id='ThresholdId';
+    slider2.name='threshold;';
+    //var outputt = document.getElementById("demo");
+    var slider2Label = document.createElement('div');
+    slider2Label.innerHTML = 'Misinformation Threshold Selector';
+    slider2Label.appendChild(br);
+    document.getElementById('sliderform2').append(slider2Label);
+    document.getElementById('sliderform2').append(slider2)
+    document.getElementById('value2').append("Value: ")
+    //outputt.innerHTML = slider.value; 
+    //slider.oninput = function() {
+    //  outputt.innerHTML = slider.value;
+    //}
     document.getElementById('allPanel').append(learnMore)
     document.getElementById('allPanel').append(btn)
 
@@ -94,7 +134,15 @@ function setAccountHandle(){
                   + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
   
   var slider = document.createElement('div')
-  slider.className = 'slidecontainer';
+  slider.className = 'slider';
+  slider.type="RANGE";
+  //slider.method='POST';
+  slider.step=.2;
+  slider.min=0;
+  slider.max=.8;
+  slider.value=0;
+  slider.id='ThresholdId';
+
   document.getElementById('allPanel').append(slider)
   document.getElementById('allPanel').append(learnMore)
   document.getElementById('allPanel').append(btn)
@@ -103,7 +151,7 @@ function setAccountHandle(){
   btn.addEventListener('click', logOut, false);
   document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
                                                               + '<br> You successfully logged in..'
-                                                        
+                                    
 
 
 }
@@ -115,28 +163,6 @@ function logOut() {
   console.log(localStorage.getItem('accountName'))
 }
 
-var slider = document.getElementById("thresholdId");
-var output = document.getElementById("demo");
-output.innerHTML = 'Less than 20% Toxic Tweets'; // Display the default slider value
-   
-slider.oninput = function() {
-  if(slider.value < .2) {
-    output.innerHTML = 'Less than 20% Toxic Tweets';
-  }
-  else if((slider.value >= .2) && (slider.value < .4)) {
-    output.innerHTML = 'Less than 40% Toxic Tweets';
-  }
-  else if((slider.value >= .4) && (slider.value < .6)) {
-    output.innerHTML = 'Less than 60% Toxic Tweets';
-  }
-  else if((slider.value >= .6) && (slider.value < .8)) {
-    output.innerHTML = 'Less than 80% Toxic Tweets';
-  }
-  else if((slider.value >= .8) && (slider.value <= 1)) {
-    output.innerHTML = 'Less than 100% Toxic Tweets';
-  }
-  //output.innerHTML = this.value;
-}
 
 
 
