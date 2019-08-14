@@ -1,142 +1,183 @@
 
-console.log("popup.js");
-console.log(localStorage)
-OAuth.initialize('b7WiSGtdkDLZC1XXsW7_VCKyFwA');
-console.log('initialized!')
-skipLogin();
-// This extension loads the saved background color for the current tab if one
-// exists. The user can select a new background color from the dropdown for the
-// current page, and it will be saved as part of the extension's isolated
-// storage. The chrome.storage API is used for this purpose. This is different
-// from the window.localStorage API, which is synchronous and stores data bound
-// to a document's origin. Also, using chrome.storage.sync instead of
-// chrome.storage.local allows the extension data to be synced across multiple
-// user devices.
-
-function skipLogin() {
-  if(localStorage.getItem('accountName') != null) {
-    document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
-  
-    document.getElementById('submitPanel').remove();
-
-     var learnMore = document.createElement('div')
-    learnMore.innerHTML = 'Learn how Stranger Danger works'
-    learnMore.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #67c4e7; '
-                    + 'text-decoration: none; display: font-size: 14px; '
-                    + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
-
-    var btn = document.createElement('div')
-    btn.innerHTML = 'Log out'
-    btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
-                    + 'text-decoration: none; display: font-size: 14px; '
-                    + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
-    
-    document.getElementById('allPanel').append(learnMore)
-    document.getElementById('allPanel').append(btn)
-
-    btn.addEventListener('click', logOut, false);
-    document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
-  }
-}
-
+var URL_HEADER = 'https://twitter-shield.si.umich.edu'
+// var URL_HEADER = 'http://127.0.0.1:8000'
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('event listener for popup')
-  document.getElementById('submitId').addEventListener('click', setAccountHandle);
-  console.log('set user id')
-  // document.getElementById('submitId').addEventListener('click', setThreshold);
-  
-  
-//   // console.log(msg);
-//   // chrome.tabs.query({
-//   //   active: true,
-//   //   currentWindow: true
-//   // }, function(tabs) {
-//   //   chrome.tabs.sendMessage(tabs[0].id, {
-//   //     greeting: 'hello'
-//   //   }, function(response) {
-//   //     console.log(response.data);
-//   //     var pageUrl = (tabs[0].url);
-//   //     msg.innerText = response.data;
-//   //   });
-
-//   // });
-
+  OAuth.initialize('b7WiSGtdkDLZC1XXsW7_VCKyFwA');
+  //skip login if cached
+  skipLogin();
+  if(document.getElementById('submitId') != null){
+    document.getElementById('submitId').addEventListener('click', setAccountHandle);
+  }
 }); 
 
 
-
-function setAccountHandle(){
-
-  chrome.tabs.executeScript({
-      code: "var accountName =" + '"' + document.getElementById('accountHandle').value +'";',
-      allFrames: true
-  }, function(result) {
-      chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
-      });
-  });
-  localStorage.setItem('accountName', document.getElementById('accountHandle').value);
-
-  document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + document.getElementById('accountHandle').value + '</b>'
+function renderLogin() {
+  if(document.getElementById('submitId') != null){
+    document.getElementById('submitId').remove()
+  }
   
-  document.getElementById('submitPanel').remove();
-
-  var learnMore = document.createElement('div')
-  learnMore.innerHTML = 'Learn how Stranger Danger works'
-  learnMore.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #67c4e7; '
-                  + 'text-decoration: none; display: font-size: 14px; '
-                  + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
-
+  // var learnMore = document.createElement('div')
+  // learnMore.id = 'learnMore'
+  // learnMore.innerHTML = '<a href="https://docs.google.com/document/d/12ddWNmd7TfmdMAoxhnJtHMUE9TKOMpQ1WpIzKtlWUAM/edit?usp=sharing">'
+  //                       +'Learn how Stranger Danger works</a>'
+  // learnMore.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #67c4e7; '
+  //                 + 'text-decoration: none; display: font-size: 14px; '
+  //                 + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
+  // document.getElementById('buttonPanel').append(learnMore)
   var btn = document.createElement('div')
   btn.innerHTML = 'Log out'
+  btn.id = 'logoutBtn'
   btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
                   + 'text-decoration: none; display: font-size: 14px; '
                   + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
   
-  var slider = document.createElement('div')
-  slider.className = 'slidecontainer';
-  document.getElementById('allPanel').append(slider)
-  document.getElementById('allPanel').append(learnMore)
-  document.getElementById('allPanel').append(btn)
+  
+  document.getElementById('buttonPanel').append(btn)
+
+  btn.addEventListener('click', logOut); 
+
+  document.getElementById('statePanel').innerHTML = ''
+
+  addSliders();
+}
 
 
-  btn.addEventListener('click', logOut, false);
-  document.getElementById('statePanel').innerHTML = 'Logged in as <b>@'  + localStorage.getItem('accountName') + '</b>'
-                                                              + '<br> You successfully logged in..'
-                                                        
+function renderLogout(){
+  document.getElementById('logoutBtn').remove()
+  // document.getElementById('learnMore').remove()
+  var submitButton = document.createElement('div')
 
+  submitButton.innerHTML = 'Log in with Twitter account'
+  submitButton.id = 'submitId'
+  submitButton.style =  'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
+                  + 'text-decoration: none; display: font-size: 14px; '
+                  + 'margin-left:28px; margin-right:28px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
+  submitButton.addEventListener('click', setAccountHandle);
+  document.getElementById('contentPanel').append(submitButton)
+  document.getElementById('statePanel').innerHTML = 'You are logged out.'
+
+  removeSliders();
+}
+
+function skipLogin() {
+  chrome.storage.local.get(['accountName'], function(result) {
+      console.log(result.accountName)
+      console.log('skip log in')
+  if(result.accountName != null) {
+    console.log('NOT NULLLLLLL')
+    
+      chrome.storage.local.get(['accountName'], function(result) {
+      console.log(result)
+    });
+
+    renderLogin()
+    
+  }
+  });
+  
+}
+
+
+function setAccountHandle(){
+  chrome.tabs.executeScript({
+      // code: "var accountName =" + '"' + document.getElementById('accountHandle').value +'";',
+      allFrames: true
+  }, function(result) {
+      chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
+        console.log("DONENENE")
+        console.log(result)
+
+      });
+  });
+
+  
+  renderLogin();
+  addSliders();                                          
 
 }
+
 
 function logOut() {
   console.log('log out!')
   localStorage.removeItem('accountName');
-  document.location.reload()
-  console.log(localStorage.getItem('accountName'))
+  chrome.storage.local.set({'accountName': null}, function(){
+    console.log('RESET!')
+    renderLogout();
+
+  })
+
+
+
 }
 
-var slider = document.getElementById("thresholdId");
-var output = document.getElementById("demo");
-output.innerHTML = 'Less than 20% Toxic Tweets'; // Display the default slider value
-   
-slider.oninput = function() {
-  if(slider.value < .2) {
-    output.innerHTML = 'Less than 20% Toxic Tweets';
+function addSliders(){
+  if(document.getElementById('toxicForm') == null){
+    var toxicSlider = document.createElement('form')
+    toxicSlider.id = "toxicForm"
+    toxicSlider.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" >'
+                          + '<p>Toxic tweet frequency threshold : <span id="toxicThresholdOutput">8%</span></p> '
+                          + '<input type="range" step="1" min="0" max="100" name ="threshold" class = "slider" value ="8" id="toxicitySlider">'
+                          + '</form>'
+
+    document.getElementById('buttonPanel').append(toxicSlider)
+
+    document.getElementById('toxicitySlider').onchange = function updateToxicInput(res) {
+      console.log(res.target.value)
+      document.getElementById('toxicThresholdOutput').innerHTML = res.target.value + '%'; 
+      chrome.storage.local.set({'toxicThreshold': parseInt(res.target.value)*0.01}, function(){
+        console.log('set toxic')
+      })
+    }
+
+    chrome.storage.local.get(['toxicThreshold'], function(result) {
+      if(result.toxicThreshold != null){
+        document.getElementById('toxicThresholdOutput').innerText = Math.trunc(result.toxicThreshold * 100) +'%'
+        document.getElementById('toxicitySlider').value = Math.trunc(result.toxicThreshold * 100)
+      }else{
+        document.getElementById('toxicThresholdOutput').innerText = '8%'
+        document.getElementById('toxicitySlider').value = 8
+      }
+      
+    });
   }
-  else if((slider.value >= .2) && (slider.value < .4)) {
-    output.innerHTML = 'Less than 40% Toxic Tweets';
+  
+  if(document.getElementById('misinfoForm') == null){
+    var misinfoSlider = document.createElement('form')
+    misinfoSlider.id = "misinfoForm"
+    misinfoSlider.innerHTML = '<form  style="padding-left:30px; padding-right:30px;" class="sliderForm" id="misinfoForm">'
+                            + '<p>Misinfo. tweet frequency threshold: <span id="misinfoThresholdOutput">2%</span></p>'
+                            + '<input type="range" step="1" min="0" max="100" name ="threshold" class = "slider" value ="2" id="misinfoSlider">'
+                            + '</form>' 
+    
+    document.getElementById('buttonPanel').append(misinfoSlider)      
+          
+    
+    document.getElementById('misinfoSlider').onchange = function updateMisinfoInput(res) {
+      document.getElementById('misinfoThresholdOutput').innerHTML = res.target.value +'%'; 
+      chrome.storage.local.set({'misinfoThreshold': parseInt(res.target.value)*0.01}, function(){
+        console.log('set misinfo')
+      })
+    }
+    chrome.storage.local.get(['misinfoThreshold'], function(result) {
+      if(result.misinfoThreshold != null){
+        document.getElementById('misinfoThresholdOutput').innerText = Math.trunc(result.misinfoThreshold * 100) +'%'
+        document.getElementById('misinfoSlider').value = Math.trunc(result.misinfoThreshold * 100)
+      }else{
+        document.getElementById('misinfoThresholdOutput').innerText = '2%'
+        document.getElementById('misinfoSlider').value = 2
+      }
+      
+      console.log(result.misinfoThreshold)
+    });
+
   }
-  else if((slider.value >= .4) && (slider.value < .6)) {
-    output.innerHTML = 'Less than 60% Toxic Tweets';
-  }
-  else if((slider.value >= .6) && (slider.value < .8)) {
-    output.innerHTML = 'Less than 80% Toxic Tweets';
-  }
-  else if((slider.value >= .8) && (slider.value <= 1)) {
-    output.innerHTML = 'Less than 100% Toxic Tweets';
-  }
-  //output.innerHTML = this.value;
 }
 
-
+function removeSliders(){
+  document.getElementById('toxicForm').remove()
+  document.getElementById('misinfoForm').remove()
+  location.reload()
+}
 

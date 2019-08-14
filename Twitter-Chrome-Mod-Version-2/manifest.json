@@ -23,12 +23,13 @@
     "storage",
     "tabs",
     "*://*.twitter.com/*",
-    "https://oauth.io/*",
+    "*://oauth.io/*",
     "https://*.herokuapp.com/"
+
   ],
 
   "background": {
     "page" : "background.html"
   },
-  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://oauth.io/*' https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
+  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://oauth.io https://oauth.io/auth/twitter/me https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self'"
 }

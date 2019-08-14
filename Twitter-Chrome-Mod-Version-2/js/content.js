@@ -73,9 +73,17 @@ var toxicityStatusDiv = '';
 
 var VERY_TOXIC_BOUNDARY = 0.8
 var TOXIC_BOUNDARY = 0.45
+chrome.storage.local.get(['toxicThreshold'], function(result) {
+  TOXIC_BOUNDARY = result.toxicThreshold
+});
 var TWEET_TOXIC_BOUNDARY = 0.7
 var CRED_BOUNDARY = 0.01
-
+chrome.storage.local.get(['misinfoThreshold'], function(result) {
+  CRED_BOUNDARY = result.misinfoThreshold
+});
+console.log(CRED_BOUNDARY)
+console.log(TOXIC_BOUNDARY)
+console.log('=========================')
 var loggedIn = false;
 
 var followingListString = localStorage.followingList
@@ -108,6 +116,27 @@ var followingListString = localStorage.followingList
 //     alert(request.accountName)
 //   }
 // })
+
+
+window.addEventListener('storage', (e) => {
+   console.log(`Key Changed: ${e.key}`);
+   console.log(`New Value: ${e.newValue}`);
+});
+
+chrome.storage.onChanged.addListener(function(changes, namespace){
+  for (var key in changes) {
+    var storageChange = changes[key];
+    console.log(storageChange.oldValue)
+    console.log(storageChange.newValue)
+    if(key=='misinfoThreshold'){
+      CRED_BOUNDARY = storageChange.newValue
+      localStorage.setItem('misinfoThreshold', storageChange.newValue)
+    }else if (key=='toxicThreshold') {
+      TOXIC_BOUNDARY = storageChange.newValue
+      localStorage.setItem('toxicThreshold', storageChange.newValue)
+    }
+  }
+})
 
 function getFollowingList(accountName){
   console.log('following list')
@@ -540,7 +569,7 @@ function changeBioAfterRequest(response, screen_name){
 function getFlaggedTweets(response_json, screen_name){
   var accountFlaggedTweets = []
   // if(response_json['result']!=null){
-    if('toxicity' in response_json['result'] && 'tweets_with_scores' in response_json['result']['toxicity']){
+    if(response_json['result']!= 'No tweets' && 'toxicity' in response_json['result'] && 'tweets_with_scores' in response_json['result']['toxicity']){
       var thisUserTweets = response_json['result']['toxicity']['tweets_with_scores']
     // console.log(thisUserTweets)
 
@@ -606,7 +635,7 @@ function appendToxicDiv(statusDiv){
   var toxicDiv = document.createElement('span');
   toxicDiv.id = 'toxicSpan'
   toxicDiv.innerHTML = "Toxicity"
-  toxicDiv.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  toxicDiv.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.7em; margin-right:10px; cursor: pointer; color:white; font-family: sans-serif;'
   // if(document.getElementById('toxicityStatus') != null){
   //   document.getElementById('toxicityStatus').append(exampleTweets)
   // }
@@ -626,7 +655,7 @@ function appendUncredibleDiv(statusDiv){
   var credDiv = document.createElement('span');
   credDiv.id = 'credSpan'
   credDiv.innerHTML = "Misinformation"
-  credDiv.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  credDiv.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.7em; margin-right:10px; cursor: pointer; color:white; font-family: sans-serif;'
   // if(document.getElementById('toxicityStatus') != null){
   //   document.getElementById('toxicityStatus').append(exampleTweets)
   // }
