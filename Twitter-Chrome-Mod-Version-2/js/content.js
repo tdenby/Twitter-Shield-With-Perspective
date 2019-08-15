@@ -620,7 +620,7 @@ function visualizeStatusNewTwitter(status){
   toxicityStatusDiv = document.getElementById('toxicityStatus')
   
   if (status == 'started'){
-    toxicityStatusDiv.innerHTML = ' Started! '
+    toxicityStatusDiv.innerHTML = ' Pending... '
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }else{
     // statusDiv.innerHTML = status + ' stored'
