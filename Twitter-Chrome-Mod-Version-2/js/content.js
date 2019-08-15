@@ -685,7 +685,7 @@ function changeBioElement(thisID, score, accountFlaggedTweets){
     createExampleTweetsButton(thisID, accountFlaggedTweets)
 
   }else if(score == -1){
-    toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
+    toxicityStatusDiv.innerHTML = 'This account is protected or does not have enough English tweets.'
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
     if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
       document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '';
@@ -754,7 +754,8 @@ function changeBioCrediblityStatus(thisID, credScore, accountUncredibleTweets){
     createExampleCredibleTweets(thisID, accountUncredibleTweets)
     
   }else if(credScore == -1){
-    toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
+    // toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
+    toxicityStatusDiv.innerHTML = ''
     toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
     if(document.querySelectorAll('[href="/' + thisID + '/photo"]').length > 0){
       document.querySelectorAll('[href="/' + thisID + '/photo"]')[0].querySelector('div').style.borderColor = '';
