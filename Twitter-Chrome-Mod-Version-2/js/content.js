@@ -28,7 +28,9 @@ var item, abusive_list; // jSON returned from server. Making it public for highl
 var ignoreURLs = ["https://twitter.com/i/bookmarks", 
                 "/lists", "https://twitter.com/messages",
                 "https://twitter.com/explore", "/status/", 
-                "/home", "notifications"]
+                "/home", "notifications", 
+                "/compose/tweet"
+                ]
 
 // var notificationQueueString = localStorage.notificationQueue
 // notificationQueueString = (notificationQueueString ) ? notificationQueueString : '{}'
