@@ -33,14 +33,15 @@ function renderLogin() {
                   + 'text-decoration: none; display: font-size: 14px; '
                   + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
   
-  
-  document.getElementById('buttonPanel').append(btn)
+  if(document.getElementById('buttonPanel') != null){
+    document.getElementById('buttonPanel').append(btn)
 
-  btn.addEventListener('click', logOut); 
+    btn.addEventListener('click', logOut); 
 
-  document.getElementById('statePanel').innerHTML = ''
+    document.getElementById('statePanel').innerHTML = ''
 
-  addSliders();
+    addSliders();
+  }
 }
 
 
