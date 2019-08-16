@@ -13,7 +13,7 @@
       - [1]: https://developer.chrome.com/extensions/contentSecurityPolicy
     -->
     <!-- <script src="https://cdn.rawgit.com/oauth-io/oauth-js/c5af4519/dist/oauth.js"></script> -->
-    <script type="text/javascript" src="js/oauth.min.js"></script>
+    
     <link rel="stylesheet" href="css/popup.css">
 
     <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' http://* 'unsafe-inline'; script-src 'self' http://* 'unsafe-inline' 'unsafe-eval'" >
@@ -32,7 +32,7 @@
   </head>
 
   <body>
-    <div class="panel panel-default">
+    <div class="panel panel-default" id="popupPanel">
       <!--<div class="panel-heading">-->
         
       <!--</div>-->
@@ -40,65 +40,41 @@
           
           <div><b>Stranger Danger</b> 
             <img id='icon' style="float:center;" src="img/icon.png">
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round"></span>
-            </label>
           </div>
 
           Improving social signals on Twitter!
+          <br>
+          <a href="https://docs.google.com/document/d/12ddWNmd7TfmdMAoxhnJtHMUE9TKOMpQ1WpIzKtlWUAM/edit?usp=sharing" target="_blank">
+          Learn how Stranger Danger works</a>
           <!--Improve our Code! <a href="https://github.com/trusttri/Twitter-Shield-With-Perspective" target="_blank">Github</a>-->
       </div>
 
       
     </div>
 
-    <div style="padding:15px" id="allPanel">
-      <div style="margin-bottom:15px; margin-left: 15px; margin-right: 15px;" id="statePanel">
-        Submit your Twitter handle below to get started!
-        <br>
+    <div style="" id="contentPanel">
+       <div style="padding-left:15px; padding-right:15px; margin-bottom:15px; margin-left: 15px; margin-right: 15px;" id="statePanel">
         Your information will be only stored locally.
         <br>
       </div>
-
-      <!-- <form onsubmit="setThreshold()" style="margin:15px"> -->
-      <form style="margin:15px" id="submitPanel">
-        <!--Threshold <input type="number" step="0.1" min="0" max="1" name ="threshold" value ="0" id="thresholdId">-->
-        <!--Threshold <input name ="threshold" value ="0" id="thresholdId"/>-->
-        <input type="text" value="" name="accountName" id="accountHandle" autofocus>
-        
-        <input type="submit" value="Submit" id ="submitId">
-      </form>
-
-      <form id='sliderform'>
-      <!--<p>Toxicity Threshold</p>
-        <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
-      -->
-      </form>
-
-      <p id='value'></p>
-
-      <form id='sliderform2'>
-          <!--<p>Toxicity Threshold</p>
-            <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
-          -->
-      </form>
       
-      <p id='value2'></p>
-        <!--
-
-      <p>Misinformation Threshold</p>
-        <input type="range" step="0.2" min="0" max=".8" name ="threshold" class = "slider" value ="0" id="thresholdId">
-      </form>
+      <!-- <form onsubmit="setThreshold()" style="margin:15px"> -->
+      <div style="margin:15px" id="buttonPanel">
+        <!-- Threshold <input type="number" step="0.1" min="0" max="1" name ="threshold" value ="0" id="thresholdId"> -->
+        <!--Threshold <input name ="threshold" value ="0" id="thresholdId"/>-->
+        <!-- <input type="text" value="" name="accountName" id="accountHandle" autofocus> -->
+        
+        <div id ="submitId">Log in with Twitter account</div>
+      </div>
+   
+      
     </div>
--->
       <p><span id="demo"></span></p> 
     
 
   </body>
-  
+  <script type="text/javascript" src="js/oauth.min.js"></script>
   <script type="text/javascript" src="js/popup.js"></script>
-  <script type="text/javascript" src="js/alert.js"></script>
 
 
 <!--   <script>
