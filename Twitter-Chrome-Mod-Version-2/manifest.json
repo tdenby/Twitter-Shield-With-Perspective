@@ -31,5 +31,5 @@
   "background": {
     "page" : "background.html"
   },
-  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://stats.g.doubleclick.net https://stats.g.doubleclick.net/r/*  https://oauth.io https://oauth.io/auth/twitter/me https://cm.g.doubleclick.net/pixel? https://ssl.google-analytics.com; object-src 'self' img-src * 'self' data: https:"
+  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads https://oauth.io https://ssl.google-analytics.com; object-src *; image-src * https://stats.g.doubleclick.net https://www.google.com/ads; data: *"
 }
