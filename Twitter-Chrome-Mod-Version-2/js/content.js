@@ -19,6 +19,10 @@ Paiju Chang
 
 // call checkForJS_Finish() as init()
 // window.onload = checkForJS_Finish()
+
+var URL_HEADER = 'http://127.0.0.1:8000'
+// var URL_HEADER = 'https://twitter-shield.si.umich.edu'
+
 var userID;
 var accountName='';
 var currentTab;
@@ -68,19 +72,18 @@ var computingBorderStyle = '';
 var safeUserBorderStyle = '';
 var notEnoughTweetsBorderStyle = '';
 
-// var URL_HEADER = 'http://127.0.0.1:8000'
-var URL_HEADER = 'https://twitter-shield.si.umich.edu'
-
 var toxicityStatusDiv = '';
 
 var VERY_TOXIC_BOUNDARY = 0.8
-var TOXIC_BOUNDARY = 0.45
+var TOXIC_BOUNDARY = 0.10
 chrome.storage.local.get(['toxicThreshold'], function(result) {
+  console.log(result.toxicThreshold)
   TOXIC_BOUNDARY = result.toxicThreshold
 });
 var TWEET_TOXIC_BOUNDARY = 0.7
-var CRED_BOUNDARY = 0.01
+var CRED_BOUNDARY = 0.02
 chrome.storage.local.get(['misinfoThreshold'], function(result) {
+  console.log(result.misinfoThreshold)
   CRED_BOUNDARY = result.misinfoThreshold
 });
 console.log(CRED_BOUNDARY)
@@ -90,34 +93,6 @@ var loggedIn = false;
 
 var followingListString = localStorage.followingList
 
-// port = chrome.runtime.connect(null, {name: 'hi'}); 
-// console.log(port)
-
-// chrome.runtime.onConnect.addListener(function(port){
-//   console.log('connected ', port);
-
-//   if (port.name === 'hi') {
-//       port.onMessage.addListener(function(request, sender, sendResponse){
-//       console.log('test here')
-//       if(request.functsionName == 'setLogin'){
-//         loggedIn = true;
-//         sendResponse({result: 'done'})
-//         alert(request.accountName)
-//       }
-//     })
-//   }
-// });
-// functionName: 'setLogin', accountName: accountName
-  
-
-// chrome.runtime.onMessage.addListener(function(request, sender, sendResponse){
-//   console.log('test here')
-//   if(request.functsionName == 'setLogin'){
-//     loggedIn = true;
-//     sendResponse({result: 'done'})
-//     alert(request.accountName)
-//   }
-// })
 
 
 window.addEventListener('storage', (e) => {
@@ -1288,6 +1263,9 @@ function setLocalStorage(){
 
 
 function addToxicityModal(accountFlaggedTweets, screen_name){
+  if(document.getElementById('toxicModal') != null){
+    document.getElementById('toxicModal').remove()
+  }
   var modal = document.createElement('div');
   modal.id = 'toxicModal'
   modal.classList.add('modal')
@@ -1343,6 +1321,9 @@ function addToxicityModal(accountFlaggedTweets, screen_name){
 
 
 function addCredibilityModal(accountUncredibleTweets, screen_name){
+  if(document.getElementById('credModal') != null){
+    document.getElementById('credModal').remove()
+  }
   var modal = document.createElement('div');
   modal.id = 'credModal'
   modal.classList.add('modal')

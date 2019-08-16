@@ -1,6 +1,6 @@
 
-var URL_HEADER = 'https://twitter-shield.si.umich.edu'
-// var URL_HEADER = 'http://127.0.0.1:8000'
+// var URL_HEADER = 'https://twitter-shield.si.umich.edu'
+var URL_HEADER = 'http://127.0.0.1:8000'
 
 document.addEventListener('DOMContentLoaded', function () {
   console.log('event listener for popup')
@@ -67,8 +67,6 @@ function skipLogin() {
       console.log(result.accountName)
       console.log('skip log in')
   if(result.accountName != null) {
-    console.log('NOT NULLLLLLL')
-    
       chrome.storage.local.get(['accountName'], function(result) {
       console.log(result)
     });
@@ -89,14 +87,12 @@ function setAccountHandle(){
       chrome.tabs.executeScript({file: "js/alert.js", allFrames: true}, function(result) {
         console.log("DONENENE")
         console.log(result)
+                                             
 
       });
   });
-
   
-  renderLogin();
-  addSliders();                                          
-
+ 
 }
 
 
