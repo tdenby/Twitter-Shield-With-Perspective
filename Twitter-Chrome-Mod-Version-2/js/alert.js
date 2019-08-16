@@ -74,7 +74,7 @@ function showModal(){
 
     var modalContent =  document.createElement('div');
     modalContent.classList.add('modal-content')
-    modalContent.style = "border: 1px solid #888; font-size: 20px; position: relative; background-color: white; width: 60%; height: 20%; border-radius: 5px;"
+    modalContent.style = "border: 1px solid #888; font-size: 22px; position: relative; background-color: white; width: 55%; height: 16%; border-radius: 5px;"
 
     var closeButton = document.createElement('span');
     closeButton.classList.add('close')
@@ -82,7 +82,7 @@ function showModal(){
     modalContent.append(closeButton)
     modal.append(modalContent)
 
-    modalContent.innerText = 'We are storing the list of accounts that you follow on your browser. \nPlease wait about 10 seconds.\nThis popup will disappear automatically once finished. :)'
+    modalContent.innerHTML = 'We are storing the list of accounts that you follow on your browser. <br> Please wait about 10 seconds. <br> This popup will <b>disappear automatically</b> once finished. :)'
 
     document.getElementsByTagName('body')[0].appendChild(modal)
     modal.style.display='block'
