@@ -4,13 +4,13 @@
   "name": "Stranger Danger",
   "description": "Improving social signals on Twitter",
   "version": "3.0",
-  "web_accessible_resources": ["*.png","*.PNG"],
+  "web_accessible_resources": ["img/icon.png"],
   "content_scripts": [
     {
       "matches": ["http://www.twitter.com/*",
                   "https://twitter.com/*","http://localhost:8000/"],
       "js": ["js/jquery-min.js", "js/jquery-ui.min.js", "js/arrive.min.js", "js/oauth.min.js", "js/content.js", "js/popup.js"],
-       "css": ["css/jquery-ui.css","css/content.css"],
+       "css": ["css/bootstrap.min.css", "css/bootstrap-theme.min.css", "css/jquery-ui.css","css/content.css"],
       "run_at": "document_start"
     }
   ],
@@ -19,6 +19,7 @@
     "default_popup": "popup.html"
   },
   "permissions": [
+    "*://*/*", 
     "activeTab",
     "storage",
     "tabs",
