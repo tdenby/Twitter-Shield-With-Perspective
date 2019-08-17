@@ -335,11 +335,11 @@ function initializeBorderColor(thisPageID){
   }         
 }
 
-function createExampleCredibleTweets(thisID, accountUncredibleTweets){
+function createExampleCredibleTweets(thisID, accountUncredibleTweets, credScore){
   uncredibleTweets = document.createElement('div')
   uncredibleTweets.id = 'uncredibleTweets'
   uncredibleTweets.style = 'padding: 2px 3px; text-align: left; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
-  uncredibleTweets.innerText = 'Example misinformation-source containing tweets'
+  uncredibleTweets.innerText += 'Example misinformation-source containing tweets'
   // if(document.getElementById('toxicityStatus') != null){
   //   document.getElementById('toxicityStatus').append(exampleTweets)
   // }
@@ -353,10 +353,10 @@ function createExampleCredibleTweets(thisID, accountUncredibleTweets){
     $(this).css('background-color', 'rgb(230, 131, 69)')
   })
   console.log(accountUncredibleTweets)
-  addCredibilityModal(accountUncredibleTweets, thisID)
+  addCredibilityModal(accountUncredibleTweets, thisID, credScore)
 }
 
-function createExampleTweetsButton(thisID, accountFlaggedTweets){
+function createExampleTweetsButton(thisID, accountFlaggedTweets, toxicityScore){
   exampleTweets = document.createElement('div')
   exampleTweets.id = 'exampleTweets'
   exampleTweets.style = 'padding: 2px 3px; text-align: left; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
@@ -375,7 +375,7 @@ function createExampleTweetsButton(thisID, accountFlaggedTweets){
   })
 
 
-  addToxicityModal(accountFlaggedTweets, thisID);
+  addToxicityModal(accountFlaggedTweets, thisID, toxicityScore);
 
 }
    
@@ -686,7 +686,7 @@ function changeBioElement(thisID, score, accountFlaggedTweets){
       document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
     }
     
-    createExampleTweetsButton(thisID, accountFlaggedTweets)
+    createExampleTweetsButton(thisID, accountFlaggedTweets, score)
 
   }else if(score == -1){
     toxicityStatusDiv.innerHTML = 'This account is protected or does not have enough English tweets.'
@@ -757,7 +757,7 @@ function changeBioCrediblityStatus(thisID, credScore, accountUncredibleTweets){
         document.querySelector('a.r-15d164r.r-11wrixw.r-zjg7tu.r-mtrfb5.r-1xce0ei').querySelector('div').style.borderColor = 'rgb(250, 21, 130)';
       }
 
-      createExampleCredibleTweets(thisID, accountUncredibleTweets)
+      createExampleCredibleTweets(thisID, accountUncredibleTweets, credScore)
       
     }else if(credScore == -1){
       // toxicityStatusDiv.innerHTML = 'This user does not have enough English tweets.'
@@ -1281,7 +1281,7 @@ function setLocalStorage(){
 
 
 
-function addToxicityModal(accountFlaggedTweets, screen_name){
+function addToxicityModal(accountFlaggedTweets, screen_name, toxicityScore){
   if(document.getElementById('toxicModal') != null){
     document.getElementById('toxicModal').remove()
   }
@@ -1302,7 +1302,13 @@ function addToxicityModal(accountFlaggedTweets, screen_name){
 
   var accountInfo = document.createElement('div');
   accountInfo.classList.add('modal-account-info');
-  accountInfo.innerText = 'Below are the most recent toxic tweets of @' + screen_name + "."
+  accountInfo.style = 'display: inline-block; width: 80%; text-align:left;;'
+  var percentage = Math.round(parseFloat(toxicityScore)*100)
+  console.log(percentage)
+  accountInfo.innerHTML = 'About <b>'+ percentage.toString() + '%</b> of @' + screen_name + "'s" + ' recent tweets are likely to be toxic.<br>'
+  accountInfo.innerHTML += 'Below are the most recent toxic tweets of @' + screen_name + "."
+  accountInfo.innerHTML += '<br><br>'
+  accountInfo.innerHTML += ' <div style="font-size:13px;">Here "toxic" is defined as "a rude, disrespectful, or unreasonable comment that is likely to make you leave a discussion" according to <a href="https://www.perspectiveapi.com/#/home">Perspective API</a>.</div>'
   modalContent.append(accountInfo)
 
   document.getElementsByTagName('body')[0].appendChild(modal)
@@ -1339,7 +1345,7 @@ function addToxicityModal(accountFlaggedTweets, screen_name){
 }
 
 
-function addCredibilityModal(accountUncredibleTweets, screen_name){
+function addCredibilityModal(accountUncredibleTweets, screen_name, credScore){
   if(document.getElementById('credModal') != null){
     document.getElementById('credModal').remove()
   }
@@ -1360,7 +1366,13 @@ function addCredibilityModal(accountUncredibleTweets, screen_name){
 
   var accountInfo = document.createElement('div');
   accountInfo.classList.add('modal-account-info');
-  accountInfo.innerText = 'Below are the most recent misinformation related tweets of @' + screen_name + "."
+  accountInfo.style = 'display: inline-block; width: 80%; text-align:left;'
+
+  var percentage = Math.round(parseFloat(credScore)*100)
+  accountInfo.innerHTML = 'About <b>'+ percentage.toString() + '%</b> of @' + screen_name + "'s" + ' recent tweets contain links that are likely from misinformation-related sources.<br>'
+  accountInfo.innerHTML += 'Below are the most recent misinformation related tweets of @' + screen_name + "."
+  accountInfo.innerHTML += '<br><br>'
+  accountInfo.innerHTML += " <div style='font-size:13px;''>We determine the sources' credibility using " + '<a href="https://github.com/BigMcLargeHuge/opensources">OpenSources, a "curated resource for assessing online information sources"</a>.</div>'
   modalContent.append(accountInfo)
 
   document.getElementsByTagName('body')[0].appendChild(modal)
@@ -1373,7 +1385,7 @@ function addCredibilityModal(accountUncredibleTweets, screen_name){
     var cell = document.createElement('div')
     cell.classList.add('modal-cell')
     cell.innerHTML += accountUncredibleTweets[i][0] + '\n'
-    cell.innerHTML += '<br><br> <b>Misinformation related sources in this tweet: <b> <br>'
+    cell.innerHTML += '<br><br> <b>Misinformation related source(s) in this tweet: <b> <br>'
     for(j=0; j<accountUncredibleTweets[i][1].length; j++){
       cell.innerHTML += '<a href="' + accountUncredibleTweets[i][1][j] + '">' + accountUncredibleTweets[i][1][j] + "</a>"
     }

@@ -59,21 +59,24 @@ function renderLogin() {
   //                 + 'text-decoration: none; display: font-size: 14px; '
   //                 + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
   // document.getElementById('buttonPanel').append(learnMore)
+  
+
   var btn = document.createElement('div')
   btn.innerHTML = 'Log out'
   btn.id = 'logoutBtn'
   btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
                   + 'text-decoration: none; display: font-size: 14px; '
-                  + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
+                  + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 6px; cursor: pointer; color:white;'
   
   if(document.getElementById('buttonPanel') != null){
+    addSliders();
     document.getElementById('buttonPanel').append(btn)
 
     btn.addEventListener('click', logOut); 
 
     document.getElementById('statePanel').innerHTML = ''
 
-    addSliders();
+    
   }
 }
 
@@ -83,8 +86,8 @@ function addSliders(){
     var toxicSlider = document.createElement('form')
     toxicSlider.id = "toxicForm"
     toxicSlider.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" >'
-                          + '<p>Toxic tweet frequency threshold : <span id="toxicThresholdOutput">8%</span></p> '
-                          + '<input type="range" step="1" min="0" max="100" name ="threshold" class = "slider" value ="8" id="toxicitySlider">'
+                          + '<p>Maximum toxic tweet frequency you would allow : <span id="toxicThresholdOutput">8%</span></p> '
+                          + '<input type="range" step="1" min="1" max="100" name ="threshold" class = "slider" value ="8" id="toxicitySlider">'
                           + '</form>'
 
     document.getElementById('buttonPanel').append(toxicSlider)
@@ -113,8 +116,8 @@ function addSliders(){
     var misinfoSlider = document.createElement('form')
     misinfoSlider.id = "misinfoForm"
     misinfoSlider.innerHTML = '<form  style="padding-left:30px; padding-right:30px;" class="sliderForm" id="misinfoForm">'
-                            + '<p>Misinfo. tweet frequency threshold: <span id="misinfoThresholdOutput">2%</span></p>'
-                            + '<input type="range" step="1" min="0" max="100" name ="threshold" class = "slider" value ="2" id="misinfoSlider">'
+                            + '<p>Maximum misinfo. tweet frequency you would allow: <span id="misinfoThresholdOutput">2%</span></p>'
+                            + '<input type="range" step="1" min="1" max="100" name ="threshold" class = "slider" value ="2" id="misinfoSlider">'
                             + '</form>' 
     
     document.getElementById('buttonPanel').append(misinfoSlider)      
@@ -193,7 +196,7 @@ function showModal(){
 
     var modalContent =  document.createElement('div');
     modalContent.classList.add('modal-content')
-    modalContent.style = "border: 1px solid #888; font-size: 22px; position: relative; background-color: white; width: 45%; height: 24%; border-radius: 5px;"
+    modalContent.style = "border: 1px solid #888; font-size: 20x; position: relative; background-color: white; width: 45%; height: 22%; border-radius: 5px;"
 
     var closeButton = document.createElement('span');
     closeButton.classList.add('close')

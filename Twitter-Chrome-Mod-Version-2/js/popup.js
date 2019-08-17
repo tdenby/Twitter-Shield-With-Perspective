@@ -31,16 +31,19 @@ function renderLogin() {
   btn.id = 'logoutBtn'
   btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
                   + 'text-decoration: none; display: font-size: 14px; '
-                  + 'margin-left:15px; margin-right:15px; margin-top:3px; margin-bottom: 3px; cursor: pointer; color:white;'
+                  + 'margin-left:15px; margin-right:15px; margin-top:32px; margin-bottom: 6px; cursor: pointer; color:white;'
   
   if(document.getElementById('buttonPanel') != null){
+
+    addSliders();
+
     document.getElementById('buttonPanel').append(btn)
 
     btn.addEventListener('click', logOut); 
 
     document.getElementById('statePanel').innerHTML = ''
 
-    addSliders();
+    
   }
 }
 
@@ -114,11 +117,12 @@ function addSliders(){
     var toxicSlider = document.createElement('form')
     toxicSlider.id = "toxicForm"
     toxicSlider.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" >'
-                          + '<p>Max percentage of toxic tweets: <span id="toxicThresholdOutput">8%</span></p> '
-                          + '<input type="range" step="1" min="0" max="100" name ="threshold" class = "slider" value ="8" id="toxicitySlider">'
+                          + '<p>Maximum <b>toxic</b> tweet frequency you would allow : <span id="toxicThresholdOutput">8%</span></p> '
+                          + '<input type="range" step="1" min="1" max="100" name ="threshold" class = "slider" value ="8" id="toxicitySlider">'
                           + '</form>'
 
     document.getElementById('buttonPanel').append(toxicSlider)
+    var thisSlider = document.getElementById('toxicitySlider')
 
     document.getElementById('toxicitySlider').onchange = function updateToxicInput(res) {
       console.log(res.target.value)
@@ -126,50 +130,103 @@ function addSliders(){
       chrome.storage.local.set({'toxicThreshold': parseInt(res.target.value)*0.01}, function(){
         console.log('set toxic')
       })
+
+      var thisSlider = document.getElementById('toxicitySlider')
+      var val = (res.target.value - res.target.min) / (res.target.max - res.target.min);
+      console.log(val)
+      thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
+                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', #ea0505a8)'
+                + ')'
     }
 
     chrome.storage.local.get(['toxicThreshold'], function(result) {
+      var thisSlider = document.getElementById('toxicitySlider')
       if(result.toxicThreshold != null){
         document.getElementById('toxicThresholdOutput').innerText = Math.trunc(result.toxicThreshold * 100) +'%'
         document.getElementById('toxicitySlider').value = Math.trunc(result.toxicThreshold * 100)
+
+        var val = (Math.trunc(result.toxicThreshold * 100) - thisSlider.min) / (thisSlider.max - thisSlider.min);
+        console.log(val)
+        thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
+                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', #ea0505a8)'
+                + ')'
       }else{
         document.getElementById('toxicThresholdOutput').innerText = '8%'
         document.getElementById('toxicitySlider').value = 8
+
+        var toxicDefault = 8
+        var val = (toxicDefault - thisSlider.min) / (thisSlider.max - thisSlider.min);
+        console.log(val)
+        thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
+                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', #ea0505a8)'
+                + ')'
       }
       
     });
   }
   
-  if(document.getElementById('misinfoForm') == null){
+  /*if(document.getElementById('misinfoForm') == null){
     var misinfoSlider = document.createElement('form')
     misinfoSlider.id = "misinfoForm"
-    misinfoSlider.innerHTML = '<form  style="padding-left:30px; padding-right:30px;" class="sliderForm" id="misinfoForm">'
-                            + '<p>Max percentage of tweets with potential misinformation: <span id="misinfoThresholdOutput">2%</span></p>'
-                            + '<input type="range" step="1" min="0" max="100" name ="threshold" class = "slider" value ="2" id="misinfoSlider">'
+    misinfoSlider.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" id="misinfoForm">'
+                            + '<p>Maximum <b>misinfo.</b> tweet frequency you would allow: <span id="misinfoThresholdOutput">2%</span></p>'
+                            + '<input type="range" step="1" min="1" max="100" name ="threshold" class = "slider" value ="2" id="misinfoSlider">'
                             + '</form>' 
     
     document.getElementById('buttonPanel').append(misinfoSlider)      
-          
+    var thisSlider = document.getElementById('misinfoSlider')
     
     document.getElementById('misinfoSlider').onchange = function updateMisinfoInput(res) {
       document.getElementById('misinfoThresholdOutput').innerHTML = res.target.value +'%'; 
       chrome.storage.local.set({'misinfoThreshold': parseInt(res.target.value)*0.01}, function(){
         console.log('set misinfo')
       })
+      var val = (res.target.value - res.target.min) / (res.target.max - res.target.min);
+      console.log(val)
+      thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
+                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', #ea0505a8)'
+                + ')'
     }
     chrome.storage.local.get(['misinfoThreshold'], function(result) {
       if(result.misinfoThreshold != null){
         document.getElementById('misinfoThresholdOutput').innerText = Math.trunc(result.misinfoThreshold * 100) +'%'
         document.getElementById('misinfoSlider').value = Math.trunc(result.misinfoThreshold * 100)
+        
+        var val = (Math.trunc(result.misinfoThreshold * 100) - thisSlider.min) / (thisSlider.max - thisSlider.min);
+        thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
+                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', #ea0505a8)'
+                + ')'
       }else{
         document.getElementById('misinfoThresholdOutput').innerText = '2%'
         document.getElementById('misinfoSlider').value = 2
+        
+        var misinfoDefault = 2
+        var val = (misinfoDefault - thisSlider.min) / (thisSlider.max - thisSlider.min);
+        thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
+                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', #ea0505a8)'
+                + ')'
       }
       
-      console.log(result.misinfoThreshold)
     });
 
   }
+  // console.log('change color')
+  // $('input[type="range"]').change(function () {
+  //   var val = ($(this).val() - $(this).attr('min')) / ($(this).attr('max') - $(this).attr('min'));
+    
+  //   $(this).css('background-image',
+  //               '-webkit-gradient(linear, left top, right top, '
+  //               + 'color-stop(' + val + ', #94A14E), '
+  //               + 'color-stop(' + val + ', #C5C5C5)'
+  //               + ')'
+  //               );
+  // });
 }
 
 function removeSliders(){
@@ -190,7 +247,7 @@ function init(){
   sliderfills = document.querySelectorAll(".sliderfill");
   thumbs = document.querySelectorAll(".sliderthumb");
   slidervalues = document.querySelectorAll(".slidervalue");
-  /* We need to change slider appearance to respond to both input and change events. */
+  /* We need to change slider appearance to respond to both input and change events. */ /*
   for (let i=0;i<sliders.length;i++){
     sliders[i].addEventListener("input",function(e){updateSlider(i,sliders[i].value);});
     sliders[i].addEventListener("change",function(e){updateSlider(i,sliders[i].value);});
@@ -231,4 +288,4 @@ ${alphafillcolor} ${val}%,
 rgba(255,255,255,0.1) ${Number(val) + 1}%, 
 rgba(255,255,255,0)  100%)`;
   elem.style.backgroundImage = gradient;
-}
+}*/

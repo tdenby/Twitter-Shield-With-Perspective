@@ -49,14 +49,29 @@ h3 {
   -webkit-transition: .2s;
   transition: opacity .2s;
 }
-
+/*
+input[type="range"]{
+    background-image: -webkit-gradient(
+        linear,
+        left top,
+        right top,
+        color-stop(0.08, #94A14E),
+        color-stop(0.08, #ea0505a8)
+    );
+}*/
+/*
+input[type='range']::-webkit-slider-thumb {
+    -webkit-appearance: none !important;
+    background-color: #E9E9E9;
+}
+*/
 #toxicitySlider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 25px;
   height: 25px;
   border-radius: 50%; 
-  background: #ca3e3eb0;
+  background: rgba(208, 26, 26);
   cursor: pointer;
 }
 
@@ -66,7 +81,7 @@ h3 {
   width: 25px;
   height: 25px;
   border-radius: 50%; 
-  background: rgb(230, 131, 69);
+  background: rgb(252, 119, 36, 1);
   cursor: pointer;
 }
 
