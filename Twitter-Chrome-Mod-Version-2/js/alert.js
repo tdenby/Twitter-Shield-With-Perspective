@@ -193,7 +193,7 @@ function showModal(){
 
     var modalContent =  document.createElement('div');
     modalContent.classList.add('modal-content')
-    modalContent.style = "border: 1px solid #888; font-size: 22px; position: relative; background-color: white; width: 55%; height: 32%; border-radius: 5px;"
+    modalContent.style = "border: 1px solid #888; font-size: 22px; position: relative; background-color: white; width: 45%; height: 24%; border-radius: 5px;"
 
     var closeButton = document.createElement('span');
     closeButton.classList.add('close')

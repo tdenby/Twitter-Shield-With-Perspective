@@ -338,8 +338,8 @@ function initializeBorderColor(thisPageID){
 function createExampleCredibleTweets(thisID, accountUncredibleTweets){
   uncredibleTweets = document.createElement('div')
   uncredibleTweets.id = 'uncredibleTweets'
-  uncredibleTweets.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
-  uncredibleTweets.innerText = 'Example misinfo. tweets'
+  uncredibleTweets.style = 'padding: 2px 3px; text-align: left; border-radius: 8px; background-color: rgb(230, 131, 69); text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  uncredibleTweets.innerText = 'Example misinformation-source containing tweets'
   // if(document.getElementById('toxicityStatus') != null){
   //   document.getElementById('toxicityStatus').append(exampleTweets)
   // }
@@ -359,7 +359,7 @@ function createExampleCredibleTweets(thisID, accountUncredibleTweets){
 function createExampleTweetsButton(thisID, accountFlaggedTweets){
   exampleTweets = document.createElement('div')
   exampleTweets.id = 'exampleTweets'
-  exampleTweets.style = 'padding: 2px 3px; text-align: center; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
+  exampleTweets.style = 'padding: 2px 3px; text-align: left; border-radius: 8px; background-color: #ca3e3eb0; text-decoration: none; display: inline-block; font-size: 0.8em; margin-right:10px; cursor: pointer; color:white;'
   exampleTweets.innerText = 'Example toxic tweets'
   // if(document.getElementById('toxicityStatus') != null){
   //   document.getElementById('toxicityStatus').append(exampleTweets)
