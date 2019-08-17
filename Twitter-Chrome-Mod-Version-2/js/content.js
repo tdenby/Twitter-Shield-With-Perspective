@@ -33,7 +33,7 @@ var ignoreURLs = ["https://twitter.com/i/bookmarks",
                 "/lists", "https://twitter.com/messages",
                 "https://twitter.com/explore", "/status/", 
                 "/home", "notifications", 
-                "/compose/tweet"
+                "/compose/tweet", '/search?q'
                 ]
 
 // var notificationQueueString = localStorage.notificationQueue
@@ -622,6 +622,10 @@ function visualizeStatusNewTwitter(status){
     toxicityStatusDiv.innerHTML = 'This account cannot be analyzed due to API limitation.';
     toxicityStatusDiv.style.color = 'rgba(242,29,50,1.00)';
 
+  }else if (status == 'LAG'){
+    console.log("LAG")
+    toxicityStatusDiv.innerHTML = ' Pending... '
+    toxicityStatusDiv.style.color = 'rgba(29,161,242,1.00)';
   }else{
     // statusDiv.innerHTML = status + ' stored'
     toxicityStatusDiv.innerHTML = ' Pending... '
