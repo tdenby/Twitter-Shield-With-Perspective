@@ -30,7 +30,7 @@ function logIn(callback){
         alert("Please refresh the page and try logging in again when the page has fully loaded.")
       }
     }
-    },700);
+    },650);
     
   }
   callback();
@@ -150,42 +150,37 @@ function getFollowingList(oauth_token, oauth_token_secret){
   localStorage.setItem('followingList', JSON.stringify(followingList))
 
   console.log('following list')
-  if(accountName in followingList){
-    console.log('already in')
-    chrome.storage.local.set({'accountName': accountName}, function(){
-      console.log('set!!!!!!!!!!!!!!!!!')
-    })
-  }else{
-    showModal()
-    var url = URL_HEADER + "/get_following?oauth_token=" + oauth_token + '&oauth_token_secret=' + oauth_token_secret
-    var request = new XMLHttpRequest();
-    request.onreadystatechange = function(){
-        if (request.readyState == 4 && request.status == 200){
-            console.log('returned: ' + request.responseText)
-            console.log(request.responseText)
-            var response_json = JSON.parse(request.responseText);
-            //flagged_tweets = response_json.flagged_tweets
-            var accountName = response_json['account_name']
-            localStorage.setItem('accountName', accountName)
-            var thisFollowing = response_json['following']
-            followingList[accountName] = thisFollowing
-            localStorage.setItem('followingList', JSON.stringify(followingList))
-            console.log(followingList)
-            document.getElementById('alertModal').style.display='none'
-            chrome.storage.local.set({'accountName': accountName}, function(){
-              console.log('set!!!!!!!!!!!!!!!!!')
-            })
-            return response_json['account_name']
-        }
-    };
-    request.open('GET', url);
-    request.send();
+
+  showModal()
+  var url = URL_HEADER + "/get_following?oauth_token=" + oauth_token + '&oauth_token_secret=' + oauth_token_secret
+  var request = new XMLHttpRequest();
+  request.onreadystatechange = function(){
+      if (request.readyState == 4 && request.status == 200){
+          console.log('returned: ' + request.responseText)
+          console.log(request.responseText)
+          var response_json = JSON.parse(request.responseText);
+          //flagged_tweets = response_json.flagged_tweets
+          var accountName = response_json['account_name']
+          localStorage.setItem('accountName', accountName)
+          var thisFollowing = response_json['following']
+          followingList[accountName] = thisFollowing
+          localStorage.setItem('followingList', JSON.stringify(followingList))
+          console.log(followingList)
+          document.getElementById('alertModal').style.display='none'
+          chrome.storage.local.set({'accountName': accountName}, function(){
+            console.log('set!!!!!!!!!!!!!!!!!')
+          })
+          return response_json['account_name']
+      }
+  };
+  request.open('GET', url);
+  request.send();
 
 
 
-  }
-  
 }
+
+
 
 
 function showModal(){
