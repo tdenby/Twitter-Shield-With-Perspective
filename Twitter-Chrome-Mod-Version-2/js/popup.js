@@ -135,7 +135,7 @@ function addSliders(){
       var val = (res.target.value - res.target.min) / (res.target.max - res.target.min);
       console.log(val)
       thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
-                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', rgb(42, 190, 14, 0.58)), '
                 + 'color-stop(' + val + ', #ea0505a8)'
                 + ')'
     }
@@ -149,7 +149,7 @@ function addSliders(){
         var val = (Math.trunc(result.toxicThreshold * 100) - thisSlider.min) / (thisSlider.max - thisSlider.min);
         console.log(val)
         thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
-                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', rgb(42, 190, 14, 0.58)), '
                 + 'color-stop(' + val + ', #ea0505a8)'
                 + ')'
       }else{
@@ -160,7 +160,7 @@ function addSliders(){
         var val = (toxicDefault - thisSlider.min) / (thisSlider.max - thisSlider.min);
         console.log(val)
         thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
-                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ', rgb(42, 190, 14, 0.58)), '
                 + 'color-stop(' + val + ', #ea0505a8)'
                 + ')'
       }
@@ -187,7 +187,7 @@ function addSliders(){
       var val = (res.target.value - res.target.min) / (res.target.max - res.target.min);
       console.log(val)
       thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
-                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ',  rgb(42, 190, 14, 0.58)), '
                 + 'color-stop(' + val + ', #ea0505a8)'
                 + ')'
     }
@@ -198,7 +198,7 @@ function addSliders(){
         
         var val = (Math.trunc(result.misinfoThreshold * 100) - thisSlider.min) / (thisSlider.max - thisSlider.min);
         thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
-                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ',  rgb(42, 190, 14, 0.58)), '
                 + 'color-stop(' + val + ', #ea0505a8)'
                 + ')'
       }else{
@@ -208,7 +208,7 @@ function addSliders(){
         var misinfoDefault = 2
         var val = (misinfoDefault - thisSlider.min) / (thisSlider.max - thisSlider.min);
         thisSlider.style.backgroundImage = '-webkit-gradient(linear, left top, right top, '
-                + 'color-stop(' + val + ', #94A14E), '
+                + 'color-stop(' + val + ',  rgb(42, 190, 14, 0.58)), '
                 + 'color-stop(' + val + ', #ea0505a8)'
                 + ')'
       }
