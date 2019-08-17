@@ -74,7 +74,7 @@ var notEnoughTweetsBorderStyle = '';
 
 var toxicityStatusDiv = '';
 
-var TWEET_TOXIC_BOUNDARY = 0.9
+var TWEET_TOXIC_BOUNDARY = 0.8
 
 var TOXIC_BOUNDARY;
 var CRED_BOUNDARY;
