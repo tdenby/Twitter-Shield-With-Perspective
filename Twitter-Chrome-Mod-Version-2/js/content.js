@@ -20,8 +20,8 @@ Paiju Chang
 // call checkForJS_Finish() as init()
 // window.onload = checkForJS_Finish()
 
-var URL_HEADER = 'http://127.0.0.1:8000'
-// var URL_HEADER = 'https://twitter-shield.si.umich.edu'
+// var URL_HEADER = 'http://127.0.0.1:8000'
+var URL_HEADER = 'https://twitter-shield.si.umich.edu'
 
 var userID;
 var accountName='';
