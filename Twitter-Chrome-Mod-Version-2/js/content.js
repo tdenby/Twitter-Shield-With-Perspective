@@ -1373,7 +1373,7 @@ function addCredibilityModal(accountUncredibleTweets, screen_name){
     var cell = document.createElement('div')
     cell.classList.add('modal-cell')
     cell.innerHTML += accountUncredibleTweets[i][0] + '\n'
-    cell.innerHTML += '<br><br> <b>Misinformation related sources in this tweet: <b> <br>'
+    cell.innerHTML += '<br><br> <b>Misinformation related source(s) in this tweet: <b> <br>'
     for(j=0; j<accountUncredibleTweets[i][1].length; j++){
       cell.innerHTML += '<a href="' + accountUncredibleTweets[i][1][j] + '">' + accountUncredibleTweets[i][1][j] + "</a>"
     }
