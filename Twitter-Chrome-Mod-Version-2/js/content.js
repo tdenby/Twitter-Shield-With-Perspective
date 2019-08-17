@@ -1308,7 +1308,7 @@ function addToxicityModal(accountFlaggedTweets, screen_name, toxicityScore){
   accountInfo.innerHTML = 'About <b>'+ percentage.toString() + '%</b> of @' + screen_name + "'s" + ' recent tweets are likely to be toxic.<br>'
   accountInfo.innerHTML += 'Below are the most recent toxic tweets of @' + screen_name + "."
   accountInfo.innerHTML += '<br><br>'
-  accountInfo.innerHTML += ' <div style="font-size:13px;">Here "toxic" is defined as "a rude, disrespectful, or unreasonable comment that is likely to make you leave a discussion" according to <a href="https://www.perspectiveapi.com/#/home">Perspective API</a>.</div>'
+  accountInfo.innerHTML += ' <div style="font-size:13px;">Here "toxic" is defined as "a rude, disrespectful, or unreasonable comment that is likely to make you leave a discussion" according to <a href="https://www.perspectiveapi.com/#/home" target="_blank">Perspective API</a>.</div>'
   modalContent.append(accountInfo)
 
   document.getElementsByTagName('body')[0].appendChild(modal)
@@ -1372,7 +1372,7 @@ function addCredibilityModal(accountUncredibleTweets, screen_name, credScore){
   accountInfo.innerHTML = 'About <b>'+ percentage.toString() + '%</b> of @' + screen_name + "'s" + ' recent tweets contain links that are likely from misinformation-related sources.<br>'
   accountInfo.innerHTML += 'Below are the most recent misinformation related tweets of @' + screen_name + "."
   accountInfo.innerHTML += '<br><br>'
-  accountInfo.innerHTML += " <div style='font-size:13px;''>We determine the sources' credibility using " + '<a href="https://github.com/BigMcLargeHuge/opensources">OpenSources, a "curated resource for assessing online information sources"</a>.</div>'
+  accountInfo.innerHTML += " <div style='font-size:13px;''>We determine the sources' credibility using " + '<a href="https://github.com/BigMcLargeHuge/opensources" target="_blank">OpenSources, a "curated resource for assessing online information sources"</a>.</div>'
   modalContent.append(accountInfo)
 
   document.getElementsByTagName('body')[0].appendChild(modal)
@@ -1380,7 +1380,7 @@ function addCredibilityModal(accountUncredibleTweets, screen_name, credScore){
   // Get the button that opens the modal
   var btn = document.getElementById("credSpan");
 
-  // Get the <span> element that closes the modal
+  // Get the <span> element that closes the modals
   for(i=0; i<accountUncredibleTweets.length; i++){
     var cell = document.createElement('div')
     cell.classList.add('modal-cell')
