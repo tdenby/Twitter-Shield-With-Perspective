@@ -4,13 +4,13 @@
   "name": "Stranger Danger",
   "description": "Improving social signals on Twitter",
   "version": "3.0",
-  "web_accessible_resources": ["*.png","*.PNG"],
+  "web_accessible_resources": ["img/icon.png", "js/oauth.min.js"],
   "content_scripts": [
     {
-      "matches": ["http://www.twitter.com/*",
-                  "https://twitter.com/*","http://localhost:8000/"],
+      "matches": ["http://www.twitter.com/*", "https://www.twitter.com/*",
+                  "http://twitter.com/*", "https://twitter.com/*"],
       "js": ["js/jquery-min.js", "js/jquery-ui.min.js", "js/arrive.min.js", "js/oauth.min.js", "js/content.js", "js/popup.js"],
-       "css": ["css/jquery-ui.css","css/content.css"],
+       "css": ["css/bootstrap.min.css", "css/bootstrap-theme.min.css", "css/jquery-ui.css","css/content.css"],
       "run_at": "document_start"
     }
   ],
@@ -19,6 +19,7 @@
     "default_popup": "popup.html"
   },
   "permissions": [
+    "*://*/*", 
     "activeTab",
     "storage",
     "tabs",
@@ -29,7 +30,9 @@
   ],
 
   "background": {
-    "page" : "background.html"
+    "scripts": ["js/background.js"]
   },
-  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads https://oauth.io https://ssl.google-analytics.com; object-src *; image-src * https://stats.g.doubleclick.net https://www.google.com/ads; data: *"
+  "content_security_policy": "script-src 'self' https://*.twimg.com https://cm.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads https://oauth.io https://ssl.google-analytics.com; object-src *; image-src www.google-analytics.com stats.g.doubleclick.net https://stats.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads; connect-src www.google-analytics.com stats.g.doubleclick.net https://stats.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads; data: *"
+
 }
+

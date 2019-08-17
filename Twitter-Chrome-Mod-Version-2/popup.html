@@ -14,17 +14,21 @@
     -->
     <!-- <script src="https://cdn.rawgit.com/oauth-io/oauth-js/c5af4519/dist/oauth.js"></script> -->
     
-    <link rel="stylesheet" href="css/popup.css">
+    
 
-    <meta http-equiv="Content-Security-Policy" content="default-src *; img-src * https://stats.g.doubleclick.net https://www.google.com/ads; data: * ; style-src 'self' http://* 'unsafe-inline'; script-src *  https://stats.g.doubleclick.net 'unsafe-inline' 'unsafe-eval'" >
+    <meta http-equiv="Content-Security-Policy" content="default-src *; img-src www.google-analytics.com stats.g.doubleclick.net https://stats.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads ; style-src 'self' 'unsafe-inline'; connect-src www.google-analytics.com stats.g.doubleclick.net https://stats.g.doubleclick.net https://stats.g.doubleclick.net https://www.google.com/ads; script-src *  https://stats.g.doubleclick.net 'unsafe-inline' 'unsafe-eval'" >
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
+    
+    <script type="text/javascript" src="js/oauth.min.js"></script>
+
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/popup.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
 
     <!-- Optional theme -->
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
 
 
     
@@ -44,8 +48,7 @@
 
           Improving social signals on Twitter!
           <br>
-          <a href="https://docs.google.com/document/d/12ddWNmd7TfmdMAoxhnJtHMUE9TKOMpQ1WpIzKtlWUAM/edit?usp=sharing" target="_blank">
-          Learn how Stranger Danger works</a>
+          
           <!--Improve our Code! <a href="https://github.com/trusttri/Twitter-Shield-With-Perspective" target="_blank">Github</a>-->
       </div>
 
@@ -91,7 +94,6 @@
     
 
   </body>
-  <script type="text/javascript" src="js/oauth.min.js"></script>
   <script type="text/javascript" src="js/popup.js"></script>
 
 
