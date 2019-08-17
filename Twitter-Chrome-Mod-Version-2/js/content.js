@@ -124,6 +124,8 @@ chrome.storage.onChanged.addListener(function(changes, namespace){
     }else if (key=='toxicThreshold') {
       TOXIC_BOUNDARY = storageChange.newValue
       localStorage.setItem('toxicThreshold', storageChange.newValue)
+    }else if (key=='accountName'){
+      localStorage.setItem('accountName', storageChange.newValue)
     }
   }
 })
