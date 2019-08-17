@@ -117,7 +117,7 @@ function addSliders(){
     var toxicSlider = document.createElement('form')
     toxicSlider.id = "toxicForm"
     toxicSlider.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" >'
-                          + '<p>Maximum <b>toxic</b> tweet frequency you would allow : <span id="toxicThresholdOutput">8%</span></p> '
+                          + '<p>Maximum percentage of <b>toxic</b> tweets you would like to allow: <span id="toxicThresholdOutput">8%</span></p> '
                           + '<input type="range" step="1" min="1" max="100" name ="threshold" class = "slider" value ="8" id="toxicitySlider">'
                           + '</form>'
 
@@ -168,11 +168,11 @@ function addSliders(){
     });
   }
   
-  /*if(document.getElementById('misinfoForm') == null){
+  if(document.getElementById('misinfoForm') == null){
     var misinfoSlider = document.createElement('form')
     misinfoSlider.id = "misinfoForm"
     misinfoSlider.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" id="misinfoForm">'
-                            + '<p>Maximum <b>misinfo.</b> tweet frequency you would allow: <span id="misinfoThresholdOutput">2%</span></p>'
+                            + '<p>Maximum percentage of <b>misinformation</b> tweets you would like to allow: <span id="misinfoThresholdOutput">2%</span></p>'
                             + '<input type="range" step="1" min="1" max="100" name ="threshold" class = "slider" value ="2" id="misinfoSlider">'
                             + '</form>' 
     
@@ -247,7 +247,8 @@ function init(){
   sliderfills = document.querySelectorAll(".sliderfill");
   thumbs = document.querySelectorAll(".sliderthumb");
   slidervalues = document.querySelectorAll(".slidervalue");
-  /* We need to change slider appearance to respond to both input and change events. */ /*
+  /* We need to change slider appearance to respond to both input and change events. */ 
+  
   for (let i=0;i<sliders.length;i++){
     sliders[i].addEventListener("input",function(e){updateSlider(i,sliders[i].value);});
     sliders[i].addEventListener("change",function(e){updateSlider(i,sliders[i].value);});
@@ -288,4 +289,5 @@ ${alphafillcolor} ${val}%,
 rgba(255,255,255,0.1) ${Number(val) + 1}%, 
 rgba(255,255,255,0)  100%)`;
   elem.style.backgroundImage = gradient;
-}*/
+}
+
