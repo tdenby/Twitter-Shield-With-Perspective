@@ -32,12 +32,14 @@ function renderLogin() {
   btn.style = 'padding: 2px 10px; text-align: center; border-radius: 8px; background-color: #428bca; '
                   + 'text-decoration: none; display: font-size: 14px; '
                   + 'margin-left:15px; margin-right:15px; margin-top:32px; margin-bottom: 6px; cursor: pointer; color:white;'
-  
+                
   if(document.getElementById('buttonPanel') != null){
 
-    addSliders();
+    //addSliders();
 
-    document.getElementById('buttonPanel').append(btn)
+    newAddSliders();
+
+    //document.getElementById('demo').append(btn)
 
     btn.addEventListener('click', logOut); 
 
@@ -45,6 +47,7 @@ function renderLogin() {
 
     
   }
+  document.getElementById('buttonPanel').append(btn);  
 }
 
 
@@ -229,6 +232,84 @@ function addSliders(){
   // });
 }
 
+function newAddSliders() {
+
+  var toxicHeader = document.createElement('div');
+
+  toxicHeader.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" >'
+  + '<p>Maximum percentage of <b>toxic</b> tweets you would like to allow: </p> '
+  
+
+  var toxicSliderr = document.createElement('wrapper');
+
+  toxicSliderr.innerHTML = '<div class="wrapper"  id="sliderWrapper">'
+    + '<article class="content">'
+    + '<div class="rangepresenter">'
+    + '<div class="rangewrapper horizontal">'
+    + '<div class="sliderfill">'
+    + '<input class="customrange" type="range" min="0" max="100" value="50" id="toxicSliderId">'
+    + '</div>'
+    + '<div class="sliderthumb"></div>'
+    + '<div class="slidervalue id="toxicSliderValue">80</div>'
+    + '</div>'
+    + '</div>'
+    + '</article>'
+    + '</div>';
+
+    document.getElementById('buttonPanel').append(toxicHeader);
+    document.getElementById('buttonPanel').append(toxicSliderr);
+    //document.addEventListener('DOMContentLoaded', function (e) { 
+    //  if(e.target && e.target.id== 'sliderWrapper'){
+    //    init();
+    //  }
+    //}); 
+    init();
+    //$('#demo').on('click', 'yourSelector', function()
+    document.getElementById('toxicSliderId').onchange = function updateToxicInput(res) {
+      chrome.storage.local.set({'toxicThreshold': parseInt(res.target.value)*0.01}, function(){
+        console.log('set toxicicity')
+      })
+    }
+
+    var misinfoHeader = document.createElement('div');
+
+  misinfoHeader.innerHTML = '<form style="padding-left:30px; padding-right:30px;" class="sliderForm" >'
+  + '<p>Maximum percentage of <b>misinforming</b> tweets you would like to allow: </p> '
+  
+
+  var misinfoSliderr = document.createElement('wrapper');
+
+  misinfoSliderr.innerHTML = '<div class="wrapper"  id="sliderWrapper">'
+    + '<article class="content">'
+    + '<div class="rangepresenter">'
+    + '<div class="rangewrapper horizontal">'
+    + '<div class="sliderfill">'
+    + '<input class="customrange" type="range" min="0" max="100" value="50" id="misinfoSliderId">'
+    + '</div>'
+    + '<div class="sliderthumb"></div>'
+    + '<div class="slidervalue id="misinfoSliderValue">80</div>'
+    + '</div>'
+    + '</div>'
+    + '</article>'
+    + '</div>';
+
+    document.getElementById('buttonPanel').append(misinfoHeader);
+    document.getElementById('buttonPanel').append(misinfoSliderr);
+    //document.addEventListener('DOMContentLoaded', function (e) { 
+    //  if(e.target && e.target.id== 'sliderWrapper'){
+    //    init();
+    //  }
+    //}); 
+    init();
+    //$('#demo').on('click', 'yourSelector', function()
+    document.getElementById('misinfoSliderId').onchange = function updateToxicInput(res) {
+      chrome.storage.local.set({'misinfoThreshold': parseInt(res.target.value)*0.01}, function(){
+        console.log('set misinfo')
+      })
+    }
+    
+}
+
 function removeSliders(){
   document.getElementById('toxicForm').remove()
   document.getElementById('misinfoForm').remove()
@@ -238,9 +319,11 @@ function removeSliders(){
 
 
 let sliders, sliderfills, thumbs, slidervalues;
-let initialValue = [38,50,63,88]; //initial values for the sliders
+let initialValue = [80, 80]; //initial values for the sliders
 
-document.addEventListener('DOMContentLoaded', function (e) { init();});
+ 
+//document.addEventListener('DOMContentLoaded', function (e) { init();});
+//$(document).on('DOMContentLoaded','#sliderWrapper',function(){ init();});
 
 function init(){
   sliders = document.querySelectorAll(".customrange");
