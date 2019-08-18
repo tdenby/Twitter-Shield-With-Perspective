@@ -242,7 +242,7 @@ function newAddSliders() {
 
   var toxicSliderr = document.createElement('wrapper');
 
-  toxicSliderr.innerHTML = '<div class="wrapper"  id="sliderWrapper">'
+  toxicSliderr.innerHTML = '<div class="wrapper"  id="sliderWrapperToxic">'
     + '<article class="content">'
     + '<div class="rangepresenter">'
     + '<div class="rangewrapper horizontal">'
@@ -279,7 +279,7 @@ function newAddSliders() {
 
   var misinfoSliderr = document.createElement('wrapper');
 
-  misinfoSliderr.innerHTML = '<div class="wrapper"  id="sliderWrapper">'
+  misinfoSliderr.innerHTML = '<div class="wrapper"  id="sliderWrapperMisinfo">'
     + '<article class="content">'
     + '<div class="rangepresenter">'
     + '<div class="rangewrapper horizontal">'
@@ -311,8 +311,10 @@ function newAddSliders() {
 }
 
 function removeSliders(){
-  document.getElementById('toxicForm').remove()
-  document.getElementById('misinfoForm').remove()
+  document.getElementById('sliderWrapperToxic').remove()
+  document.getElementById('sliderWrapperMisinfo').remove()
+  //document.getElementById('toxicForm').remove()
+  //document.getElementById('misinfoForm').remove()
   location.reload()
 }
 
